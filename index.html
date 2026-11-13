@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Préstamos - Diputación de León</title>
+<style>
+  :root {
+    --primary: #1e5aa8;
+    --primary-dark: #15407a;
+    --success: #2e7d32;
+    --warning: #ed6c02;
+    --danger: #d32f2f;
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  header h1 { font-size: 1.25rem; }
+  header p { font-size: 0.85rem; opacity: 0.9; }
+  nav {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  nav button {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.9rem 0.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  nav button.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  main { padding: 1rem; max-width: 1100px; margin: 0 auto; }
+  .tab { display: none; }
+  .tab.active { display: block; }
+  .card {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary-dark);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+  }
+
+  /* Grupo artículo (dashboard) */
+  .grupo-articulo {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+  }
+  .grupo-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.85rem 1rem;
+    background: #f9fafb;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: background 0.2s;
+    gap: 0.5rem;
+  }
+  .grupo-btn:hover { background: #f0f2f5; }
+  .grupo-btn .flecha {
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .grupo-btn.abierto .flecha { transform: rotate(180deg); }
+  .grupo-btn.estado-almacen { border-left: 5px solid var(--success); }
+  .grupo-btn.estado-parcial { border-left: 5px solid var(--warning); }
+  .grupo-btn.estado-averiado { border-left: 5px solid var(--danger); }
+  .grupo-contenido {
+    display: none;
+    background: white;
+    border-top: 1px solid var(--border);
+    padding: 0.5rem;
+  }
+  .grupo-contenido.abierto { display: block; }
+  .unidad-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.35rem;
+    font-size: 0.88rem;
+    gap: 0.5rem;
+  }
+  .unidad-row:last-child { margin-bottom: 0; }
+  .unidad-row.almacen { background: #f0fdf4; }
+  .unidad-row.prestado { background: #fffbeb; }
+  .unidad-row.avariado { background: #fef2f2; }
+  .unidad-row .meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .contador {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 0.5rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  button.btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  button.btn:hover { background: var(--primary-dark); }
+  button.btn.small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+  button.btn.success { background: var(--success); }
+  button.btn.danger { background: var(--danger); }
+  button.btn.warning { background: var(--warning); }
+  button.btn.secondary { background: #6b7280; }
+  button.btn.big {
+    padding: 0.75rem 1.2rem;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  .row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 150px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th, td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th { background: #f9fafb; font-weight: 600; }
+  .alert {
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+  }
+  .alert.info { background: #dbeafe; color: #1e40af; }
+  .alert.warn { background: #fef3c7; color: #92400e; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge.ok { background: #d4edda; color: var(--success); }
+  .badge.prestado { background: #fff3cd; color: #856404; }
+  .badge.danio { background: #f8d7da; color: var(--danger); }
+  .modal-bg {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h3 { margin-bottom: 1rem; color: var(--primary-dark); }
+  .campo-oculto { display: none; }
+
+  /* Tarjeta de devolución */
+  .devolucion-card {
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--warning);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: white;
+  }
+  .devolucion-card .cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+  .devolucion-card .articulo {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+  }
+  .devolucion-card .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem 1rem;
+    font-size: 0.88rem;
+    margin-bottom: 0.75rem;
+  }
+  .devolucion-card .info-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .devolucion-card .info-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .devolucion-card .info-valor {
+    font-weight: 500;
+  }
+  .devolucion-card .prevista-vencida {
+    color: var(--danger);
+    font-weight: 600;
+  }
+
+  /* Notificaciones toast */
+  #toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 360px;
+    width: calc(100% - 2rem);
+    pointer-events: none;
+  }
+  .toast {
+    pointer-events: auto;
+    background: white;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    animation: toastIn 0.3s ease-out;
+    border-left: 4px solid var(--primary);
+    font-size: 0.9rem;
+  }
+  .toast.saliendo { animation: toastOut 0.3s ease-in forwards; }
+  .toast.exito { border-left-color: var(--success); }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.aviso { border-left-color: var(--warning); }
+  .toast.info { border-left-color: var(--primary); }
+  .toast-icono {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .toast-texto { flex: 1; color: var(--text); }
+  .toast-titulo { font-weight: 600; margin-bottom: 2px; }
+  .toast-cerrar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--muted);
+    padding: 0 0.25rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .toast-cerrar:hover { color: var(--text); }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+  }
+
+  .vacio {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--muted);
+  }
+  .vacio .icono { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+  @media (max-width: 600px) {
+    .row > * { min-width: 100%; }
+    table { font-size: 0.75rem; }
+    th, td { padding: 0.35rem; }
+    .contador { display: block; margin-left: 0; margin-top: 0.25rem; }
+    #toast-container {
+      top: auto;
+      bottom: 1rem;
+      right: 0.5rem;
+      left: 0.5rem;
+      max-width: none;
+    }
+    .devolucion-card .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<header>
+  <h1>🏛️ Control de Préstamos</h1>
+  <p>Diputación de León - Material deportivo</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
+  <button onclick="showTab('prestamo', this)">➕ Nuevo préstamo</button>
+  <button onclick="showTab('devoluciones', this)">↩️ Devoluciones</button>
+  <button onclick="showTab('historico', this)">📜 Histórico</button>
+  <button onclick="showTab('inventario', this)">📦 Inventario</button>
+  <button onclick="showTab('ajustes', this)">⚙️ Ajustes</button>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="tab active">
+    <div class="card">
+      <h2>Estado del material</h2>
+      <div id="dashboardGrid"></div>
+    </div>
+    <div class="card">
+      <h2>Resumen rápido</h2>
+      <div id="resumenRapido"></div>
+    </div>
+  </div>
+
+  <!-- NUEVO PRÉSTAMO -->
+  <div id="prestamo" class="tab">
+    <div class="card">
+      <h2>Registrar préstamo</h2>
+      <form id="formPrestamo">
+        <label>Unidad / Artículo</label>
+        <select id="p_unidad" required></select>
+
+        <label>Tipo de solicitante</label>
+        <select id="p_tipo_solicitante" required onchange="cambiarTipoSolicitante()">
+          <option value="">-- Selecciona --</option>
+          <option value="ayuntamiento">Ayuntamiento</option>
+          <option value="asociacion">Asociación</option>
+          <option value="otro">Otro</option>
+        </select>
+
+        <div id="campo_ayuntamiento" class="campo-oculto">
+          <label>Ayuntamiento</label>
+          <select id="p_ayuntamiento"></select>
+        </div>
+
+        <div id="campo_nombre_libre" class="campo-oculto">
+          <label id="label_nombre_libre">Nombre</label>
+          <input type="text" id="p_nombre_libre" placeholder="">
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Persona de contacto</label>
+            <input type="text" id="p_contacto" placeholder="Nombre y apellidos">
+          </div>
+          <div>
+            <label>Teléfono</label>
+            <input type="tel" id="p_telefono" placeholder="600 000 000">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Fecha y hora de salida</label>
+            <input type="datetime-local" id="p_salida" required>
+          </div>
+          <div>
+            <label>Fecha prevista de devolución</label>
+            <input type="datetime-local" id="p_prevista">
+          </div>
+        </div>
+
+        <button type="submit" class="btn">Registrar préstamo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DEVOLUCIONES -->
+  <div id="devoluciones" class="tab">
+    <div class="card">
+      <h2>Préstamos pendientes de devolución</h2>
+      <div id="listaDevoluciones"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DEVOLUCIÓN -->
+  <div id="modalDevolucion" class="modal-bg">
+    <div class="modal">
+      <h3>Registrar devolución</h3>
+      <div id="devInfo" style="margin-bottom:1rem; font-size:0.9rem;"></div>
+      <form id="formDevolucion">
+        <input type="hidden" id="d_prestamoId">
+        <label>Fecha y hora de devolución</label>
+        <input type="datetime-local" id="d_fecha" required>
+
+        <label>Estado del material</label>
+        <select id="d_estado" required>
+          <option value="correcto">✅ Todo correcto</option>
+          <option value="averiado">⚠️ Algo estropeado</option>
+        </select>
+
+        <label id="d_incidencias_label" style="display:none;">Descripción de los daños</label>
+        <textarea id="d_incidencias" placeholder="Describe qué se ha estropeado..." style="display:none;"></textarea>
+
+        <div class="row">
+          <button type="submit" class="btn success">Guardar devolución</button>
+          <button type="button" class="btn secondary" onclick="cerrarModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="historico" class="tab">
+    <div class="card">
+      <h2>Histórico de préstamos</h2>
+      <div style="overflow-x:auto;">
+        <table id="tablaHistorico">
+          <thead>
+            <tr>
+              <th>Artículo</th>
+              <th>Solicitante</th>
+              <th>Contacto</th>
+              <th>Salida</th>
+              <th>Devuelto</th>
+              <th>Estado</th>
+              <th>Incidencias</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTARIO -->
+  <div id="inventario" class="tab">
+    <div class="card">
+      <h2>Añadir nuevo artículo</h2>
+      <form id="formArticulo">
+        <label>Nombre del artículo</label>
+        <input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol">
+
+        <label>Tipo</label>
+        <input type="text" id="a_tipo" placeholder="Ej: pelota, red, cono...">
+
+        <label>Cantidad de unidades</label>
+        <input type="number" id="a_cantidad" min="1" value="1" required>
+
+        <label>Descripción / Observaciones</label>
+        <textarea id="a_descripcion" placeholder="Detalles, marca, modelo..."></textarea>
+
+        <button type="submit" class="btn">Añadir al inventario</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Inventario actual</h2>
+      <div id="listaInventario"></div>
+    </div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div id="ajustes" class="tab">
+    <div class="alert warn">
+      ⚠️ <strong>Importante:</strong> los datos se guardan solo en este navegador.
+      Si usas otro dispositivo, no los verás. Haz copias de seguridad regularmente.
+    </div>
+    <div class="card">
+      <h2>Copia de seguridad</h2>
+      <div class="row">
+        <button class="btn" onclick="exportarDatos()">📥 Exportar datos (JSON)</button>
+        <button class="btn secondary" onclick="document.getElementById('fileImport').click()">📤 Importar datos</button>
+        <input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importarDatos(event)">
+      </div>
+    </div>
+    <div class="card">
+      <h2>Zona peligrosa</h2>
+      <button class="btn danger" onclick="resetearDatos()">🗑️ Borrar todos los datos</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ===================== DATOS =====================
+const STORAGE_KEY = 'dipuleon_prestamos_v1';
+
+let datos = {
+  articulos: [],
+  unidades: [],
+  prestamos: [],
+  nextId: { articulo: 1, unidad: 1, prestamo: 1 }
+};
+
+const AYUNTAMIENTOS_LEON = [
+  "Acebedo","Algadefe","Alija del Infantado","Almanza","Antigua, La","Ardón","Arganza","Astorga","Balboa","Bañeza, La",
+  "Barjas","Barrios de Luna, Los","Bembibre","Benavides","Benuza","Bercianos del Páramo","Bercianos del Real Camino","Berlanga del Bierzo","Boca de Huérgano","Boñar",
+  "Borrenes","Brazuelo","Burgo Ranero, El","Burón","Bustillo del Páramo","Cabañas Raras","Cabreros del Río","Cabrillanes","Cacabelos","Calzada del Coto",
+  "Campazas","Campo de Villavidel","Camponaraya","Candín","Cármenes","Carracedelo","Carrizo","Carrocera","Carucedo","Castilfalé",
+  "Castrillo de Cabrera","Castrillo de la Valduerna","Castrocalbón","Castrocontrigo","Castropodame","Castrotierra de Valmadrigal","Cea","Cebanico","Cebrones del Río","Chozas de Abajo",
+  "Cistierna","Congosto","Corbillos de los Oteros","Corullón","Crémenes","Cuadros","Cubillas de los Oteros","Cubillas de Rueda","Cubillos del Sil","Destriana",
+  "Encinedo","Ercina, La","Escobar de Campos","Fabero","Folgoso de la Ribera","Fresno de la Vega","Fuentes de Carbajal","Garrafe de Torío","Gordaliza del Pino","Gordoncillo",
+  "Gradefes","Grajal de Campos","Gusendos de los Oteros","Hospital de Órbigo","Igüeña","Izagre","Joarilla de las Matas","Laguna Dalga","Laguna de Negrillos","León",
+  "Llamas de la Ribera","Lucillo","Luyego","Magaz de Cepeda","Mansilla de las Mulas","Mansilla Mayor","Maraña","Matadeón de los Oteros","Matallana de Torío","Matanza",
+  "Molinaseca","Murias de Paredes","Noceda del Bierzo","Oencia","Omañas, Las","Onzonilla","Oseja de Sajambre","Pajares de los Oteros","Palacios de la Valduerna","Palacios del Sil",
+  "Páramo del Sil","Peranzanes","Pobladura de Pelayo García","Pola de Gordón, La","Ponferrada","Posada de Valdeón","Pozuelo del Páramo","Prado de la Guzpeña","Priaranza del Bierzo","Prioro",
+  "Puebla de Lillo","Puente de Domingo Flórez","Quintana del Castillo","Quintana del Marco","Quintana y Congosto","Regueras de Arriba","Reyero","Riaño","Riego de la Vega","Riello",
+  "Rioseco de Tapia","Robla, La","Roperuelos del Páramo","Sabero","Sahagún","San Adrián del Valle","San Andrés del Rabanedo","San Cristóbal de la Polantera","San Emiliano","San Esteban de Nogales",
+  "San Justo de la Vega","San Millán de los Caballeros","San Pedro Bercianos","Sancedo","Santa Colomba de Curueño","Santa Colomba de Somoza","Santa Cristina de Valmadrigal","Santa Elena de Jamuz","Santa María de la Isla","Santa María de Ordás",
+  "Santa María del Monte de Cea","Santa María del Páramo","Santa Marina del Rey","Santas Martas","Santiago Millas","Santovenia de la Valdoncina","Sariegos","Sena de Luna","Sobrado","Soto de la Vega",
+  "Soto y Amío","Toral de los Guzmanes","Toral de los Vados","Toreno","Torre del Bierzo","Trabadelo","Truchas","Turcia","Urdiales del Páramo","Val de San Lorenzo",
+  "Valdefresno","Valdefuentes del Páramo","Valdelugueros","Valdemora","Valdepiélago","Valdepolo","Valderas","Valderrey","Valderrueda","Valdesamario",
+  "Valdevimbre","Valencia de Don Juan","Vallecillo","Valverde de la Virgen","Valverde-Enrique","Vecilla, La","Vega de Espinareda","Vega de Infanzones","Vega de Valcarce","Vegacervera",
+  "Vegaquemada","Vegas del Condado","Villablino","Villabraz","Villadangos del Páramo","Villademor de la Vega","Villafranca del Bierzo","Villagatón","Villamandos","Villamanín",
+  "Villamañán","Villamartín de Don Sancho","Villamejil","Villamol","Villamontán de la Valduerna","Villanueva de las Manzanas","Villaobispo de Otero","Villaornate y Castro","Villaquejida","Villaquilambre",
+  "Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"
+];
+
+function guardar() { localStorage.setItem(STORAGE_KEY, JSON.stringify(datos)); }
+
+function cargar() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) { datos = JSON.parse(raw); }
+  else { inicializarInventario(); guardar(); }
+}
+
+function inicializarInventario() {
+  const inventarioInicial = [
+    { nombre: "Arcos hinchables nuevos", tipo: "arco", cantidad: 3, descripcion: "Arcos de fútbol hinchables, estado nuevo" },
+    { nombre: "Arcos hinchables muy nuevos", tipo: "arco", cantidad: 3, descripcion: "Arcos de fútbol hinchables, muy poco uso" },
+    { nombre: "Carpas hinchables", tipo: "carpa_hinchable", cantidad: 2, descripcion: "" },
+    { nombre: "Carpas metálicas", tipo: "carpa_metalica", cantidad: 4, descripcion: "" },
+    { nombre: "Podios", tipo: "podio", cantidad: 1, descripcion: "" },
+    { nombre: "Pancartas", tipo: "pancarta", cantidad: 20, descripcion: "" },
+  ];
+  inventarioInicial.forEach(a => {
+    const idA = datos.nextId.articulo++;
+    datos.articulos.push({ id: idA, nombre: a.nombre, tipo: a.tipo, cantidad: a.cantidad, descripcion: a.descripcion, activo: true });
+    for (let i = 1; i <= a.cantidad; i++) {
+      const idU = datos.nextId.unidad++;
+      datos.unidades.push({ id: idU, articuloId: idA, identificador: `${a.nombre} #${i}`, estado: 'almacen', observaciones: '' });
+    }
+  });
+}
+
+// ===================== NOTIFICACIONES =====================
+function notificar(mensaje, tipo = 'info', titulo = '') {
+  const contenedor = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${tipo}`;
+  const iconos = { exito: '✅', error: '❌', aviso: '⚠️', info: 'ℹ️' };
+  const titulosPorDefecto = { exito: '¡Hecho!', error: 'Error', aviso: 'Atención', info: 'Información' };
+  const tituloFinal = titulo || titulosPorDefecto[tipo] || 'Aviso';
+  toast.innerHTML = `
+    <span class="toast-icono">${iconos[tipo] || 'ℹ️'}</span>
+    <div class="toast-texto">
+      <div class="toast-titulo">${tituloFinal}</div>
+      <div>${mensaje}</div>
+    </div>
+    <button class="toast-cerrar" onclick="cerrarToast(this.parentElement)" title="Cerrar">×</button>
+  `;
+  contenedor.appendChild(toast);
+  setTimeout(() => { if (toast.parentElement) cerrarToast(toast); }, 4000);
+}
+
+function cerrarToast(toast) {
+  if (!toast || !toast.parentElement) return;
+  toast.classList.add('saliendo');
+  setTimeout(() => { if (toast.parentElement) toast.parentElement.removeChild(toast); }, 300);
+}
+
+// ===================== NAVEGACIÓN =====================
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  renderTodo();
+}
+
+// ===================== RENDER =====================
+function renderTodo() {
+  renderDashboard();
+  renderResumenRapido();
+  renderSelectUnidades();
+  renderDevoluciones();
+  renderHistorico();
+  renderInventario();
+  cargarAyuntamientos();
+}
+
+function getArticulo(id) { return datos.articulos.find(a => a.id === id); }
+function getPrestamoActivo(unidadId) { return datos.prestamos.find(p => p.unidadId === unidadId && !p.fechaDevolucion); }
+
+function toggleGrupo(id, btn) {
+  const contenido = document.getElementById(id);
+  const abierto = contenido.classList.toggle('abierto');
+  btn.classList.toggle('abierto', abierto);
+}
+
+function renderDashboard() {
+  const grid = document.getElementById('dashboardGrid');
+  grid.innerHTML = '';
+  datos.articulos.forEach(a => {
+    if (!a.activo) return;
+    const unidades = datos.unidades.filter(u => u.articuloId === a.id);
+    if (unidades.length === 0) return;
+    const disponibles = unidades.filter(u => u.estado === 'almacen').length;
+    const prestados = unidades.filter(u => u.estado === 'prestado').length;
+    const averiados = unidades.filter(u => u.estado === 'averiado').length;
+    let estadoClase = 'estado-almacen';
+    if (averiados > 0) estadoClase = 'estado-averiado';
+    else if (prestados > 0) estadoClase = 'estado-parcial';
+    const idGrupo = 'grupo-' + a.id;
+    let htmlUnidades = '';
+    unidades.forEach(u => {
+      const prestamo = getPrestamoActivo(u.id);
+      let meta = '📍 En almacén';
+      let badge = '<span class="badge ok">DISPONIBLE</span>';
+      if (u.estado === 'prestado' && prestamo) {
+        meta = `👤 ${prestamo.solicitante} · 📅 ${formatFecha(prestamo.fechaSalida)}`;
+        badge = '<span class="badge prestado">PRESTADO</span>';
+      } else if (u.estado === 'averiado') {
+        meta = '🔧 ' + (u.observaciones || 'Con incidencias');
+        badge = '<span class="badge danio">AVERIADO</span>';
+      }
+      htmlUnidades += `
+        <div class="unidad-row ${u.estado}">
+          <div>
+            <strong>${u.identificador}</strong>
+            <div class="meta">${meta}</div>
+          </div>
+          ${badge}
+        </div>
+      `;
+    });
+    grid.innerHTML += `
+      <div class="grupo-articulo">
+        <button class="grupo-btn ${estadoClase}" onclick="toggleGrupo('${idGrupo}', this)">
+          <span>${a.nombre}<span class="contador">(${disponibles} disp. · ${prestados} prest. · ${averiados} av.)</span></span>
+          <span class="flecha">▼</span>
+        </button>
+        <div class="grupo-contenido" id="${idGrupo}">${htmlUnidades}</div>
+      </div>
+    `;
+  });
+}
+
+function renderResumenRapido() {
+  const cont = document.getElementById('resumenRapido');
+  const activos = datos.prestamos.filter(p => !p.fechaDevolucion).length;
+  const enAlmacen = datos.unidades.filter(u => u.estado === 'almacen').length;
+  const averiados = datos.unidades.filter(u => u.estado === 'averiado').length;
+  const total = datos.unidades.length;
+  cont.innerHTML = `
+    <div class="grid">
+      <div class="item" style="border-left:4px solid var(--success); padding:0.75rem; background:#f0fdf4; border-radius:6px;">
+        <div style="font-size:0.8rem; color:var(--muted);">En almacén</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--success);">${enAlmacen}</div>
+      </div>
+      <div class="item" style="border-left:4px solid var(--warning); padding:0.75rem; background:#fffbeb; border-radius:6px;">
+        <div style="font-size:0.8rem; color:var(--muted);">Prestados</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--warning);">${activos}</div>
+      </div>
+      <div class="item" style="border-left:4px solid var(--danger); padding:0.75rem; background:#fef2f2; border-radius:6px;">
+        <div style="font-size:0.8rem; color:var(--muted);">Averiados</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--danger);">${averiados}</div>
+      </div>
+      <div class="item" style="border-left:4px solid var(--primary); padding:0.75rem; background:#eff6ff; border-radius:6px;">
+        <div style="font-size:0.8rem; color:var(--muted);">Total unidades</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--primary);">${total}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSelectUnidades() {
+  const sel = document.getElementById('p_unidad');
+  const valorActual = sel.value;
+  sel.innerHTML = '<option value="">-- Selecciona --</option>';
+  datos.unidades.forEach(u => {
+    if (u.estado === 'almacen') {
+      sel.innerHTML += `<option value="${u.id}">${u.identificador}</option>`;
+    }
+  });
+  if (valorActual && datos.unidades.find(u => u.id === parseInt(valorActual) && u.estado === 'almacen')) {
+    sel.value = valorActual;
+  }
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('p_salida').value = now.toISOString().slice(0,16);
+}
+
+// ===================== PESTAÑA DEVOLUCIONES =====================
+function renderDevoluciones() {
+  const cont = document.getElementById('listaDevoluciones');
+  const activos = datos.prestamos.filter(p => !p.fechaDevolucion);
+
+  if (activos.length === 0) {
+    cont.innerHTML = `
+      <div class="vacio">
+        <div class="icono">🎉</div>
+        <div><strong>¡Todo al día!</strong></div>
+        <div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div>
+      </div>
+    `;
+    return;
+  }
+
+  const ahora = new Date();
+  let html = '';
+  activos.forEach(p => {
+    const u = datos.unidades.find(x => x.id === p.unidadId);
+    if (!u) return;
+
+    const fechaSalida = new Date(p.fechaSalida);
+    const diasPrestado = Math.floor((ahora - fechaSalida) / (1000 * 60 * 60 * 24));
+    let textoDias = `Hace ${diasPrestado} día${diasPrestado === 1 ? '' : 's'}`;
+
+    let infoPrevista = '';
+    let clasePrevista = '';
+    if (p.fechaPrevista) {
+      const fechaPrevista = new Date(p.fechaPrevista);
+      const vencido = ahora > fechaPrevista;
+      const diasRestantes = Math.ceil((fechaPrevista - ahora) / (1000 * 60 * 60 * 24));
+      if (vencido) {
+        const diasVencido = Math.abs(diasRestantes);
+        infoPrevista = `⚠️ Vencida hace ${diasVencido} día${diasVencido === 1 ? '' : 's'}`;
+        clasePrevista = 'prevista-vencida';
+      } else {
+        infoPrevista = `Faltan ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}`;
+      }
+    }
+
+    html += `
+      <div class="devolucion-card">
+        <div class="cabecera">
+          <div>
+            <div class="articulo">${u.identificador}</div>
+            <div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">Prestado ${textoDias}</div>
+          </div>
+          <span class="badge prestado">PENDIENTE</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Solicitante</span>
+            <span class="info-valor">${p.solicitante}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Contacto</span>
+            <span class="info-valor">${p.contacto || '-'}${p.telefono ? ' · ' + p.telefono : ''}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Fecha de salida</span>
+            <span class="info-valor">${formatFecha(p.fechaSalida)}</span>
+          </div>
+          ${p.fechaPrevista ? `
+          <div class="info-item">
+            <span class="info-label">Devolución prevista</span>
+            <span class="info-valor ${clasePrevista}">${formatFecha(p.fechaPrevista)}<br><small>${infoPrevista}</small></span>
+          </div>` : ''}
+        </div>
+        <button class="btn success big" onclick="abrirDevolucion(${p.id})">↩️ Registrar devolución</button>
+      </div>
+    `;
+  });
+  cont.innerHTML = html;
+}
+
+function renderHistorico() {
+  const tbody = document.querySelector('#tablaHistorico tbody');
+  tbody.innerHTML = '';
+  const ordenados = [...datos.prestamos].sort((a,b) => new Date(b.fechaSalida) - new Date(a.fechaSalida));
+  ordenados.forEach(p => {
+    const u = datos.unidades.find(x => x.id === p.unidadId);
+    let badge = '<span class="badge prestado">EN CURSO</span>';
+    if (p.fechaDevolucion) {
+      badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
+    }
+    tbody.innerHTML += `
+      <tr>
+        <td>${u ? u.identificador : '?'}</td>
+        <td>${p.solicitante}</td>
+        <td>${p.contacto || '-'}${p.telefono ? '<br><small>'+p.telefono+'</small>' : ''}</td>
+        <td>${formatFecha(p.fechaSalida)}</td>
+        <td>${p.fechaDevolucion ? formatFecha(p.fechaDevolucion) : '-'}</td>
+        <td>${badge}</td>
+        <td>${p.incidencias || '-'}</td>
+        <td>
+          ${!p.fechaDevolucion ? `<button class="btn small success" onclick="abrirDevolucion(${p.id}); showTab('devoluciones', document.querySelectorAll('nav button')[2]);">Devolver</button>` : ''}
+          <button class="btn small danger" onclick="eliminarPrestamo(${p.id})">🗑️</button>
+        </td>
+      </tr>
+    `;
+  });
+  if (ordenados.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
+  }
+}
+
+function renderInventario() {
+  const cont = document.getElementById('listaInventario');
+  cont.innerHTML = '';
+  datos.articulos.forEach(a => {
+    const unidades = datos.unidades.filter(u => u.articuloId === a.id);
+    const disponibles = unidades.filter(u => u.estado === 'almacen').length;
+    const prestados = unidades.filter(u => u.estado === 'prestado').length;
+    const averiados = unidades.filter(u => u.estado === 'averiado').length;
+    cont.innerHTML += `
+      <div class="card" style="background:#f9fafb; margin-bottom:0.5rem;">
+        <strong>${a.nombre}</strong> <span style="color:var(--muted); font-size:0.85rem;">(${a.tipo || 'sin tipo'})</span>
+        <div style="font-size:0.85rem; margin-top:0.25rem;">
+          Total: <strong>${a.cantidad}</strong> |
+          <span style="color:var(--success);">Disponibles: ${disponibles}</span> |
+          <span style="color:var(--warning);">Prestados: ${prestados}</span> |
+          <span style="color:var(--danger);">Averiados: ${averiados}</span>
+        </div>
+        ${a.descripcion ? `<div style="font-size:0.8rem; color:var(--muted); margin-top:0.25rem;">${a.descripcion}</div>` : ''}
+        <button class="btn small danger" style="margin-top:0.5rem;" onclick="eliminarArticulo(${a.id})">Eliminar artículo</button>
+      </div>
+    `;
+  });
+}
+
+// ===================== AYUNTAMIENTOS =====================
+function cargarAyuntamientos() {
+  const sel = document.getElementById('p_ayuntamiento');
+  if (sel.options.length > 1) return;
+  sel.innerHTML = '<option value="">-- Selecciona ayuntamiento --</option>';
+  AYUNTAMIENTOS_LEON.forEach(a => { sel.innerHTML += `<option value="${a}">${a}</option>`; });
+}
+
+function cambiarTipoSolicitante() {
+  const tipo = document.getElementById('p_tipo_solicitante').value;
+  const campoAyto = document.getElementById('campo_ayuntamiento');
+  const campoLibre = document.getElementById('campo_nombre_libre');
+  const labelLibre = document.getElementById('label_nombre_libre');
+  const inputLibre = document.getElementById('p_nombre_libre');
+  campoAyto.classList.add('campo-oculto');
+  campoLibre.classList.add('campo-oculto');
+  document.getElementById('p_ayuntamiento').value = '';
+  inputLibre.value = '';
+  if (tipo === 'ayuntamiento') {
+    campoAyto.classList.remove('campo-oculto');
+  } else if (tipo === 'asociacion') {
+    labelLibre.textContent = 'Nombre de la asociación';
+    inputLibre.placeholder = 'Ej: Asociación Cultural La Legua';
+    campoLibre.classList.remove('campo-oculto');
+  } else if (tipo === 'otro') {
+    labelLibre.textContent = 'Nombre / Entidad';
+    inputLibre.placeholder = 'Ej: Colegio, empresa, particular...';
+    campoLibre.classList.remove('campo-oculto');
+  }
+}
+
+function obtenerSolicitante() {
+  const tipo = document.getElementById('p_tipo_solicitante').value;
+  if (tipo === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value;
+  else if (tipo === 'asociacion' || tipo === 'otro') return document.getElementById('p_nombre_libre').value.trim();
+  return '';
+}
+
+// ===================== PRÉSTAMOS =====================
+document.getElementById('formPrestamo').addEventListener('submit', e => {
+  e.preventDefault();
+  const unidadId = parseInt(document.getElementById('p_unidad').value);
+  const tipoSolicitante = document.getElementById('p_tipo_solicitante').value;
+  const solicitante = obtenerSolicitante();
+  const contacto = document.getElementById('p_contacto').value.trim();
+  const telefono = document.getElementById('p_telefono').value.trim();
+  const salida = document.getElementById('p_salida').value;
+  const prevista = document.getElementById('p_prevista').value;
+
+  if (!unidadId || !tipoSolicitante || !solicitante || !salida) {
+    notificar('Completa todos los campos obligatorios antes de continuar.', 'aviso', 'Faltan datos');
+    return;
+  }
+  const unidad = datos.unidades.find(u => u.id === unidadId);
+  if (!unidad || unidad.estado !== 'almacen') {
+    notificar('Esta unidad no está disponible en este momento.', 'error', 'Unidad no disponible');
+    return;
+  }
+
+  const id = datos.nextId.prestamo++;
+  datos.prestamos.push({
+    id, unidadId, tipoSolicitante, solicitante, contacto, telefono,
+    fechaSalida: salida, fechaPrevista: prevista || null,
+    fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: ''
+  });
+  unidad.estado = 'prestado';
+  guardar();
+  renderTodo();
+  e.target.reset();
+  document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
+  document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
+  notificar(`Préstamo de <strong>${unidad.identificador}</strong> registrado correctamente.`, 'exito', 'Préstamo registrado');
+  showTab('dashboard', document.querySelector('nav button'));
+});
+
+// ===================== DEVOLUCIÓN =====================
+function abrirDevolucion(prestamoId) {
+  const p = datos.prestamos.find(x => x.id === prestamoId);
+  if (!p) return;
+  const u = datos.unidades.find(x => x.id === p.unidadId);
+  document.getElementById('d_prestamoId').value = prestamoId;
+  document.getElementById('devInfo').innerHTML = `
+    <strong style="font-size:1.05rem;">${u.identificador}</strong><br>
+    <span style="color:var(--muted);">Prestado a:</span> ${p.solicitante}<br>
+    <span style="color:var(--muted);">Contacto:</span> ${p.contacto || '-'} ${p.telefono ? '('+p.telefono+')' : ''}<br>
+    <span style="color:var(--muted);">Salida:</span> ${formatFecha(p.fechaSalida)}
+    ${p.fechaPrevista ? '<br><span style="color:var(--muted);">Prevista:</span> ' + formatFecha(p.fechaPrevista) : ''}
+  `;
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('d_fecha').value = now.toISOString().slice(0,16);
+  document.getElementById('d_estado').value = 'correcto';
+  document.getElementById('d_incidencias').value = '';
+  document.getElementById('d_incidencias').style.display = 'none';
+  document.getElementById('d_incidencias_label').style.display = 'none';
+  document.getElementById('modalDevolucion').classList.add('show');
+}
+
+document.getElementById('d_estado').addEventListener('change', e => {
+  const show = e.target.value === 'averiado';
+  document.getElementById('d_incidencias').style.display = show ? 'block' : 'none';
+  document.getElementById('d_incidencias_label').style.display = show ? 'block' : 'none';
+});
+
+document.getElementById('formDevolucion').addEventListener('submit', e => {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('d_prestamoId').value);
+  const p = datos.prestamos.find(x => x.id === id);
+  if (!p) return;
+  p.fechaDevolucion = document.getElementById('d_fecha').value;
+  p.estadoMaterial = document.getElementById('d_estado').value;
+  p.incidencias = document.getElementById('d_incidencias').value.trim();
+  p.estado = 'devuelto';
+  const unidad = datos.unidades.find(u => u.id === p.unidadId);
+  if (p.estadoMaterial === 'averiado') {
+    unidad.estado = 'averiado';
+    unidad.observaciones = p.incidencias;
+    notificar(`Devolución registrada con incidencias. La unidad queda marcada como averiada.`, 'aviso', 'Devolución con incidencias');
+  } else {
+    unidad.estado = 'almacen';
+    unidad.observaciones = '';
+    notificar(`Devolución de <strong>${unidad.identificador}</strong> registrada correctamente.`, 'exito', 'Devolución registrada');
+  }
+  guardar();
+  cerrarModal();
+  renderTodo();
+});
+
+function cerrarModal() {
+  document.getElementById('modalDevolucion').classList.remove('show');
+}
+
+function eliminarPrestamo(id) {
+  if (!confirm('¿Seguro que quieres eliminar este préstamo?')) return;
+  const p = datos.prestamos.find(x => x.id === id);
+  if (p && !p.fechaDevolucion) {
+    const u = datos.unidades.find(x => x.id === p.unidadId);
+    if (u) u.estado = 'almacen';
+  }
+  datos.prestamos = datos.prestamos.filter(x => x.id !== id);
+  guardar();
+  renderTodo();
+  notificar('Préstamo eliminado del registro.', 'info', 'Préstamo eliminado');
+}
+
+// ===================== INVENTARIO =====================
+document.getElementById('formArticulo').addEventListener('submit', e => {
+  e.preventDefault();
+  const nombre = document.getElementById('a_nombre').value.trim();
+  const tipo = document.getElementById('a_tipo').value.trim();
+  const cantidad = parseInt(document.getElementById('a_cantidad').value);
+  const descripcion = document.getElementById('a_descripcion').value.trim();
+  if (!nombre || !cantidad || cantidad < 1) {
+    notificar('Introduce al menos el nombre y la cantidad del artículo.', 'aviso', 'Faltan datos');
+    return;
+  }
+  const idA = datos.nextId.articulo++;
+  datos.articulos.push({ id: idA, nombre, tipo, cantidad, descripcion, activo: true });
+  for (let i = 1; i <= cantidad; i++) {
+    const idU = datos.nextId.unidad++;
+    datos.unidades.push({ id: idU, articuloId: idA, identificador: `${nombre} #${i}`, estado: 'almacen', observaciones: '' });
+  }
+  guardar();
+  renderTodo();
+  e.target.reset();
+  notificar(`Se han añadido <strong>${cantidad}</strong> unidad(es) de "${nombre}" al inventario.`, 'exito', 'Artículo añadido');
+});
+
+function eliminarArticulo(id) {
+  const tienePrestamos = datos.prestamos.some(p => {
+    const u = datos.unidades.find(x => x.id === p.unidadId);
+    return u && u.articuloId === id;
+  });
+  if (tienePrestamos) {
+    notificar('No se puede eliminar porque tiene préstamos asociados. Devuélvelos primero.', 'error', 'No se puede eliminar');
+    return;
+  }
+  if (!confirm('¿Seguro que quieres eliminar este artículo y todas sus unidades?')) return;
+  datos.articulos = datos.articulos.filter(a => a.id !== id);
+  datos.unidades = datos.unidades.filter(u => u.articuloId !== id);
+  guardar();
+  renderTodo();
+  notificar('Artículo eliminado del inventario.', 'info', 'Artículo eliminado');
+}
+
+// ===================== EXPORT / IMPORT =====================
+function exportarDatos() {
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `prestamos_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  notificar('Copia de seguridad descargada correctamente. Guárdala en un lugar seguro.', 'exito', 'Datos exportados');
+}
+
+function importarDatos(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.articulos || !imported.unidades || !imported.prestamos) {
+        notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido');
+        return;
+      }
+      if (!confirm('¿Reemplazar todos los datos actuales con los del archivo? Esta acción no se puede deshacer.')) return;
+      datos = imported;
+      guardar();
+      renderTodo();
+      notificar('Datos importados correctamente desde el archivo.', 'exito', 'Datos importados');
+    } catch (err) {
+      notificar('No se ha podido leer el archivo: ' + err.message, 'error', 'Error al importar');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetearDatos() {
+  if (!confirm('¿Seguro? Se borrarán TODOS los datos (artículos, préstamos, histórico).')) return;
+  if (!confirm('Última confirmación: ¿realmente quieres borrar todo?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
+  inicializarInventario();
+  guardar();
+  renderTodo();
+  notificar('Todos los datos han sido borrados. Se ha restaurado el inventario inicial.', 'aviso', 'Datos borrados');
+}
+
+// ===================== UTILS =====================
+function formatFecha(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ===================== INIT =====================
+cargar();
+renderTodo();
+</script>
+
+</body>
+</html>
