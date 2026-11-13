@@ -460,6 +460,7 @@ const firebaseConfig = {
 };
 let db = null;
 let firebaseActivo = false;
+let datosCargados = false; // para evitar doble render
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") {
@@ -479,8 +480,10 @@ function initFirebase() {
 
 function setEstado(tipo, texto) {
   const el = document.getElementById('estadoSync');
-  el.className = 'estado-sync ' + tipo;
-  document.getElementById('estadoSyncTexto').textContent = texto;
+  if (el) {
+    el.className = 'estado-sync ' + tipo;
+    document.getElementById('estadoSyncTexto').textContent = texto;
+  }
 }
 
 // ===================== DATOS =====================
@@ -523,6 +526,10 @@ const ICONOS_TIPO = {
 };
 function getIcono(tipo) { return ICONOS_TIPO[tipo] || ICONOS_TIPO['default']; }
 
+function esDatosValidos(d) {
+  return d && Array.isArray(d.articulos) && Array.isArray(d.unidades) && Array.isArray(d.prestamos) && d.articulos.length > 0;
+}
+
 function guardar() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
   if (db) {
@@ -530,12 +537,6 @@ function guardar() {
       .then(() => setEstado('sync', 'Sincronizado'))
       .catch(() => setEstado('error', 'Error al sincronizar'));
   }
-}
-
-function cargarLocal() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) { datos = JSON.parse(raw); }
-  else { inicializarInventario(); }
 }
 
 function inicializarInventario() {
@@ -557,32 +558,76 @@ function inicializarInventario() {
   });
 }
 
-// ===================== ARRANQUE CON SINCRONIZACIÓN =====================
+// ===================== ARRANQUE =====================
 function init() {
   initFirebase();
+  
+  // 1. Cargar siempre desde localStorage primero (respaldo local)
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      const localData = JSON.parse(raw);
+      if (esDatosValidos(localData)) {
+        datos = localData;
+      } else {
+        inicializarInventario();
+      }
+    } catch (e) {
+      inicializarInventario();
+    }
+  } else {
+    inicializarInventario();
+  }
+  
+  // 2. Renderizar inmediatamente con datos locales
+  renderTodo();
+  datosCargados = true;
+  
+  // 3. Si hay Firebase, intentar sincronizar
   if (db) {
+    db.ref('datos').once('value').then(snap => {
+      const remoto = snap.val();
+      if (remoto && esDatosValidos(remoto)) {
+        // Firebase tiene datos válidos y diferentes a los locales
+        const remotoStr = JSON.stringify(remoto);
+        const localStr = JSON.stringify(datos);
+        if (remotoStr !== localStr) {
+          datos = remoto;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+          setEstado('sync', 'Sincronizado (desde nube)');
+          renderTodo();
+        } else {
+          setEstado('sync', 'Sincronizado');
+        }
+      } else {
+        // Firebase vacío o inválido: subir los datos locales
+        db.ref('datos').set(datos).then(() => {
+          setEstado('sync', 'Sincronizado (subido a nube)');
+        }).catch(() => {
+          setEstado('error', 'Error al subir');
+        });
+      }
+    }).catch(err => {
+      console.error('Error Firebase:', err);
+      setEstado('error', 'Sin conexión');
+    });
+    
+    // Escuchar cambios en tiempo real
     db.ref('datos').on('value', snap => {
       const remoto = snap.val();
-      if (remoto && remoto.articulos) {
-        datos = remoto;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-        setEstado('sync', 'Sincronizado');
-      } else {
-        cargarLocal();
-        db.ref('datos').set(datos);
-        setEstado('sync', 'Sincronizado');
+      if (remoto && esDatosValidos(remoto)) {
+        const remotoStr = JSON.stringify(remoto);
+        const localStr = JSON.stringify(datos);
+        if (remotoStr !== localStr) {
+          datos = remoto;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+          setEstado('sync', 'Sincronizado');
+          renderTodo();
+        }
       }
-      renderTodo();
-    }, err => {
-      console.error('Error de escucha Firebase:', err);
-      setEstado('error', 'Sin conexión');
-      cargarLocal();
-      renderTodo();
     });
-  } else {
-    cargarLocal();
-    renderTodo();
   }
+  
   renderEstadoFirebase();
 }
 
@@ -639,6 +684,7 @@ function toggleGrupo(id, btn) {
 
 function renderDashboard() {
   const grid = document.getElementById('dashboardGrid');
+  if (!grid) return;
   grid.innerHTML = '';
   datos.articulos.forEach(a => {
     if (!a.activo) return;
@@ -684,6 +730,7 @@ function renderDashboard() {
 
 function renderSelectUnidades() {
   const sel = document.getElementById('p_unidad');
+  if (!sel) return;
   const valorActual = sel.value;
   sel.innerHTML = '<option value="">-- Selecciona --</option>';
   datos.unidades.forEach(u => {
@@ -697,6 +744,7 @@ function renderSelectUnidades() {
 
 function renderDevoluciones() {
   const cont = document.getElementById('listaDevoluciones');
+  if (!cont) return;
   const activos = datos.prestamos.filter(p => !p.fechaDevolucion);
   if (activos.length === 0) {
     cont.innerHTML = `<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div></div>`;
@@ -743,6 +791,7 @@ function renderDevoluciones() {
 
 function renderHistorico() {
   const tbody = document.querySelector('#tablaHistorico tbody');
+  if (!tbody) return;
   tbody.innerHTML = '';
   const ordenados = [...datos.prestamos].sort((a,b) => new Date(b.fechaSalida) - new Date(a.fechaSalida));
   ordenados.forEach(p => {
@@ -785,6 +834,7 @@ function toggleArticuloDetalle(id) {
 function renderInventario() {
   const grid = document.getElementById('inventarioGrid');
   const detallesCont = document.getElementById('inventarioDetalles');
+  if (!grid) return;
   grid.innerHTML = ''; detallesCont.innerHTML = '';
   datos.articulos.forEach(a => {
     if (!a.activo) return;
@@ -841,13 +891,14 @@ function renderEstadoFirebase() {
   if (firebaseActivo) {
     el.innerHTML = `<p style="color:var(--success); font-weight:600;">✅ Sincronización en la nube ACTIVA</p><p style="font-size:0.85rem; color:var(--muted);">Todos los dispositivos que abran esta web verán los mismos datos en tiempo real.</p>`;
   } else {
-    el.innerHTML = `<p style="color:var(--warning); font-weight:600;">📴 Modo local (sin sincronizar)</p><p style="font-size:0.85rem; color:var(--muted);">Cada dispositivo guarda sus datos por separado. Para activar la sincronización, completa la configuración de Firebase en el código.</p>`;
+    el.innerHTML = `<p style="color:var(--warning); font-weight:600;">📴 Modo local (sin sincronizar)</p><p style="font-size:0.85rem; color:var(--muted);">Cada dispositivo guarda sus datos por separado.</p>`;
   }
 }
 
 // ===================== AYUNTAMIENTOS =====================
 function cargarAyuntamientos() {
   const sel = document.getElementById('p_ayuntamiento');
+  if (!sel) return;
   if (sel.options.length > 1) return;
   sel.innerHTML = '<option value="">-- Selecciona ayuntamiento --</option>';
   AYUNTAMIENTOS_LEON.forEach(a => { sel.innerHTML += `<option value="${a}">${a}</option>`; });
