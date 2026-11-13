@@ -29,9 +29,31 @@
     color: white;
     padding: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
   }
   header h1 { font-size: 1.25rem; }
   header p { font-size: 0.85rem; opacity: 0.9; }
+  .estado-sync {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.15);
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .estado-sync .punto {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #fff;
+  }
+  .estado-sync.sync .punto { background: #4ade80; }
+  .estado-sync.local .punto { background: #fbbf24; }
+  .estado-sync.sinc .punto { background: #60a5fa; animation: parp 1s infinite; }
+  .estado-sync.error .punto { background: #f87171; }
+  @keyframes parp { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
   nav {
     display: flex;
     background: white;
@@ -75,7 +97,6 @@
     gap: 0.75rem;
   }
 
-  /* Grupo artículo (dashboard) */
   .grupo-articulo {
     margin-bottom: 0.75rem;
     border: 1px solid var(--border);
@@ -100,249 +121,122 @@
     gap: 0.5rem;
   }
   .grupo-btn:hover { background: #f0f2f5; }
-  .grupo-btn .flecha {
-    transition: transform 0.2s;
-    font-size: 0.8rem;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
+  .grupo-btn .flecha { transition: transform 0.2s; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
   .grupo-btn.abierto .flecha { transform: rotate(180deg); }
   .grupo-btn.estado-almacen { border-left: 5px solid var(--success); }
   .grupo-btn.estado-parcial { border-left: 5px solid var(--warning); }
   .grupo-btn.estado-averiado { border-left: 5px solid var(--danger); }
-  .grupo-contenido {
-    display: none;
-    background: white;
-    border-top: 1px solid var(--border);
-    padding: 0.5rem;
-  }
+  .grupo-contenido { display: none; background: white; border-top: 1px solid var(--border); padding: 0.5rem; }
   .grupo-contenido.abierto { display: block; }
   .unidad-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    margin-bottom: 0.35rem;
-    font-size: 0.88rem;
-    gap: 0.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem;
+    font-size: 0.88rem; gap: 0.5rem;
   }
   .unidad-row:last-child { margin-bottom: 0; }
   .unidad-row.almacen { background: #f0fdf4; }
   .unidad-row.prestado { background: #fffbeb; }
   .unidad-row.avariado { background: #fef2f2; }
   .unidad-row .meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-  .contador {
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-weight: 400;
-    margin-left: 0.5rem;
-  }
+  .contador { font-size: 0.8rem; color: var(--muted); font-weight: 400; margin-left: 0.5rem; }
 
-  label {
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
-    color: var(--text);
-    font-weight: 500;
-  }
+  label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text); font-weight: 500; }
   input, select, textarea {
-    width: 100%;
-    padding: 0.55rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.9rem;
-    margin-bottom: 0.75rem;
-    font-family: inherit;
+    width: 100%; padding: 0.55rem; border: 1px solid var(--border);
+    border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit;
   }
   textarea { resize: vertical; min-height: 60px; }
   button.btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
+    background: var(--primary); color: white; border: none;
+    padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer;
+    font-size: 0.9rem; font-weight: 500;
   }
   button.btn:hover { background: var(--primary-dark); }
   button.btn.small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
   button.btn.success { background: var(--success); }
   button.btn.danger { background: var(--danger); }
-  button.btn.warning { background: var(--warning); }
   button.btn.secondary { background: #6b7280; }
-  button.btn.big {
-    padding: 0.75rem 1.2rem;
-    font-size: 1rem;
-    width: 100%;
-    margin-top: 0.5rem;
-  }
+  button.btn.big { padding: 0.75rem 1.2rem; font-size: 1rem; width: 100%; margin-top: 0.5rem; }
+  button.btn.outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+  button.btn.outline:hover { background: var(--primary); color: white; }
   .row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .row > * { flex: 1; min-width: 150px; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-  }
-  th, td {
-    padding: 0.5rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
   th { background: #f9fafb; font-weight: 600; }
-  .alert {
-    padding: 0.75rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    font-size: 0.85rem;
-  }
-  .alert.info { background: #dbeafe; color: #1e40af; }
+  .alert { padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.85rem; }
   .alert.warn { background: #fef3c7; color: #92400e; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
   .badge.ok { background: #d4edda; color: var(--success); }
   .badge.prestado { background: #fff3cd; color: #856404; }
   .badge.danio { background: #f8d7da; color: var(--danger); }
   .modal-bg {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 100; align-items: center;
+    justify-content: center; padding: 1rem;
   }
   .modal-bg.show { display: flex; }
-  .modal {
-    background: white;
-    border-radius: 8px;
-    padding: 1.25rem;
-    max-width: 500px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
+  .modal { background: white; border-radius: 8px; padding: 1.25rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal h3 { margin-bottom: 1rem; color: var(--primary-dark); }
   .campo-oculto { display: none; }
 
-  /* Tarjeta de devolución */
   .devolucion-card {
-    border: 1px solid var(--border);
-    border-left: 5px solid var(--warning);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    background: white;
+    border: 1px solid var(--border); border-left: 5px solid var(--warning);
+    border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; background: white;
   }
-  .devolucion-card .cabecera {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.75rem;
-  }
-  .devolucion-card .articulo {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--primary-dark);
-  }
-  .devolucion-card .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.5rem 1rem;
-    font-size: 0.88rem;
-    margin-bottom: 0.75rem;
-  }
-  .devolucion-card .info-item {
-    display: flex;
-    flex-direction: column;
-  }
-  .devolucion-card .info-label {
-    font-size: 0.75rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
-  .devolucion-card .info-valor {
-    font-weight: 500;
-  }
-  .devolucion-card .prevista-vencida {
-    color: var(--danger);
-    font-weight: 600;
-  }
+  .devolucion-card .cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .devolucion-card .articulo { font-size: 1.05rem; font-weight: 600; color: var(--primary-dark); }
+  .devolucion-card .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem 1rem; font-size: 0.88rem; margin-bottom: 0.75rem; }
+  .devolucion-card .info-item { display: flex; flex-direction: column; }
+  .devolucion-card .info-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .devolucion-card .info-valor { font-weight: 500; }
+  .devolucion-card .prevista-vencida { color: var(--danger); font-weight: 600; }
 
-  /* Notificaciones toast */
-  #toast-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-width: 360px;
-    width: calc(100% - 2rem);
-    pointer-events: none;
+  .inventario-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
+  .inv-btn {
+    background: white; border: 2px solid var(--border); border-radius: 10px;
+    padding: 1rem 0.75rem; cursor: pointer; text-align: center; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100px; gap: 0.4rem;
   }
-  .toast {
-    pointer-events: auto;
-    background: white;
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    animation: toastIn 0.3s ease-out;
-    border-left: 4px solid var(--primary);
-    font-size: 0.9rem;
-  }
+  .inv-btn:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+  .inv-btn .inv-icono { font-size: 1.8rem; }
+  .inv-btn .inv-nombre { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .inv-btn .inv-total { font-size: 0.75rem; color: var(--muted); }
+  .inv-btn.estado-ok { border-left: 4px solid var(--success); }
+  .inv-btn.estado-parcial { border-left: 4px solid var(--warning); }
+  .inv-btn.estado-mal { border-left: 4px solid var(--danger); }
+
+  .inv-detalle { display: none; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-top: 0.6rem; margin-bottom: 0.6rem; animation: slideDown 0.2s ease-out; }
+  .inv-detalle.abierto { display: block; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .inv-detalle .det-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+  .inv-detalle .det-nombre { font-size: 1.05rem; font-weight: 700; color: var(--primary-dark); }
+  .inv-detalle .det-stats { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .inv-detalle .det-stats span { font-weight: 500; }
+  .inv-detalle .det-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; font-style: italic; }
+  .inv-detalle .det-unidades { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.4rem; margin-bottom: 0.75rem; }
+  .inv-detalle .det-unidad { font-size: 0.82rem; padding: 0.4rem 0.6rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .inv-detalle .det-unidad.almacen { background: #f0fdf4; }
+  .inv-detalle .det-unidad.prestado { background: #fffbeb; }
+  .inv-detalle .det-unidad.avariado { background: #fef2f2; }
+
+  #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; max-width: 360px; width: calc(100% - 2rem); pointer-events: none; }
+  .toast { pointer-events: auto; background: white; border-radius: 8px; padding: 0.85rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: flex-start; gap: 0.75rem; animation: toastIn 0.3s ease-out; border-left: 4px solid var(--primary); font-size: 0.9rem; }
   .toast.saliendo { animation: toastOut 0.3s ease-in forwards; }
   .toast.exito { border-left-color: var(--success); }
   .toast.error { border-left-color: var(--danger); }
   .toast.aviso { border-left-color: var(--warning); }
   .toast.info { border-left-color: var(--primary); }
-  .toast-icono {
-    font-size: 1.3rem;
-    flex-shrink: 0;
-    line-height: 1;
-  }
+  .toast-icono { font-size: 1.3rem; flex-shrink: 0; line-height: 1; }
   .toast-texto { flex: 1; color: var(--text); }
   .toast-titulo { font-weight: 600; margin-bottom: 2px; }
-  .toast-cerrar {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.1rem;
-    color: var(--muted);
-    padding: 0 0.25rem;
-    line-height: 1;
-    flex-shrink: 0;
-  }
+  .toast-cerrar { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--muted); padding: 0 0.25rem; line-height: 1; flex-shrink: 0; }
   .toast-cerrar:hover { color: var(--text); }
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateX(100%); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes toastOut {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(100%); }
-  }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
 
-  .vacio {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--muted);
-  }
+  .vacio { text-align: center; padding: 2rem 1rem; color: var(--muted); }
   .vacio .icono { font-size: 2.5rem; margin-bottom: 0.5rem; }
 
   @media (max-width: 600px) {
@@ -350,16 +244,13 @@
     table { font-size: 0.75rem; }
     th, td { padding: 0.35rem; }
     .contador { display: block; margin-left: 0; margin-top: 0.25rem; }
-    #toast-container {
-      top: auto;
-      bottom: 1rem;
-      right: 0.5rem;
-      left: 0.5rem;
-      max-width: none;
-    }
-    .devolucion-card .info-grid {
-      grid-template-columns: 1fr;
-    }
+    #toast-container { top: auto; bottom: 1rem; right: 0.5rem; left: 0.5rem; max-width: none; }
+    .devolucion-card .info-grid { grid-template-columns: 1fr; }
+    .inventario-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    .inv-btn { min-height: 85px; padding: 0.75rem 0.5rem; }
+    .inv-btn .inv-icono { font-size: 1.5rem; }
+    .inv-btn .inv-nombre { font-size: 0.78rem; }
+    .estado-sync { top: 0.5rem; right: 0.5rem; font-size: 0.65rem; }
   }
 </style>
 </head>
@@ -370,6 +261,9 @@
 <header>
   <h1>🏛️ Control de Préstamos</h1>
   <p>Diputación de León - Material deportivo</p>
+  <div class="estado-sync local" id="estadoSync">
+    <span class="punto"></span><span id="estadoSyncTexto">Cargando…</span>
+  </div>
 </header>
 
 <nav>
@@ -388,10 +282,6 @@
     <div class="card">
       <h2>Estado del material</h2>
       <div id="dashboardGrid"></div>
-    </div>
-    <div class="card">
-      <h2>Resumen rápido</h2>
-      <div id="resumenRapido"></div>
     </div>
   </div>
 
@@ -465,16 +355,13 @@
         <input type="hidden" id="d_prestamoId">
         <label>Fecha y hora de devolución</label>
         <input type="datetime-local" id="d_fecha" required>
-
         <label>Estado del material</label>
         <select id="d_estado" required>
           <option value="correcto">✅ Todo correcto</option>
           <option value="averiado">⚠️ Algo estropeado</option>
         </select>
-
         <label id="d_incidencias_label" style="display:none;">Descripción de los daños</label>
         <textarea id="d_incidencias" placeholder="Describe qué se ha estropeado..." style="display:none;"></textarea>
-
         <div class="row">
           <button type="submit" class="btn success">Guardar devolución</button>
           <button type="button" class="btn secondary" onclick="cerrarModal()">Cancelar</button>
@@ -491,14 +378,8 @@
         <table id="tablaHistorico">
           <thead>
             <tr>
-              <th>Artículo</th>
-              <th>Solicitante</th>
-              <th>Contacto</th>
-              <th>Salida</th>
-              <th>Devuelto</th>
-              <th>Estado</th>
-              <th>Incidencias</th>
-              <th></th>
+              <th>Artículo</th><th>Solicitante</th><th>Contacto</th>
+              <th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -510,35 +391,41 @@
   <!-- INVENTARIO -->
   <div id="inventario" class="tab">
     <div class="card">
-      <h2>Añadir nuevo artículo</h2>
-      <form id="formArticulo">
-        <label>Nombre del artículo</label>
-        <input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol">
-
-        <label>Tipo</label>
-        <input type="text" id="a_tipo" placeholder="Ej: pelota, red, cono...">
-
-        <label>Cantidad de unidades</label>
-        <input type="number" id="a_cantidad" min="1" value="1" required>
-
-        <label>Descripción / Observaciones</label>
-        <textarea id="a_descripcion" placeholder="Detalles, marca, modelo..."></textarea>
-
-        <button type="submit" class="btn">Añadir al inventario</button>
-      </form>
+      <button class="btn outline big" onclick="toggleFormArticulo()" id="btnToggleForm">➕ Añadir nuevo artículo</button>
+      <div id="formArticuloContainer" class="campo-oculto" style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+        <h2 style="font-size:1.1rem; margin-bottom:0.75rem; color:var(--primary-dark);">Datos del nuevo artículo</h2>
+        <form id="formArticulo">
+          <label>Nombre del artículo</label>
+          <input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol">
+          <label>Tipo</label>
+          <input type="text" id="a_tipo" placeholder="Ej: pelota, red, cono...">
+          <label>Cantidad de unidades</label>
+          <input type="number" id="a_cantidad" min="1" value="1" required>
+          <label>Descripción / Observaciones</label>
+          <textarea id="a_descripcion" placeholder="Detalles, marca, modelo..."></textarea>
+          <div class="row">
+            <button type="submit" class="btn">Guardar artículo</button>
+            <button type="button" class="btn secondary" onclick="toggleFormArticulo()">Cancelar</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div class="card">
       <h2>Inventario actual</h2>
-      <div id="listaInventario"></div>
+      <div id="inventarioGrid" class="inventario-grid"></div>
+      <div id="inventarioDetalles"></div>
     </div>
   </div>
 
   <!-- AJUSTES -->
   <div id="ajustes" class="tab">
+    <div class="card">
+      <h2>🌐 Sincronización en la nube</h2>
+      <div id="estadoFirebaseInfo"></div>
+    </div>
     <div class="alert warn">
-      ⚠️ <strong>Importante:</strong> los datos se guardan solo en este navegador.
-      Si usas otro dispositivo, no los verás. Haz copias de seguridad regularmente.
+      ⚠️ Si la sincronización está <strong>activa</strong>, los datos se comparten entre todos los dispositivos que abran esta web. Si está en <strong>modo local</strong>, cada navegador guarda sus propios datos.
     </div>
     <div class="card">
       <h2>Copia de seguridad</h2>
@@ -556,7 +443,46 @@
 
 </main>
 
+<!-- Firebase (SDK compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script>
+// ===================== CONFIGURACIÓN FIREBASE =====================
+const firebaseConfig = {
+  apiKey: "AIzaSyAXMxcl7SCIkxLcg4smfMljksCd-WNDiOE",
+  authDomain: "material-deportes.firebaseapp.com",
+  databaseURL: "https://material-deportes-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "material-deportes",
+  storageBucket: "material-deportes.firebasestorage.app",
+  messagingSenderId: "508599988372",
+  appId: "1:508599988372:web:c96c0dbae6be456a264481"
+};
+let db = null;
+let firebaseActivo = false;
+
+function initFirebase() {
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") {
+    setEstado('local', 'Modo local');
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    firebaseActivo = true;
+    setEstado('sinc', 'Sincronizando…');
+  } catch (e) {
+    console.error('Error Firebase:', e);
+    setEstado('local', 'Modo local');
+  }
+}
+
+function setEstado(tipo, texto) {
+  const el = document.getElementById('estadoSync');
+  el.className = 'estado-sync ' + tipo;
+  document.getElementById('estadoSyncTexto').textContent = texto;
+}
+
 // ===================== DATOS =====================
 const STORAGE_KEY = 'dipuleon_prestamos_v1';
 
@@ -591,12 +517,25 @@ const AYUNTAMIENTOS_LEON = [
   "Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"
 ];
 
-function guardar() { localStorage.setItem(STORAGE_KEY, JSON.stringify(datos)); }
+const ICONOS_TIPO = {
+  'arco': '⚽', 'carpa_hinchable': '🎪', 'carpa_metalica': '⛺',
+  'podio': '🏆', 'pancarta': '🪧', 'balon': '⚽', 'red': '🥅', 'cono': '🔶', 'default': '📦'
+};
+function getIcono(tipo) { return ICONOS_TIPO[tipo] || ICONOS_TIPO['default']; }
 
-function cargar() {
+function guardar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+  if (db) {
+    db.ref('datos').set(datos)
+      .then(() => setEstado('sync', 'Sincronizado'))
+      .catch(() => setEstado('error', 'Error al sincronizar'));
+  }
+}
+
+function cargarLocal() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) { datos = JSON.parse(raw); }
-  else { inicializarInventario(); guardar(); }
+  else { inicializarInventario(); }
 }
 
 function inicializarInventario() {
@@ -618,6 +557,35 @@ function inicializarInventario() {
   });
 }
 
+// ===================== ARRANQUE CON SINCRONIZACIÓN =====================
+function init() {
+  initFirebase();
+  if (db) {
+    db.ref('datos').on('value', snap => {
+      const remoto = snap.val();
+      if (remoto && remoto.articulos) {
+        datos = remoto;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+        setEstado('sync', 'Sincronizado');
+      } else {
+        cargarLocal();
+        db.ref('datos').set(datos);
+        setEstado('sync', 'Sincronizado');
+      }
+      renderTodo();
+    }, err => {
+      console.error('Error de escucha Firebase:', err);
+      setEstado('error', 'Sin conexión');
+      cargarLocal();
+      renderTodo();
+    });
+  } else {
+    cargarLocal();
+    renderTodo();
+  }
+  renderEstadoFirebase();
+}
+
 // ===================== NOTIFICACIONES =====================
 function notificar(mensaje, tipo = 'info', titulo = '') {
   const contenedor = document.getElementById('toast-container');
@@ -628,16 +596,12 @@ function notificar(mensaje, tipo = 'info', titulo = '') {
   const tituloFinal = titulo || titulosPorDefecto[tipo] || 'Aviso';
   toast.innerHTML = `
     <span class="toast-icono">${iconos[tipo] || 'ℹ️'}</span>
-    <div class="toast-texto">
-      <div class="toast-titulo">${tituloFinal}</div>
-      <div>${mensaje}</div>
-    </div>
+    <div class="toast-texto"><div class="toast-titulo">${tituloFinal}</div><div>${mensaje}</div></div>
     <button class="toast-cerrar" onclick="cerrarToast(this.parentElement)" title="Cerrar">×</button>
   `;
   contenedor.appendChild(toast);
   setTimeout(() => { if (toast.parentElement) cerrarToast(toast); }, 4000);
 }
-
 function cerrarToast(toast) {
   if (!toast || !toast.parentElement) return;
   toast.classList.add('saliendo');
@@ -656,12 +620,12 @@ function showTab(id, btn) {
 // ===================== RENDER =====================
 function renderTodo() {
   renderDashboard();
-  renderResumenRapido();
   renderSelectUnidades();
   renderDevoluciones();
   renderHistorico();
   renderInventario();
   cargarAyuntamientos();
+  renderEstadoFirebase();
 }
 
 function getArticulo(id) { return datos.articulos.find(a => a.id === id); }
@@ -701,10 +665,7 @@ function renderDashboard() {
       }
       htmlUnidades += `
         <div class="unidad-row ${u.estado}">
-          <div>
-            <strong>${u.identificador}</strong>
-            <div class="meta">${meta}</div>
-          </div>
+          <div><strong>${u.identificador}</strong><div class="meta">${meta}</div></div>
           ${badge}
         </div>
       `;
@@ -721,92 +682,43 @@ function renderDashboard() {
   });
 }
 
-function renderResumenRapido() {
-  const cont = document.getElementById('resumenRapido');
-  const activos = datos.prestamos.filter(p => !p.fechaDevolucion).length;
-  const enAlmacen = datos.unidades.filter(u => u.estado === 'almacen').length;
-  const averiados = datos.unidades.filter(u => u.estado === 'averiado').length;
-  const total = datos.unidades.length;
-  cont.innerHTML = `
-    <div class="grid">
-      <div class="item" style="border-left:4px solid var(--success); padding:0.75rem; background:#f0fdf4; border-radius:6px;">
-        <div style="font-size:0.8rem; color:var(--muted);">En almacén</div>
-        <div style="font-size:1.5rem; font-weight:700; color:var(--success);">${enAlmacen}</div>
-      </div>
-      <div class="item" style="border-left:4px solid var(--warning); padding:0.75rem; background:#fffbeb; border-radius:6px;">
-        <div style="font-size:0.8rem; color:var(--muted);">Prestados</div>
-        <div style="font-size:1.5rem; font-weight:700; color:var(--warning);">${activos}</div>
-      </div>
-      <div class="item" style="border-left:4px solid var(--danger); padding:0.75rem; background:#fef2f2; border-radius:6px;">
-        <div style="font-size:0.8rem; color:var(--muted);">Averiados</div>
-        <div style="font-size:1.5rem; font-weight:700; color:var(--danger);">${averiados}</div>
-      </div>
-      <div class="item" style="border-left:4px solid var(--primary); padding:0.75rem; background:#eff6ff; border-radius:6px;">
-        <div style="font-size:0.8rem; color:var(--muted);">Total unidades</div>
-        <div style="font-size:1.5rem; font-weight:700; color:var(--primary);">${total}</div>
-      </div>
-    </div>
-  `;
-}
-
 function renderSelectUnidades() {
   const sel = document.getElementById('p_unidad');
   const valorActual = sel.value;
   sel.innerHTML = '<option value="">-- Selecciona --</option>';
   datos.unidades.forEach(u => {
-    if (u.estado === 'almacen') {
-      sel.innerHTML += `<option value="${u.id}">${u.identificador}</option>`;
-    }
+    if (u.estado === 'almacen') sel.innerHTML += `<option value="${u.id}">${u.identificador}</option>`;
   });
-  if (valorActual && datos.unidades.find(u => u.id === parseInt(valorActual) && u.estado === 'almacen')) {
-    sel.value = valorActual;
-  }
+  if (valorActual && datos.unidades.find(u => u.id === parseInt(valorActual) && u.estado === 'almacen')) sel.value = valorActual;
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('p_salida').value = now.toISOString().slice(0,16);
 }
 
-// ===================== PESTAÑA DEVOLUCIONES =====================
 function renderDevoluciones() {
   const cont = document.getElementById('listaDevoluciones');
   const activos = datos.prestamos.filter(p => !p.fechaDevolucion);
-
   if (activos.length === 0) {
-    cont.innerHTML = `
-      <div class="vacio">
-        <div class="icono">🎉</div>
-        <div><strong>¡Todo al día!</strong></div>
-        <div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div>
-      </div>
-    `;
+    cont.innerHTML = `<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div></div>`;
     return;
   }
-
   const ahora = new Date();
   let html = '';
   activos.forEach(p => {
     const u = datos.unidades.find(x => x.id === p.unidadId);
     if (!u) return;
-
-    const fechaSalida = new Date(p.fechaSalida);
-    const diasPrestado = Math.floor((ahora - fechaSalida) / (1000 * 60 * 60 * 24));
+    const diasPrestado = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000);
     let textoDias = `Hace ${diasPrestado} día${diasPrestado === 1 ? '' : 's'}`;
-
-    let infoPrevista = '';
-    let clasePrevista = '';
+    let infoPrevista = '', clasePrevista = '';
     if (p.fechaPrevista) {
-      const fechaPrevista = new Date(p.fechaPrevista);
-      const vencido = ahora > fechaPrevista;
-      const diasRestantes = Math.ceil((fechaPrevista - ahora) / (1000 * 60 * 60 * 24));
-      if (vencido) {
-        const diasVencido = Math.abs(diasRestantes);
-        infoPrevista = `⚠️ Vencida hace ${diasVencido} día${diasVencido === 1 ? '' : 's'}`;
+      const fp = new Date(p.fechaPrevista);
+      const diasRestantes = Math.ceil((fp - ahora) / 86400000);
+      if (ahora > fp) {
+        const d = Math.abs(diasRestantes);
+        infoPrevista = `⚠️ Vencida hace ${d} día${d === 1 ? '' : 's'}`;
         clasePrevista = 'prevista-vencida';
-      } else {
-        infoPrevista = `Faltan ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}`;
-      }
+      } else infoPrevista = `Faltan ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}`;
     }
-
     html += `
       <div class="devolucion-card">
         <div class="cabecera">
@@ -817,23 +729,10 @@ function renderDevoluciones() {
           <span class="badge prestado">PENDIENTE</span>
         </div>
         <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Solicitante</span>
-            <span class="info-valor">${p.solicitante}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Contacto</span>
-            <span class="info-valor">${p.contacto || '-'}${p.telefono ? ' · ' + p.telefono : ''}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Fecha de salida</span>
-            <span class="info-valor">${formatFecha(p.fechaSalida)}</span>
-          </div>
-          ${p.fechaPrevista ? `
-          <div class="info-item">
-            <span class="info-label">Devolución prevista</span>
-            <span class="info-valor ${clasePrevista}">${formatFecha(p.fechaPrevista)}<br><small>${infoPrevista}</small></span>
-          </div>` : ''}
+          <div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">${p.solicitante}</span></div>
+          <div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">${p.contacto || '-'}${p.telefono ? ' · ' + p.telefono : ''}</span></div>
+          <div class="info-item"><span class="info-label">Fecha de salida</span><span class="info-valor">${formatFecha(p.fechaSalida)}</span></div>
+          ${p.fechaPrevista ? `<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor ${clasePrevista}">${formatFecha(p.fechaPrevista)}<br><small>${infoPrevista}</small></span></div>` : ''}
         </div>
         <button class="btn success big" onclick="abrirDevolucion(${p.id})">↩️ Registrar devolución</button>
       </div>
@@ -849,9 +748,7 @@ function renderHistorico() {
   ordenados.forEach(p => {
     const u = datos.unidades.find(x => x.id === p.unidadId);
     let badge = '<span class="badge prestado">EN CURSO</span>';
-    if (p.fechaDevolucion) {
-      badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
-    }
+    if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
     tbody.innerHTML += `
       <tr>
         <td>${u ? u.identificador : '?'}</td>
@@ -862,39 +759,90 @@ function renderHistorico() {
         <td>${badge}</td>
         <td>${p.incidencias || '-'}</td>
         <td>
-          ${!p.fechaDevolucion ? `<button class="btn small success" onclick="abrirDevolucion(${p.id}); showTab('devoluciones', document.querySelectorAll('nav button')[2]);">Devolver</button>` : ''}
+          ${!p.fechaDevolucion ? `<button class="btn small success" onclick="abrirDevolucion(${p.id})">Devolver</button>` : ''}
           <button class="btn small danger" onclick="eliminarPrestamo(${p.id})">🗑️</button>
         </td>
       </tr>
     `;
   });
-  if (ordenados.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
-  }
+  if (ordenados.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
 }
 
+let articuloExpandido = null;
+function toggleFormArticulo() {
+  const cont = document.getElementById('formArticuloContainer');
+  const btn = document.getElementById('btnToggleForm');
+  cont.classList.toggle('campo-oculto');
+  btn.textContent = cont.classList.contains('campo-oculto') ? '➕ Añadir nuevo artículo' : '➖ Ocultar formulario';
+}
+function toggleArticuloDetalle(id) {
+  const detalle = document.getElementById('detalle-' + id);
+  if (!detalle) return;
+  const abierto = detalle.classList.toggle('abierto');
+  document.querySelectorAll('.inv-detalle').forEach(d => { if (d.id !== 'detalle-' + id) d.classList.remove('abierto'); });
+  articuloExpandido = abierto ? id : null;
+}
 function renderInventario() {
-  const cont = document.getElementById('listaInventario');
-  cont.innerHTML = '';
+  const grid = document.getElementById('inventarioGrid');
+  const detallesCont = document.getElementById('inventarioDetalles');
+  grid.innerHTML = ''; detallesCont.innerHTML = '';
   datos.articulos.forEach(a => {
+    if (!a.activo) return;
     const unidades = datos.unidades.filter(u => u.articuloId === a.id);
+    if (unidades.length === 0) return;
     const disponibles = unidades.filter(u => u.estado === 'almacen').length;
     const prestados = unidades.filter(u => u.estado === 'prestado').length;
     const averiados = unidades.filter(u => u.estado === 'averiado').length;
-    cont.innerHTML += `
-      <div class="card" style="background:#f9fafb; margin-bottom:0.5rem;">
-        <strong>${a.nombre}</strong> <span style="color:var(--muted); font-size:0.85rem;">(${a.tipo || 'sin tipo'})</span>
-        <div style="font-size:0.85rem; margin-top:0.25rem;">
-          Total: <strong>${a.cantidad}</strong> |
-          <span style="color:var(--success);">Disponibles: ${disponibles}</span> |
-          <span style="color:var(--warning);">Prestados: ${prestados}</span> |
-          <span style="color:var(--danger);">Averiados: ${averiados}</span>
-        </div>
-        ${a.descripcion ? `<div style="font-size:0.8rem; color:var(--muted); margin-top:0.25rem;">${a.descripcion}</div>` : ''}
-        <button class="btn small danger" style="margin-top:0.5rem;" onclick="eliminarArticulo(${a.id})">Eliminar artículo</button>
+    let estadoClase = 'estado-ok';
+    if (averiados > 0) estadoClase = 'estado-mal';
+    else if (prestados > 0) estadoClase = 'estado-parcial';
+    const icono = getIcono(a.tipo);
+    const btn = document.createElement('div');
+    btn.className = `inv-btn ${estadoClase}`;
+    btn.onclick = () => toggleArticuloDetalle(a.id);
+    btn.innerHTML = `<div class="inv-icono">${icono}</div><div class="inv-nombre">${a.nombre}</div><div class="inv-total">${a.cantidad} ud.</div>`;
+    grid.appendChild(btn);
+    const detalle = document.createElement('div');
+    detalle.className = 'inv-detalle'; detalle.id = 'detalle-' + a.id;
+    let htmlUnidades = '';
+    unidades.forEach(u => {
+      const prestamo = getPrestamoActivo(u.id);
+      let estadoTexto = '📍 Almacén';
+      if (u.estado === 'prestado' && prestamo) estadoTexto = `👤 ${prestamo.solicitante}`;
+      else if (u.estado === 'averiado') estadoTexto = '🔧 Averiado' + (u.observaciones ? ': ' + u.observaciones : '');
+      htmlUnidades += `<div class="det-unidad ${u.estado}"><span>${u.identificador}</span><span style="font-size:0.75rem; color:var(--muted);">${estadoTexto}</span></div>`;
+    });
+    detalle.innerHTML = `
+      <div class="det-header">
+        <div class="det-nombre">${icono} ${a.nombre} <span style="font-size:0.8rem; color:var(--muted); font-weight:400;">(${a.tipo || 'sin tipo'})</span></div>
+        <button class="btn small danger" onclick="event.stopPropagation(); eliminarArticulo(${a.id})">🗑️ Eliminar</button>
       </div>
+      <div class="det-stats">
+        <span>Total: <strong>${a.cantidad}</strong></span>
+        <span style="color:var(--success);">Disponibles: ${disponibles}</span>
+        <span style="color:var(--warning);">Prestados: ${prestados}</span>
+        <span style="color:var(--danger);">Averiados: ${averiados}</span>
+      </div>
+      ${a.descripcion ? `<div class="det-desc">${a.descripcion}</div>` : ''}
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.4rem; font-weight:600;">Unidades:</div>
+      <div class="det-unidades">${htmlUnidades}</div>
     `;
+    detallesCont.appendChild(detalle);
   });
+  if (articuloExpandido !== null) {
+    const det = document.getElementById('detalle-' + articuloExpandido);
+    if (det) det.classList.add('abierto'); else articuloExpandido = null;
+  }
+}
+
+function renderEstadoFirebase() {
+  const el = document.getElementById('estadoFirebaseInfo');
+  if (!el) return;
+  if (firebaseActivo) {
+    el.innerHTML = `<p style="color:var(--success); font-weight:600;">✅ Sincronización en la nube ACTIVA</p><p style="font-size:0.85rem; color:var(--muted);">Todos los dispositivos que abran esta web verán los mismos datos en tiempo real.</p>`;
+  } else {
+    el.innerHTML = `<p style="color:var(--warning); font-weight:600;">📴 Modo local (sin sincronizar)</p><p style="font-size:0.85rem; color:var(--muted);">Cada dispositivo guarda sus datos por separado. Para activar la sincronización, completa la configuración de Firebase en el código.</p>`;
+  }
 }
 
 // ===================== AYUNTAMIENTOS =====================
@@ -904,30 +852,18 @@ function cargarAyuntamientos() {
   sel.innerHTML = '<option value="">-- Selecciona ayuntamiento --</option>';
   AYUNTAMIENTOS_LEON.forEach(a => { sel.innerHTML += `<option value="${a}">${a}</option>`; });
 }
-
 function cambiarTipoSolicitante() {
   const tipo = document.getElementById('p_tipo_solicitante').value;
   const campoAyto = document.getElementById('campo_ayuntamiento');
   const campoLibre = document.getElementById('campo_nombre_libre');
   const labelLibre = document.getElementById('label_nombre_libre');
   const inputLibre = document.getElementById('p_nombre_libre');
-  campoAyto.classList.add('campo-oculto');
-  campoLibre.classList.add('campo-oculto');
-  document.getElementById('p_ayuntamiento').value = '';
-  inputLibre.value = '';
-  if (tipo === 'ayuntamiento') {
-    campoAyto.classList.remove('campo-oculto');
-  } else if (tipo === 'asociacion') {
-    labelLibre.textContent = 'Nombre de la asociación';
-    inputLibre.placeholder = 'Ej: Asociación Cultural La Legua';
-    campoLibre.classList.remove('campo-oculto');
-  } else if (tipo === 'otro') {
-    labelLibre.textContent = 'Nombre / Entidad';
-    inputLibre.placeholder = 'Ej: Colegio, empresa, particular...';
-    campoLibre.classList.remove('campo-oculto');
-  }
+  campoAyto.classList.add('campo-oculto'); campoLibre.classList.add('campo-oculto');
+  document.getElementById('p_ayuntamiento').value = ''; inputLibre.value = '';
+  if (tipo === 'ayuntamiento') campoAyto.classList.remove('campo-oculto');
+  else if (tipo === 'asociacion') { labelLibre.textContent = 'Nombre de la asociación'; inputLibre.placeholder = 'Ej: Asociación Cultural La Legua'; campoLibre.classList.remove('campo-oculto'); }
+  else if (tipo === 'otro') { labelLibre.textContent = 'Nombre / Entidad'; inputLibre.placeholder = 'Ej: Colegio, empresa, particular...'; campoLibre.classList.remove('campo-oculto'); }
 }
-
 function obtenerSolicitante() {
   const tipo = document.getElementById('p_tipo_solicitante').value;
   if (tipo === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value;
@@ -945,27 +881,13 @@ document.getElementById('formPrestamo').addEventListener('submit', e => {
   const telefono = document.getElementById('p_telefono').value.trim();
   const salida = document.getElementById('p_salida').value;
   const prevista = document.getElementById('p_prevista').value;
-
-  if (!unidadId || !tipoSolicitante || !solicitante || !salida) {
-    notificar('Completa todos los campos obligatorios antes de continuar.', 'aviso', 'Faltan datos');
-    return;
-  }
+  if (!unidadId || !tipoSolicitante || !solicitante || !salida) { notificar('Completa todos los campos obligatorios antes de continuar.', 'aviso', 'Faltan datos'); return; }
   const unidad = datos.unidades.find(u => u.id === unidadId);
-  if (!unidad || unidad.estado !== 'almacen') {
-    notificar('Esta unidad no está disponible en este momento.', 'error', 'Unidad no disponible');
-    return;
-  }
-
+  if (!unidad || unidad.estado !== 'almacen') { notificar('Esta unidad no está disponible en este momento.', 'error', 'Unidad no disponible'); return; }
   const id = datos.nextId.prestamo++;
-  datos.prestamos.push({
-    id, unidadId, tipoSolicitante, solicitante, contacto, telefono,
-    fechaSalida: salida, fechaPrevista: prevista || null,
-    fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: ''
-  });
+  datos.prestamos.push({ id, unidadId, tipoSolicitante, solicitante, contacto, telefono, fechaSalida: salida, fechaPrevista: prevista || null, fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: '' });
   unidad.estado = 'prestado';
-  guardar();
-  renderTodo();
-  e.target.reset();
+  guardar(); renderTodo(); e.target.reset();
   document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
   notificar(`Préstamo de <strong>${unidad.identificador}</strong> registrado correctamente.`, 'exito', 'Préstamo registrado');
@@ -985,8 +907,7 @@ function abrirDevolucion(prestamoId) {
     <span style="color:var(--muted);">Salida:</span> ${formatFecha(p.fechaSalida)}
     ${p.fechaPrevista ? '<br><span style="color:var(--muted);">Prevista:</span> ' + formatFecha(p.fechaPrevista) : ''}
   `;
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('d_fecha').value = now.toISOString().slice(0,16);
   document.getElementById('d_estado').value = 'correcto';
   document.getElementById('d_incidencias').value = '';
@@ -994,13 +915,11 @@ function abrirDevolucion(prestamoId) {
   document.getElementById('d_incidencias_label').style.display = 'none';
   document.getElementById('modalDevolucion').classList.add('show');
 }
-
 document.getElementById('d_estado').addEventListener('change', e => {
   const show = e.target.value === 'averiado';
   document.getElementById('d_incidencias').style.display = show ? 'block' : 'none';
   document.getElementById('d_incidencias_label').style.display = show ? 'block' : 'none';
 });
-
 document.getElementById('formDevolucion').addEventListener('submit', e => {
   e.preventDefault();
   const id = parseInt(document.getElementById('d_prestamoId').value);
@@ -1012,74 +931,48 @@ document.getElementById('formDevolucion').addEventListener('submit', e => {
   p.estado = 'devuelto';
   const unidad = datos.unidades.find(u => u.id === p.unidadId);
   if (p.estadoMaterial === 'averiado') {
-    unidad.estado = 'averiado';
-    unidad.observaciones = p.incidencias;
+    unidad.estado = 'averiado'; unidad.observaciones = p.incidencias;
     notificar(`Devolución registrada con incidencias. La unidad queda marcada como averiada.`, 'aviso', 'Devolución con incidencias');
   } else {
-    unidad.estado = 'almacen';
-    unidad.observaciones = '';
+    unidad.estado = 'almacen'; unidad.observaciones = '';
     notificar(`Devolución de <strong>${unidad.identificador}</strong> registrada correctamente.`, 'exito', 'Devolución registrada');
   }
-  guardar();
-  cerrarModal();
-  renderTodo();
+  guardar(); cerrarModal(); renderTodo();
 });
-
-function cerrarModal() {
-  document.getElementById('modalDevolucion').classList.remove('show');
-}
-
+function cerrarModal() { document.getElementById('modalDevolucion').classList.remove('show'); }
 function eliminarPrestamo(id) {
   if (!confirm('¿Seguro que quieres eliminar este préstamo?')) return;
   const p = datos.prestamos.find(x => x.id === id);
-  if (p && !p.fechaDevolucion) {
-    const u = datos.unidades.find(x => x.id === p.unidadId);
-    if (u) u.estado = 'almacen';
-  }
+  if (p && !p.fechaDevolucion) { const u = datos.unidades.find(x => x.id === p.unidadId); if (u) u.estado = 'almacen'; }
   datos.prestamos = datos.prestamos.filter(x => x.id !== id);
-  guardar();
-  renderTodo();
-  notificar('Préstamo eliminado del registro.', 'info', 'Préstamo eliminado');
+  guardar(); renderTodo(); notificar('Préstamo eliminado del registro.', 'info', 'Préstamo eliminado');
 }
 
-// ===================== INVENTARIO =====================
+// ===================== FORMULARIO ARTÍCULO =====================
 document.getElementById('formArticulo').addEventListener('submit', e => {
   e.preventDefault();
   const nombre = document.getElementById('a_nombre').value.trim();
   const tipo = document.getElementById('a_tipo').value.trim();
   const cantidad = parseInt(document.getElementById('a_cantidad').value);
   const descripcion = document.getElementById('a_descripcion').value.trim();
-  if (!nombre || !cantidad || cantidad < 1) {
-    notificar('Introduce al menos el nombre y la cantidad del artículo.', 'aviso', 'Faltan datos');
-    return;
-  }
+  if (!nombre || !cantidad || cantidad < 1) { notificar('Introduce al menos el nombre y la cantidad del artículo.', 'aviso', 'Faltan datos'); return; }
   const idA = datos.nextId.articulo++;
   datos.articulos.push({ id: idA, nombre, tipo, cantidad, descripcion, activo: true });
   for (let i = 1; i <= cantidad; i++) {
     const idU = datos.nextId.unidad++;
     datos.unidades.push({ id: idU, articuloId: idA, identificador: `${nombre} #${i}`, estado: 'almacen', observaciones: '' });
   }
-  guardar();
-  renderTodo();
-  e.target.reset();
+  guardar(); renderTodo(); e.target.reset(); toggleFormArticulo();
   notificar(`Se han añadido <strong>${cantidad}</strong> unidad(es) de "${nombre}" al inventario.`, 'exito', 'Artículo añadido');
 });
-
 function eliminarArticulo(id) {
-  const tienePrestamos = datos.prestamos.some(p => {
-    const u = datos.unidades.find(x => x.id === p.unidadId);
-    return u && u.articuloId === id;
-  });
-  if (tienePrestamos) {
-    notificar('No se puede eliminar porque tiene préstamos asociados. Devuélvelos primero.', 'error', 'No se puede eliminar');
-    return;
-  }
+  const tienePrestamos = datos.prestamos.some(p => { const u = datos.unidades.find(x => x.id === p.unidadId); return u && u.articuloId === id; });
+  if (tienePrestamos) { notificar('No se puede eliminar porque tiene préstamos asociados. Devuélvelos primero.', 'error', 'No se puede eliminar'); return; }
   if (!confirm('¿Seguro que quieres eliminar este artículo y todas sus unidades?')) return;
   datos.articulos = datos.articulos.filter(a => a.id !== id);
   datos.unidades = datos.unidades.filter(u => u.articuloId !== id);
-  guardar();
-  renderTodo();
-  notificar('Artículo eliminado del inventario.', 'info', 'Artículo eliminado');
+  if (articuloExpandido === id) articuloExpandido = null;
+  guardar(); renderTodo(); notificar('Artículo eliminado del inventario.', 'info', 'Artículo eliminado');
 }
 
 // ===================== EXPORT / IMPORT =====================
@@ -1087,46 +980,33 @@ function exportarDatos() {
   const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `prestamos_backup_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  notificar('Copia de seguridad descargada correctamente. Guárdala en un lugar seguro.', 'exito', 'Datos exportados');
+  a.href = url; a.download = `prestamos_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  notificar('Copia de seguridad descargada correctamente.', 'exito', 'Datos exportados');
 }
-
 function importarDatos(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!imported.articulos || !imported.unidades || !imported.prestamos) {
-        notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido');
-        return;
-      }
-      if (!confirm('¿Reemplazar todos los datos actuales con los del archivo? Esta acción no se puede deshacer.')) return;
-      datos = imported;
-      guardar();
-      renderTodo();
-      notificar('Datos importados correctamente desde el archivo.', 'exito', 'Datos importados');
-    } catch (err) {
-      notificar('No se ha podido leer el archivo: ' + err.message, 'error', 'Error al importar');
-    }
+      if (!imported.articulos || !imported.unidades || !imported.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; }
+      if (!confirm('¿Reemplazar todos los datos actuales con los del archivo?')) return;
+      datos = imported; articuloExpandido = null;
+      guardar(); renderTodo(); notificar('Datos importados correctamente.', 'exito', 'Datos importados');
+    } catch (err) { notificar('No se ha podido leer el archivo: ' + err.message, 'error', 'Error al importar'); }
   };
-  reader.readAsText(file);
-  event.target.value = '';
+  reader.readAsText(file); event.target.value = '';
 }
-
 function resetearDatos() {
-  if (!confirm('¿Seguro? Se borrarán TODOS los datos (artículos, préstamos, histórico).')) return;
+  if (!confirm('¿Seguro? Se borrarán TODOS los datos.')) return;
   if (!confirm('Última confirmación: ¿realmente quieres borrar todo?')) return;
   localStorage.removeItem(STORAGE_KEY);
   datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
+  articuloExpandido = null;
   inicializarInventario();
-  guardar();
-  renderTodo();
-  notificar('Todos los datos han sido borrados. Se ha restaurado el inventario inicial.', 'aviso', 'Datos borrados');
+  guardar(); renderTodo();
+  notificar('Datos borrados y restaurado el inventario inicial.', 'aviso', 'Datos borrados');
 }
 
 // ===================== UTILS =====================
@@ -1137,8 +1017,7 @@ function formatFecha(iso) {
 }
 
 // ===================== INIT =====================
-cargar();
-renderTodo();
+init();
 </script>
 
 </body>
