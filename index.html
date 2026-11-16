@@ -227,10 +227,6 @@
       <h2>Estado del material</h2>
       <div id="dashboardGrid"></div>
     </div>
-    <div class="card">
-      <h2>📊 Resumen rápido</h2>
-      <div id="resumenRapido"></div>
-    </div>
   </div>
 
   <div id="prestamo" class="tab">
@@ -605,7 +601,7 @@ function showTab(id, btn) {
   if (id === 'calendario') renderCalendario();
 }
 
-function renderTodo() { renderDashboard(); renderResumenRapido(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
+function renderTodo() { renderDashboard(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
 function getArticulo(id) { return datos.articulos.find(function(a) { return a.id === id; }); }
 function getPrestamoActivo(uId) { return datos.prestamos.find(function(p) { return p.unidadId === uId && !p.fechaDevolucion; }); }
 function toggleGrupo(id, btn) { const c = document.getElementById(id); const a = c.classList.toggle('abierto'); btn.classList.toggle('abierto', a); }
@@ -646,30 +642,6 @@ function renderDashboard() {
   });
 }
 
-function renderResumenRapido() {
-  const c = document.getElementById('resumenRapido');
-  if (!c) return;
-  const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; }).length;
-  const enAlm = datos.unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
-  const av = datos.unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
-  const total = datos.unidades.length;
-  c.innerHTML = '<div class="grid">' +
-    '<div style="border-left:4px solid var(--success); padding:0.75rem; background:#f0fdf4; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">En almacén</div><div style="font-size:1.5rem; font-weight:700; color:var(--success);">' + enAlm + '</div></div>' +
-    '<div style="border-left:4px solid var(--warning); padding:0.75rem; background:#fffbeb; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">Prestados</div><div style="font-size:1.5rem; font-weight:700; color:var(--warning);">' + activos + '</div></div>' +
-    '<div style="border-left:4px solid var(--danger); padding:0.75rem; background:#fef2f2; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">Averiados</div><div style="font-size:1.5rem; font-weight:700; color:var(--danger);">' + av + '</div></div>' +
-    '<div style="border-left:4px solid var(--primary); padding:0.75rem; background:#eff6ff; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">Total unidades</div><div style="font-size:1.5rem; font-weight:700; color:var(--primary);">' + total + '</div></div></div>';
-}
-
-function renderSelectUnidades() {
-  const sel = document.getElementById('p_unidad');
-  if (!sel) return;
-  const va = sel.value;
-  sel.innerHTML = '<option value="">-- Selecciona --</option>';
-  datos.unidades.forEach(function(u) { if (u.estado === 'almacen') sel.innerHTML += '<option value="' + u.id + '">' + u.identificador + '</option>'; });
-  if (va && datos.unidades.find(function(u) { return u.id === parseInt(va) && u.estado === 'almacen'; })) sel.value = va;
-  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  const ps = document.getElementById('p_salida'); if (ps) ps.value = now.toISOString().slice(0,16);
-}
 
 function renderDevoluciones() {
   const c = document.getElementById('listaDevoluciones');
