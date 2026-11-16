@@ -170,31 +170,33 @@
   .firma-canvas { width:100%; height:180px; display:block; cursor:crosshair; background:#fff; border-radius:4px; }
   .firma-botones { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
   .firma-preview { max-width:200px; border:1px solid var(--border); border-radius:4px; margin-top:0.5rem; }
-  .albaran-print { font-family: Arial, sans-serif; padding: 15px 20px; color: #000; max-width: 800px; margin: 0 auto; font-size: 10pt; }
-  .albaran-print h1 { text-align: center; font-size: 13pt; margin-bottom: 3px; }
-  .albaran-print h2 { text-align: center; font-size: 11pt; margin-bottom: 10px; font-weight: normal; }
-  .albaran-print h3 { font-size: 11pt; margin: 6px 0 4px 0; text-decoration: underline; }
-  .albaran-print .campo-linea { display: flex; align-items: baseline; margin-bottom: 3px; font-size: 10pt; }
-  .albaran-print .campo-linea strong { margin-right: 4px; white-space: nowrap; font-size: 10pt; }
-  .albaran-print .campo-linea .linea { flex: 1; border-bottom: 1px solid #000; min-height: 16px; padding: 0 4px; }
-  .albaran-print table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 10pt; }
-  .albaran-print table th, .albaran-print table td { border: 1px solid #000; padding: 3px 6px; }
+  .albaran-print { font-family: Arial, sans-serif; padding: 8px 15px; color: #000; max-width: 800px; margin: 0 auto; font-size: 9pt; line-height: 1.2; }
+  .albaran-print h1 { text-align: center; font-size: 11pt; margin-bottom: 2px; }
+  .albaran-print h2 { text-align: center; font-size: 9pt; margin-bottom: 6px; font-weight: normal; }
+  .albaran-print h3 { font-size: 9pt; margin: 4px 0 2px 0; text-decoration: underline; }
+  .albaran-print .campo-linea { display: flex; align-items: baseline; margin-bottom: 1px; font-size: 9pt; }
+  .albaran-print .campo-linea strong { margin-right: 3px; white-space: nowrap; font-size: 9pt; }
+  .albaran-print .campo-linea .linea { flex: 1; border-bottom: 1px solid #000; min-height: 14px; padding: 0 3px; }
+  .albaran-print table { width: 100%; border-collapse: collapse; margin: 3px 0; font-size: 9pt; }
+  .albaran-print table th, .albaran-print table td { border: 1px solid #000; padding: 2px 4px; }
   .albaran-print table th { background: #f0f0f0; text-align: center; }
-  .albaran-print .firmas-row { display: flex; justify-content: space-between; margin-top: 8px; gap: 15px; }
+  .albaran-print .firmas-row { display: flex; justify-content: space-between; margin-top: 4px; gap: 10px; }
   .albaran-print .firma-box { flex: 1; text-align: center; }
-  .albaran-print .firma-box .titulo { font-weight: bold; margin-bottom: 2px; font-size: 9pt; }
-  .albaran-print .firma-box .nombre { font-size: 9pt; margin-bottom: 2px; }
-  .albaran-print .firma-box .firma-img { max-width: 140px; max-height: 50px; margin: 0 auto; }
-  .albaran-print .firma-linea { border-bottom: 1px solid #000; height: 40px; width: 140px; margin: 0 auto; }
-  .albaran-print .fecha-final { text-align: center; margin-top: 6px; font-size: 10pt; }
-  .albaran-print .incidencias-box { border: 1px solid #000; padding: 5px; margin: 4px 0; min-height: 40px; }
-  .albaran-print .checkbox-item { display: flex; align-items: center; gap: 6px; margin: 3px 0; font-size: 10pt; }
-  .albaran-print .checkbox-item input[type="checkbox"] { width: 14px; height: 14px; }
+  .albaran-print .firma-box .titulo { font-weight: bold; margin-bottom: 1px; font-size: 8pt; }
+  .albaran-print .firma-box .nombre { font-size: 8pt; margin-bottom: 1px; }
+  .albaran-print .firma-box .firma-img { max-width: 120px; max-height: 35px; margin: 0 auto; }
+  .albaran-print .firma-linea { border-bottom: 1px solid #000; height: 25px; width: 120px; margin: 0 auto; }
+  .albaran-print .fecha-final { text-align: center; margin-top: 3px; font-size: 9pt; }
+  .albaran-print .incidencias-box { border: 1px solid #000; padding: 3px; margin: 3px 0; min-height: 25px; font-size: 9pt; }
+  .albaran-print .checkbox-item { display: flex; align-items: center; gap: 4px; margin: 2px 0; font-size: 9pt; }
+  .albaran-print .checkbox-item input[type="checkbox"] { width: 12px; height: 12px; margin: 0; }
+  .albaran-seccion { page-break-inside: avoid; }
+  @page { size: A4; margin: 8mm; }
   @media print {
-    body { background: white; padding: 0; }
+    body { background: white; padding: 0; margin: 0; }
     header, nav, main > .tab:not(.albaran-tab), #toast-container, #icono-preview, .no-print { display: none !important; }
     .albaran-tab { display: block !important; }
-    .albaran-print { padding: 10px; }
+    .albaran-print { padding: 0; max-width: 100%; }
   }
   @media (max-width:600px) {
     .row > * { min-width:100%; }
@@ -275,7 +277,18 @@
         <div id="campo_nombre_libre" class="campo-oculto"><label id="label_nombre_libre">Nombre</label><input type="text" id="p_nombre_libre" placeholder=""></div>
         <div class="row">
           <div><label>Persona de contacto *</label><input type="text" id="p_contacto" placeholder="Nombre y apellidos" required></div>
-          <div><label>D.N.I. / N.I.F.</label><input type="text" id="p_dni" placeholder="12345678A"></div>
+          <div>
+            <label>D.N.I. / N.I.F.</label>
+            <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+              <div style="flex:1;">
+                <input type="text" id="p_dni_numero" placeholder="12345678" maxlength="8" oninput="calcularLetraDNI()" style="margin-bottom:0;">
+              </div>
+              <div style="width:45px;">
+                <input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
+              </div>
+            </div>
+            <div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduce 8 números</div>
+          </div>
         </div>
         <div class="row">
           <div><label>Teléfono</label><input type="tel" id="p_telefono" placeholder="600 000 000"></div>
@@ -961,13 +974,39 @@ function limpiarFirma() {
   document.getElementById('firmaPreview').classList.add('campo-oculto');
 }
 
+// ===== CÁLCULO AUTOMÁTICO DE LETRA DNI =====
+function calcularLetraDNI() {
+  const input = document.getElementById('p_dni_numero');
+  const letraInput = document.getElementById('p_dni_letra');
+  const errorDiv = document.getElementById('dni_error');
+  let valor = input.value.replace(/[^0-9]/g, '');
+  input.value = valor;
+  if (valor.length === 8) {
+    const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
+    const letra = letras.charAt(parseInt(valor) % 23);
+    letraInput.value = letra;
+    errorDiv.style.display = 'none';
+  } else {
+    letraInput.value = '';
+    if (valor.length > 0 && valor.length < 8) errorDiv.style.display = 'block';
+    else errorDiv.style.display = 'none';
+  }
+}
+
+function obtenerDNIfull() {
+  const numero = document.getElementById('p_dni_numero').value.trim();
+  const letra = document.getElementById('p_dni_letra').value.trim();
+  if (numero.length === 8 && letra) return numero + letra;
+  return numero;
+}
+
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   e.preventDefault();
   const uId = parseInt(document.getElementById('p_unidad').value);
   const ts = document.getElementById('p_tipo_solicitante').value;
   const sol = obtenerSolicitante();
   const con = document.getElementById('p_contacto').value.trim();
-  const dni = document.getElementById('p_dni').value.trim();
+  const dni = obtenerDNIfull();
   const tel = document.getElementById('p_telefono').value.trim();
   const email = document.getElementById('p_email').value.trim();
   const calidad = document.getElementById('p_calidad').value.trim();
@@ -995,6 +1034,7 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
   document.getElementById('campo_asociacion').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
+  document.getElementById('dni_error').style.display = 'none';
   limpiarFirma();
   notificar('Préstamo de <strong>' + u.identificador + '</strong> registrado.', 'exito', 'Préstamo registrado');
   setTimeout(function() { generarAlbaran(id); }, 300);
@@ -1014,18 +1054,21 @@ function generarAlbaran(prestamoId) {
   const tipoMaterial = a ? a.tipo : '';
   const nombreMaterial = u ? u.identificador : '';
   const firmaArturo = 'img/firma_arturo.png';
+  const estaDevuelto = !!p.fechaDevolucion;
   
   let html = '';
-  html += '<h1 style="font-size:13pt;margin-bottom:3px;">CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
-  html += '<h2 style="font-size:11pt;margin-bottom:12px;">MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
+  html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
+  html += '<h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
   
-  html += '<h3 style="margin:8px 0 5px 0;">ENTREGA</h3>';
-  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:8px;">D.N.I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
-  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>en calidad de</strong><span class="linea">' + (p.calidad || '') + '</span><strong style="margin-left:8px;">del</strong><span class="linea">' + p.solicitante + '</span></div>';
-  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:8px;">Teléfono:</strong><span class="linea">' + (p.telefono || '') + '</span><strong style="margin-left:8px;">e-mail:</strong><span class="linea">' + (p.email || '') + '</span></div>';
-  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>RETIRA</strong> el material para la prueba <span class="linea">' + (p.prueba || '') + '</span> a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p.localidad || '') + '</span></div>';
+  // ENTREGA
+  html += '<div class="albaran-seccion">';
+  html += '<h3>ENTREGA</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea">' + (p.calidad || '') + '</span><strong style="margin-left:6px;">del</strong><span class="linea">' + p.solicitante + '</span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:6px;">Teléfono:</strong><span class="linea">' + (p.telefono || '') + '</span><strong style="margin-left:6px;">e-mail:</strong><span class="linea">' + (p.email || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>RETIRA</strong> el material para la prueba <span class="linea">' + (p.prueba || '') + '</span> a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p.localidad || '') + '</span></div>';
   
-  html += '<table style="margin:6px 0;"><thead><tr><th style="width:15%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
+  html += '<table><thead><tr><th style="width:15%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
   const tiposAlbaran = [
     { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
     { tipo: 'arco', nombre: 'ARCO HINCHABLE' },
@@ -1042,34 +1085,50 @@ function generarAlbaran(prestamoId) {
   });
   html += '</tbody></table>';
   
-  html += '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:15px;">';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">El encargado de edificio</div><div style="font-size:9pt;">Arturo Fernández Carbajo</div><div style="font-size:9pt;">Firmado:</div><img src="' + firmaArturo + '" style="max-width:140px;max-height:50px;margin:0 auto;"></div>';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">Entidad</div><div style="font-size:9pt;">' + p.solicitante + '</div><div style="font-size:9pt;">Firmado:</div>';
-  if (p.firma) html += '<img src="' + p.firma + '" style="max-width:140px;max-height:50px;margin:0 auto;">';
-  else html += '<div style="border-bottom:1px solid #000;height:40px;width:140px;margin:0 auto;"></div>';
+  // Firmas ENTREGA: SOLO firma de Arturo
+  html += '<div class="firmas-row">';
+  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><img src="' + firmaArturo + '" class="firma-img" alt="Firma"></div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p.solicitante + '</div><div class="nombre">Firmado:</div>';
+  if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma solicitante">';
+  else html += '<div class="firma-linea"></div>';
   html += '</div></div>';
-  html += '<div class="fecha-final" style="margin-top:6px;">' + fechaFormateada + '</div>';
+  html += '<div class="fecha-final">' + fechaFormateada + '</div>';
+  html += '</div>';
   
-  html += '<div style="border-top:1px dashed #999;margin:10px 0;"></div>';
+  // Separador
+  html += '<div style="border-top:1px dashed #999;margin:6px 0;"></div>';
   
-  html += '<h3 style="margin:5px 0;">DEVOLUCIÓN</h3>';
-  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:8px;">D.N.I.:</strong><span class="linea"></span></div>';
-  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>en calidad de</strong><span class="linea"></span><strong style="margin-left:8px;">del</strong><span class="linea"></span></div>';
-  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:8px;">Teléfono:</strong><span class="linea"></span><strong style="margin-left:8px;">e-mail:</strong><span class="linea"></span></div>';
-  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>DEVUELVE</strong> el material cedido para la prueba <span class="linea"></span>:</div>';
+  // DEVOLUCIÓN
+  html += '<div class="albaran-seccion">';
+  html += '<h3>DEVOLUCIÓN</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea"></span><strong style="margin-left:6px;">del</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:6px;">Teléfono:</strong><span class="linea"></span><strong style="margin-left:6px;">e-mail:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>DEVUELVE</strong> el material cedido para la prueba <span class="linea"></span>:</div>';
   
-  html += '<table style="margin:4px 0;"><thead><tr><th style="width:15%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
+  html += '<table><thead><tr><th style="width:15%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
   tiposAlbaran.forEach(function(t) { html += '<tr><td></td><td>' + t.nombre + '</td></tr>'; });
   html += '</tbody></table>';
   
-  html += '<div style="border:1px solid #000;padding:5px;margin:4px 0;min-height:40px;font-size:10pt;"><strong>INCIDENCIA/S:</strong></div>';
-  html += '<div style="display:flex;gap:15px;font-size:10pt;margin:4px 0;"><div style="display:flex;align-items:center;gap:4px;"><input type="checkbox" checked disabled style="width:14px;height:14px;"> Viene todo completo y en buen estado</div><div style="display:flex;align-items:center;gap:4px;"><input type="checkbox" disabled style="width:14px;height:14px;"> Falta algo o está deteriorado</div></div>';
+  html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong></div>';
+  html += '<div style="display:flex;gap:12px;font-size:9pt;margin:3px 0;"><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox" checked disabled style="width:12px;height:12px;"> Viene todo completo y en buen estado</div><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox" disabled style="width:12px;height:12px;"> Falta algo o está deteriorado</div></div>';
   
-  html += '<div style="display:flex;justify-content:space-between;margin-top:8px;gap:15px;">';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">El encargado de edificio</div><div style="font-size:9pt;">Arturo Fernández Carbajo</div><div style="font-size:9pt;">Firmado:</div><img src="' + firmaArturo + '" style="max-width:140px;max-height:50px;margin:0 auto;"></div>';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">Entidad</div><div style="font-size:9pt;">Firmado:</div><div style="border-bottom:1px solid #000;height:40px;width:140px;margin:0 auto;"></div></div>';
+  // Firmas DEVOLUCIÓN: AMBAS (encargado + entidad) si está devuelto
+  html += '<div class="firmas-row">';
+  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div>';
+  if (estaDevuelto) html += '<img src="' + firmaArturo + '" class="firma-img" alt="Firma">';
+  else html += '<div class="firma-linea"></div>';
   html += '</div>';
-  html += '<div class="fecha-final" style="margin-top:6px;">León, _____ de _______________ de 20___</div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">Firmado:</div>';
+  if (estaDevuelto) {
+    if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma">';
+    else html += '<div class="firma-linea"></div>';
+  } else {
+    html += '<div class="firma-linea"></div>';
+  }
+  html += '</div></div>';
+  html += '<div class="fecha-final">León, _____ de _______________ de 20___</div>';
+  html += '</div>';
   
   document.getElementById('albaranContenido').innerHTML = html;
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
