@@ -4,47 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control Préstamos - Diputación de León</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
   :root {
-    --primary: #1e5aa8;
-    --primary-dark: #15407a;
-    --success: #2e7d32;
-    --warning: #ed6c02;
-    --danger: #d32f2f;
-    --bg: #f4f6f9;
-    --card: #ffffff;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --border: #e5e7eb;
+    --primary: #1e5aa8; --primary-dark: #15407a; --success: #2e7d32;
+    --warning: #ed6c02; --danger: #d32f2f; --bg: #f4f6f9; --card: #ffffff;
+    --text: #1f2937; --muted: #6b7280; --border: #e5e7eb;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-  }
-  header {
-    background: var(--primary);
-    color: white;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: relative;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  header { background: var(--primary); color: white; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; }
   header h1 { font-size: 1.25rem; }
   header p { font-size: 0.85rem; opacity: 0.9; }
-  .estado-sync {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    font-size: 0.75rem;
-    background: rgba(255,255,255,0.15);
-    padding: 0.25rem 0.6rem;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
+  .estado-sync { position: absolute; top: 0.75rem; right: 0.75rem; font-size: 0.75rem; background: rgba(255,255,255,0.15); padding: 0.25rem 0.6rem; border-radius: 20px; display: flex; align-items: center; gap: 0.35rem; }
   .estado-sync .punto { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
   .estado-sync.sync .punto { background: #4ade80; }
   .estado-sync.local .punto { background: #fbbf24; }
@@ -52,25 +25,16 @@
   .estado-sync.error .punto { background: #f87171; }
   @keyframes parp { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
   nav { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; }
-  nav button {
-    flex: 1; min-width: 100px; padding: 0.9rem 0.5rem; background: none; border: none;
-    border-bottom: 3px solid transparent; cursor: pointer; font-size: 0.9rem;
-    color: var(--muted); font-weight: 500;
-  }
+  nav button { flex: 1; min-width: 90px; padding: 0.8rem 0.4rem; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 0.85rem; color: var(--muted); font-weight: 500; }
   nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
-  main { padding: 1rem; max-width: 1100px; margin: 0 auto; }
+  main { padding: 1rem; max-width: 1200px; margin: 0 auto; }
   .tab { display: none; }
   .tab.active { display: block; }
   .card { background: var(--card); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
   .card h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--primary-dark); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
-
   .grupo-articulo { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: white; }
-  .grupo-btn {
-    width: 100%; text-align: left; padding: 0.85rem 1rem; background: #f9fafb; border: none;
-    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-    font-size: 0.95rem; font-weight: 600; color: var(--text); transition: background 0.2s; gap: 0.5rem;
-  }
+  .grupo-btn { width: 100%; text-align: left; padding: 0.85rem 1rem; background: #f9fafb; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 600; color: var(--text); transition: background 0.2s; gap: 0.5rem; }
   .grupo-btn:hover { background: #f0f2f5; }
   .grupo-btn .flecha { transition: transform 0.2s; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
   .grupo-btn.abierto .flecha { transform: rotate(180deg); }
@@ -86,7 +50,6 @@
   .unidad-row.avariado { background: #fef2f2; }
   .unidad-row .meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
   .contador { font-size: 0.8rem; color: var(--muted); font-weight: 400; margin-left: 0.5rem; }
-
   label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text); font-weight: 500; }
   input, select, textarea { width: 100%; padding: 0.55rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit; }
   textarea { resize: vertical; min-height: 60px; }
@@ -104,20 +67,24 @@
   .row > * { flex: 1; min-width: 150px; }
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
-  th { background: #f9fafb; font-weight: 600; }
+  th { background: #f9fafb; font-weight: 600; cursor: pointer; user-select: none; }
+  th:hover { background: #e5e7eb; }
+  th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
   .alert { padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.85rem; }
   .alert.warn { background: #fef3c7; color: #92400e; }
+  .alert.info { background: #dbeafe; color: #1e40af; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
   .badge.ok { background: #d4edda; color: var(--success); }
   .badge.prestado { background: #fff3cd; color: #856404; }
   .badge.danio { background: #f8d7da; color: var(--danger); }
+  .badge.vencido { background: #f8d7da; color: var(--danger); font-weight: 700; animation: parp 1.5s infinite; }
   .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
   .modal-bg.show { display: flex; }
-  .modal { background: white; border-radius: 8px; padding: 1.25rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal { background: white; border-radius: 8px; padding: 1.25rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal h3 { margin-bottom: 1rem; color: var(--primary-dark); }
   .campo-oculto { display: none; }
-
   .devolucion-card { border: 1px solid var(--border); border-left: 5px solid var(--warning); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; background: white; }
+  .devolucion-card.vencido { border-left-color: var(--danger); background: #fef2f2; }
   .devolucion-card .cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
   .devolucion-card .articulo { font-size: 1.05rem; font-weight: 600; color: var(--primary-dark); }
   .devolucion-card .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem 1rem; font-size: 0.88rem; margin-bottom: 0.75rem; }
@@ -125,15 +92,10 @@
   .devolucion-card .info-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
   .devolucion-card .info-valor { font-weight: 500; }
   .devolucion-card .prevista-vencida { color: var(--danger); font-weight: 600; }
-
   .inv-tabla-wrap { overflow-x: auto; }
   .inv-tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; table-layout: fixed; }
-  .inv-tabla th {
-    background: #f9fafb; padding: 0.6rem 0.4rem; text-align: center;
-    border-bottom: 2px solid var(--border); font-weight: 600;
-    font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
+  .inv-tabla th { background: #f9fafb; padding: 0.6rem 0.4rem; text-align: center; border-bottom: 2px solid var(--border); font-weight: 600; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; cursor: default; }
+  .inv-tabla th:hover { background: #f9fafb; }
   .inv-tabla td { padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); vertical-align: middle; text-align: center; }
   .inv-tabla tr:hover { background: #f9fafb; }
   .inv-tabla th:nth-child(1), .inv-tabla td:nth-child(1) { width: 22%; text-align: left; }
@@ -151,45 +113,11 @@
   .inv-tabla .stat.av { background: #f8d7da; color: var(--danger); }
   .inv-tabla .stat.total { background: #e0e7ff; color: var(--primary-dark); }
   .inv-tabla .acciones-celda { display: flex; gap: 0.3rem; flex-wrap: nowrap; justify-content: center; }
-
-  .icono-articulo {
-    display: inline-block;
-    width: 28px;
-    height: 28px;
-    vertical-align: middle;
-    margin-right: 6px;
-    object-fit: contain;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-  }
-  .icono-articulo:hover {
-    transform: scale(1.3);
-  }
-  .icono-articulo.emoji {
-    font-size: 1.3rem;
-    width: auto;
-    height: auto;
-    background: none;
-  }
-
-  /* Preview flotante de iconos */
-  #icono-preview {
-    position: fixed;
-    z-index: 9999;
-    pointer-events: none;
-    display: none;
-  }
-  #icono-preview img {
-    width: 180px;
-    height: 180px;
-    object-fit: contain;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    border: 2px solid var(--border);
-  }
-
+  .icono-articulo { display: inline-block; width: 28px; height: 28px; vertical-align: middle; margin-right: 6px; object-fit: contain; border-radius: 4px; cursor: pointer; transition: transform 0.15s ease; }
+  .icono-articulo:hover { transform: scale(1.3); }
+  .icono-articulo.emoji { font-size: 1.3rem; width: auto; height: auto; background: none; }
+  #icono-preview { position: fixed; z-index: 9999; pointer-events: none; display: none; }
+  #icono-preview img { width: 180px; height: 180px; object-fit: contain; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 2px solid var(--border); }
   #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; max-width: 360px; width: calc(100% - 2rem); pointer-events: none; }
   .toast { pointer-events: auto; background: white; border-radius: 8px; padding: 0.85rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: flex-start; gap: 0.75rem; animation: toastIn 0.3s ease-out; border-left: 4px solid var(--primary); font-size: 0.9rem; }
   .toast.saliendo { animation: toastOut 0.3s ease-in forwards; }
@@ -204,10 +132,45 @@
   .toast-cerrar:hover { color: var(--text); }
   @keyframes toastIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
   @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-
   .vacio { text-align: center; padding: 2rem 1rem; color: var(--muted); }
   .vacio .icono { font-size: 2.5rem; margin-bottom: 0.5rem; }
-
+  .listado-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .listado-opcion { background: white; border: 2px solid var(--border); border-radius: 8px; padding: 1rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .listado-opcion:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+  .listado-opcion.seleccionada { border-color: var(--primary); background: #eff6ff; }
+  .listado-opcion .op-icono { font-size: 2rem; margin-bottom: 0.5rem; }
+  .listado-opcion .op-titulo { font-weight: 600; color: var(--primary-dark); font-size: 0.9rem; }
+  .listado-opcion .op-desc { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+  .listado-config { background: #f9fafb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+  .filtro-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 6px; }
+  .filtro-bar input, .filtro-bar select { margin-bottom: 0; flex: 1; min-width: 150px; }
+  .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .qr-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+  .qr-card .qr-img { margin: 0.5rem auto; }
+  .qr-card .qr-nombre { font-weight: 600; font-size: 0.9rem; margin-top: 0.5rem; }
+  .qr-card .qr-estado { font-size: 0.8rem; margin-top: 0.25rem; }
+  #qr-reader { width: 100%; max-width: 500px; margin: 0 auto; }
+  .calendario-wrap { overflow-x: auto; }
+  .calendario { border-collapse: collapse; font-size: 0.75rem; min-width: 800px; }
+  .calendario th, .calendario td { border: 1px solid var(--border); padding: 3px 4px; text-align: center; min-width: 28px; }
+  .calendario th { background: #f9fafb; font-weight: 600; font-size: 0.7rem; }
+  .calendario th.fin-semana { background: #e5e7eb; }
+  .calendario td.fin-semana { background: #f3f4f6; }
+  .calendario td.dia-almacen { background: #d4edda; }
+  .calendario td.dia-prestado { background: #fff3cd; cursor: pointer; }
+  .calendario td.dia-averiado { background: #f8d7da; }
+  .calendario td.dia-vacio { background: white; }
+  .calendario .fila-articulo { font-weight: 600; text-align: left; min-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  .calendario-leyenda { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.85rem; }
+  .calendario-leyenda span { display: flex; align-items: center; gap: 0.4rem; }
+  .calendario-leyenda .box { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--border); }
+  .calendario-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 0.5rem; flex-wrap: wrap; }
+  .calendario-nav button { padding: 0.4rem 0.8rem; }
+  .calendario-nav .mes-actual { font-weight: 600; font-size: 1.1rem; color: var(--primary-dark); }
+  .unidad-ficha { background: #f9fafb; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+  .unidad-ficha h4 { color: var(--primary-dark); margin-bottom: 0.5rem; }
+  .unidad-ficha .historial-item { padding: 0.5rem; border-left: 3px solid var(--primary); margin-bottom: 0.5rem; background: white; border-radius: 4px; font-size: 0.85rem; }
+  .notas-texto { font-size: 0.82rem; color: var(--muted); font-style: italic; margin-top: 0.25rem; }
   @media (max-width: 600px) {
     .row > * { min-width: 100%; }
     table { font-size: 0.75rem; }
@@ -227,6 +190,8 @@
     .icono-articulo { width: 22px; height: 22px; margin-right: 4px; }
     button.btn.small { padding: 0.25rem 0.4rem; font-size: 0.7rem; }
     #icono-preview img { width: 140px; height: 140px; }
+    .listado-opciones { grid-template-columns: 1fr 1fr; }
+    nav button { font-size: 0.75rem; min-width: 70px; padding: 0.7rem 0.3rem; }
   }
 </style>
 </head>
@@ -245,10 +210,13 @@
 
 <nav>
   <button class="active" onclick="showTab('dashboard', this)">📊 Dashboard</button>
-  <button onclick="showTab('prestamo', this)">➕ Nuevo préstamo</button>
+  <button onclick="showTab('prestamo', this)">➕ Préstamo</button>
   <button onclick="showTab('devoluciones', this)">↩️ Devoluciones</button>
   <button onclick="showTab('historico', this)">📜 Histórico</button>
   <button onclick="showTab('inventario', this)">📦 Inventario</button>
+  <button onclick="showTab('qr', this)">📱 QR</button>
+  <button onclick="showTab('calendario', this)">📅 Calendario</button>
+  <button onclick="showTab('listados', this)">📄 Listados</button>
   <button onclick="showTab('ajustes', this)">⚙️ Ajustes</button>
 </nav>
 
@@ -258,6 +226,10 @@
     <div class="card">
       <h2>Estado del material</h2>
       <div id="dashboardGrid"></div>
+    </div>
+    <div class="card">
+      <h2>📊 Resumen rápido</h2>
+      <div id="resumenRapido"></div>
     </div>
   </div>
 
@@ -290,6 +262,8 @@
           <div><label>Fecha y hora de salida</label><input type="datetime-local" id="p_salida" required></div>
           <div><label>Fecha prevista de devolución</label><input type="datetime-local" id="p_prevista"></div>
         </div>
+        <label>Notas / Observaciones</label>
+        <textarea id="p_notas" placeholder="Ej: Se lo lleva el concejal Juan, lo recogen en almacén B..."></textarea>
         <button type="submit" class="btn">Registrar préstamo</button>
       </form>
     </div>
@@ -332,14 +306,14 @@
       <form id="formEditar">
         <input type="hidden" id="e_id">
         <label>Nombre del artículo *</label>
-        <input type="text" id="e_nombre" required placeholder="Ej: Balones de fútbol">
+        <input type="text" id="e_nombre" required>
         <label>Tipo</label>
         <input type="text" id="e_tipo" placeholder="Ej: pelota, cono, red...">
         <label>Cantidad de unidades *</label>
         <input type="number" id="e_cantidad" min="1" required>
         <div id="e_cantidad_ayuda" style="font-size:0.78rem; color:var(--muted); margin-top:-0.5rem; margin-bottom:0.75rem;"></div>
         <label>Descripción / Observaciones</label>
-        <textarea id="e_descripcion" placeholder="Detalles, marca, modelo..."></textarea>
+        <textarea id="e_descripcion"></textarea>
         <div class="row">
           <button type="submit" class="btn success">💾 Guardar cambios</button>
           <button type="button" class="btn secondary" onclick="cerrarModalEditar()">Cancelar</button>
@@ -348,13 +322,42 @@
     </div>
   </div>
 
+  <div id="modalUnidad" class="modal-bg">
+    <div class="modal">
+      <h3 id="modalUnidadTitulo">Ficha de unidad</h3>
+      <div id="modalUnidadContenido"></div>
+      <div style="margin-top:1rem; text-align:right;">
+        <button class="btn secondary" onclick="document.getElementById('modalUnidad').classList.remove('show')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="historico" class="tab">
     <div class="card">
       <h2>Histórico de préstamos</h2>
+      <div class="filtro-bar">
+        <input type="text" id="filtroSolicitante" placeholder="🔍 Buscar por solicitante..." oninput="renderHistorico()">
+        <input type="text" id="filtroArticulo" placeholder="🔍 Buscar por artículo..." oninput="renderHistorico()">
+        <select id="filtroEstado" onchange="renderHistorico()">
+          <option value="">Todos los estados</option>
+          <option value="activo">En curso</option>
+          <option value="devuelto_correcto">Devueltos OK</option>
+          <option value="devuelto_averiado">Con incidencias</option>
+        </select>
+      </div>
       <div style="overflow-x:auto;">
         <table id="tablaHistorico">
           <thead>
-            <tr><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th></th></tr>
+            <tr>
+              <th onclick="ordenarHistorico('articulo')">Artículo <span class="sort-icon" id="sort-articulo"></span></th>
+              <th onclick="ordenarHistorico('solicitante')">Solicitante <span class="sort-icon" id="sort-solicitante"></span></th>
+              <th>Contacto</th>
+              <th onclick="ordenarHistorico('salida')">Salida <span class="sort-icon" id="sort-salida"></span></th>
+              <th onclick="ordenarHistorico('devuelto')">Devuelto <span class="sort-icon" id="sort-devuelto"></span></th>
+              <th>Estado</th>
+              <th>Incidencias</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -370,7 +373,7 @@
       <div id="formAltaContainer" class="campo-oculto" style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
         <form id="formArticulo">
           <div class="row">
-            <div style="flex:2;"><label>Nombre del artículo *</label><input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol, Conos, Redes..."></div>
+            <div style="flex:2;"><label>Nombre del artículo *</label><input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol"></div>
             <div><label>Tipo</label><input type="text" id="a_tipo" placeholder="Ej: pelota, cono, red..."></div>
           </div>
           <div class="row">
@@ -384,24 +387,93 @@
         </form>
       </div>
     </div>
-
     <div class="card">
       <h2>📋 Existencias actuales</h2>
-      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.75rem;">Material registrado en el inventario. Puedes editar cualquier artículo o darlo de baja.</p>
       <div class="inv-tabla-wrap">
         <table class="inv-tabla" id="tablaInventario">
-          <thead>
-            <tr><th>Artículo</th><th>Tipo</th><th>Existencias</th><th>Descripción</th><th>Acciones</th></tr>
-          </thead>
+          <thead><tr><th>Artículo</th><th>Tipo</th><th>Existencias</th><th>Descripción</th><th>Acciones</th></tr></thead>
           <tbody id="tbodyInventario"></tbody>
         </table>
       </div>
       <div id="inventarioVacio" class="vacio" style="display:none;">
-        <div class="icono">📦</div>
-        <div><strong>No hay artículos en el inventario</strong></div>
-        <div style="font-size:0.9rem; margin-top:0.25rem;">Usa el formulario de arriba para dar de alta el primero.</div>
+        <div class="icono">📦</div><div><strong>No hay artículos en el inventario</strong></div>
       </div>
     </div>
+  </div>
+
+  <!-- PESTAÑA QR -->
+  <div id="qr" class="tab">
+    <div class="card">
+      <h2>📱 Códigos QR de unidades</h2>
+      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1rem;">Genera e imprime etiquetas QR para pegar en cada unidad física. Al escanear el código se abre directamente la ficha de esa unidad.</p>
+      <div class="row" style="margin-bottom:1rem;">
+        <button class="btn" onclick="generarTodosQR()">🖨️ Generar QR de todas las unidades</button>
+        <button class="btn secondary" onclick="window.print()">🖨️ Imprimir QR</button>
+      </div>
+      <div id="qrGrid" class="qr-grid"></div>
+    </div>
+    <div class="card">
+      <h2>📷 Escanear código QR</h2>
+      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1rem;">Usa la cámara del móvil para escanear el QR de una unidad. Se abrirá su ficha automáticamente.</p>
+      <div id="qr-reader"></div>
+      <div style="margin-top:1rem; text-align:center;">
+        <button class="btn success" id="btnIniciarLector" onclick="iniciarLectorQR()">▶️ Iniciar cámara</button>
+        <button class="btn danger" id="btnDetenerLector" onclick="detenerLectorQR()" style="display:none;">⏹️ Detener cámara</button>
+      </div>
+      <div id="qr-resultado" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA CALENDARIO -->
+  <div id="calendario" class="tab">
+    <div class="card">
+      <h2>📅 Calendario de préstamos</h2>
+      <div class="calendario-leyenda">
+        <span><div class="box" style="background:#d4edda;"></div> En almacén</span>
+        <span><div class="box" style="background:#fff3cd;"></div> Prestado</span>
+        <span><div class="box" style="background:#f8d7da;"></div> Averiado</span>
+        <span><div class="box" style="background:#f3f4f6;"></div> Fin de semana</span>
+      </div>
+      <div class="calendario-nav">
+        <button class="btn secondary" onclick="cambiarMes(-1)">◀️ Mes anterior</button>
+        <span class="mes-actual" id="calendarioMes"></span>
+        <button class="btn secondary" onclick="cambiarMes(1)">Mes siguiente ▶️</button>
+        <button class="btn outline" onclick="irAMesActual()">Hoy</button>
+      </div>
+      <div class="calendario-wrap">
+        <table class="calendario" id="tablaCalendario"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA LISTADOS -->
+  <div id="listados" class="tab">
+    <div class="card">
+      <h2>📄 Generar listado</h2>
+      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:1rem;">Selecciona el tipo de listado. Se abrirá una ventana lista para imprimir o guardar como PDF.</p>
+      <div class="listado-opciones" id="listadoOpciones">
+        <div class="listado-opcion" onclick="seleccionarListado('inventario', this)"><div class="op-icono">📦</div><div class="op-titulo">Inventario completo</div><div class="op-desc">Todos los artículos con existencias</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('solicitante', this)"><div class="op-icono">🏛️</div><div class="op-titulo">Por solicitante</div><div class="op-desc">Agrupado por ayto./asociación</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('material', this)"><div class="op-icono">🎯</div><div class="op-titulo">Por material</div><div class="op-desc">Qué se ha prestado de cada tipo</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('estado', this)"><div class="op-icono">🔍</div><div class="op-titulo">Por estado</div><div class="op-desc">Almacén / Prestado / Averiado</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('historico', this)"><div class="op-icono">📜</div><div class="op-titulo">Histórico por fechas</div><div class="op-desc">Préstamos entre dos fechas</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('prestado', this)"><div class="op-icono">👤</div><div class="op-titulo">Material prestado</div><div class="op-desc">Lo que está fuera del almacén</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('averiado', this)"><div class="op-icono">🔧</div><div class="op-titulo">Material averiado</div><div class="op-desc">Unidades con incidencias</div></div>
+        <div class="listado-opcion" onclick="seleccionarListado('almacen', this)"><div class="op-icono">📍</div><div class="op-titulo">Material en almacén</div><div class="op-desc">Unidades disponibles</div></div>
+      </div>
+      <div id="listadoConfig" class="listado-config campo-oculto">
+        <div id="configHistorico" class="campo-oculto">
+          <div class="row">
+            <div><label>Fecha desde *</label><input type="date" id="l_fechaDesde"></div>
+            <div><label>Fecha hasta *</label><input type="date" id="l_fechaHasta"></div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="btn success big" onclick="generarListado()">🖨️ Generar e imprimir listado</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert info">💡 <strong>Consejo:</strong> En la ventana de impresión puedes elegir "Guardar como PDF".</div>
   </div>
 
   <div id="ajustes" class="tab">
@@ -409,9 +481,7 @@
       <h2>🌐 Sincronización en la nube</h2>
       <div id="estadoFirebaseInfo"></div>
     </div>
-    <div class="alert warn">
-      ⚠️ Si la sincronización está <strong>activa</strong>, los datos se comparten entre todos los dispositivos que abran esta web. Si está en <strong>modo local</strong>, cada navegador guarda sus propios datos.
-    </div>
+    <div class="alert warn">⚠️ Si la sincronización está <strong>activa</strong>, los datos se comparten entre todos los dispositivos.</div>
     <div class="card">
       <h2>Copia de seguridad</h2>
       <div class="row">
@@ -441,111 +511,40 @@ const firebaseConfig = {
   messagingSenderId: "508599988372",
   appId: "1:508599988372:web:c96c0dbae6be456a264481"
 };
-let db = null;
-let firebaseActivo = false;
+let db = null, firebaseActivo = false, listadoSeleccionado = null;
+let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
+let ordenHistorico = { campo: 'salida', dir: -1 };
+let html5QrCode = null;
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local', 'Modo local'); return; }
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    firebaseActivo = true;
-    setEstado('sinc', 'Sincronizando…');
-  } catch (e) { console.error('Error Firebase:', e); setEstado('local', 'Modo local'); }
+  try { firebase.initializeApp(firebaseConfig); db = firebase.database(); firebaseActivo = true; setEstado('sinc', 'Sincronizando…'); }
+  catch (e) { console.error('Error Firebase:', e); setEstado('local', 'Modo local'); }
 }
-
-function setEstado(tipo, texto) {
-  const el = document.getElementById('estadoSync');
-  if (el) { el.className = 'estado-sync ' + tipo; document.getElementById('estadoSyncTexto').textContent = texto; }
-}
+function setEstado(tipo, texto) { const el = document.getElementById('estadoSync'); if (el) { el.className = 'estado-sync ' + tipo; document.getElementById('estadoSyncTexto').textContent = texto; } }
 
 const STORAGE_KEY = 'dipuleon_prestamos_v1';
 let datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
 
-const AYUNTAMIENTOS_LEON = [
-  "Acebedo","Algadefe","Alija del Infantado","Almanza","Antigua, La","Ardón","Arganza","Astorga","Balboa","Bañeza, La",
-  "Barjas","Barrios de Luna, Los","Bembibre","Benavides","Benuza","Bercianos del Páramo","Bercianos del Real Camino","Berlanga del Bierzo","Boca de Huérgano","Boñar",
-  "Borrenes","Brazuelo","Burgo Ranero, El","Burón","Bustillo del Páramo","Cabañas Raras","Cabreros del Río","Cabrillanes","Cacabelos","Calzada del Coto",
-  "Campazas","Campo de Villavidel","Camponaraya","Candín","Cármenes","Carracedelo","Carrizo","Carrocera","Carucedo","Castilfalé",
-  "Castrillo de Cabrera","Castrillo de la Valduerna","Castrocalbón","Castrocontrigo","Castropodame","Castrotierra de Valmadrigal","Cea","Cebanico","Cebrones del Río","Chozas de Abajo",
-  "Cistierna","Congosto","Corbillos de los Oteros","Corullón","Crémenes","Cuadros","Cubillas de los Oteros","Cubillas de Rueda","Cubillos del Sil","Destriana",
-  "Encinedo","Ercina, La","Escobar de Campos","Fabero","Folgoso de la Ribera","Fresno de la Vega","Fuentes de Carbajal","Garrafe de Torío","Gordaliza del Pino","Gordoncillo",
-  "Gradefes","Grajal de Campos","Gusendos de los Oteros","Hospital de Órbigo","Igüeña","Izagre","Joarilla de las Matas","Laguna Dalga","Laguna de Negrillos","León",
-  "Llamas de la Ribera","Lucillo","Luyego","Magaz de Cepeda","Mansilla de las Mulas","Mansilla Mayor","Maraña","Matadeón de los Oteros","Matallana de Torío","Matanza",
-  "Molinaseca","Murias de Paredes","Noceda del Bierzo","Oencia","Omañas, Las","Onzonilla","Oseja de Sajambre","Pajares de los Oteros","Palacios de la Valduerna","Palacios del Sil",
-  "Páramo del Sil","Peranzanes","Pobladura de Pelayo García","Pola de Gordón, La","Ponferrada","Posada de Valdeón","Pozuelo del Páramo","Prado de la Guzpeña","Priaranza del Bierzo","Prioro",
-  "Puebla de Lillo","Puente de Domingo Flórez","Quintana del Castillo","Quintana del Marco","Quintana y Congosto","Regueras de Arriba","Reyero","Riaño","Riego de la Vega","Riello",
-  "Rioseco de Tapia","Robla, La","Roperuelos del Páramo","Sabero","Sahagún","San Adrián del Valle","San Andrés del Rabanedo","San Cristóbal de la Polantera","San Emiliano","San Esteban de Nogales",
-  "San Justo de la Vega","San Millán de los Caballeros","San Pedro Bercianos","Sancedo","Santa Colomba de Curueño","Santa Colomba de Somoza","Santa Cristina de Valmadrigal","Santa Elena de Jamuz","Santa María de la Isla","Santa María de Ordás",
-  "Santa María del Monte de Cea","Santa María del Páramo","Santa Marina del Rey","Santas Martas","Santiago Millas","Santovenia de la Valdoncina","Sariegos","Sena de Luna","Sobrado","Soto de la Vega",
-  "Soto y Amío","Toral de los Guzmanes","Toral de los Vados","Toreno","Torre del Bierzo","Trabadelo","Truchas","Turcia","Urdiales del Páramo","Val de San Lorenzo",
-  "Valdefresno","Valdefuentes del Páramo","Valdelugueros","Valdemora","Valdepiélago","Valdepolo","Valderas","Valderrey","Valderrueda","Valdesamario",
-  "Valdevimbre","Valencia de Don Juan","Vallecillo","Valverde de la Virgen","Valverde-Enrique","Vecilla, La","Vega de Espinareda","Vega de Infanzones","Vega de Valcarce","Vegacervera",
-  "Vegaquemada","Vegas del Condado","Villablino","Villabraz","Villadangos del Páramo","Villademor de la Vega","Villafranca del Bierzo","Villagatón","Villamandos","Villamanín",
-  "Villamañán","Villamartín de Don Sancho","Villamejil","Villamol","Villamontán de la Valduerna","Villanueva de las Manzanas","Villaobispo de Otero","Villaornate y Castro","Villaquejida","Villaquilambre",
-  "Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"
-];
+const AYUNTAMIENTOS_LEON = ["Acebedo","Algadefe","Alija del Infantado","Almanza","Antigua, La","Ardón","Arganza","Astorga","Balboa","Bañeza, La","Barjas","Barrios de Luna, Los","Bembibre","Benavides","Benuza","Bercianos del Páramo","Bercianos del Real Camino","Berlanga del Bierzo","Boca de Huérgano","Boñar","Borrenes","Brazuelo","Burgo Ranero, El","Burón","Bustillo del Páramo","Cabañas Raras","Cabreros del Río","Cabrillanes","Cacabelos","Calzada del Coto","Campazas","Campo de Villavidel","Camponaraya","Candín","Cármenes","Carracedelo","Carrizo","Carrocera","Carucedo","Castilfalé","Castrillo de Cabrera","Castrillo de la Valduerna","Castrocalbón","Castrocontrigo","Castropodame","Castrotierra de Valmadrigal","Cea","Cebanico","Cebrones del Río","Chozas de Abajo","Cistierna","Congosto","Corbillos de los Oteros","Corullón","Crémenes","Cuadros","Cubillas de los Oteros","Cubillas de Rueda","Cubillos del Sil","Destriana","Encinedo","Ercina, La","Escobar de Campos","Fabero","Folgoso de la Ribera","Fresno de la Vega","Fuentes de Carbajal","Garrafe de Torío","Gordaliza del Pino","Gordoncillo","Gradefes","Grajal de Campos","Gusendos de los Oteros","Hospital de Órbigo","Igüeña","Izagre","Joarilla de las Matas","Laguna Dalga","Laguna de Negrillos","León","Llamas de la Ribera","Lucillo","Luyego","Magaz de Cepeda","Mansilla de las Mulas","Mansilla Mayor","Maraña","Matadeón de los Oteros","Matallana de Torío","Matanza","Molinaseca","Murias de Paredes","Noceda del Bierzo","Oencia","Omañas, Las","Onzonilla","Oseja de Sajambre","Pajares de los Oteros","Palacios de la Valduerna","Palacios del Sil","Páramo del Sil","Peranzanes","Pobladura de Pelayo García","Pola de Gordón, La","Ponferrada","Posada de Valdeón","Pozuelo del Páramo","Prado de la Guzpeña","Priaranza del Bierzo","Prioro","Puebla de Lillo","Puente de Domingo Flórez","Quintana del Castillo","Quintana del Marco","Quintana y Congosto","Regueras de Arriba","Reyero","Riaño","Riego de la Vega","Riello","Rioseco de Tapia","Robla, La","Roperuelos del Páramo","Sabero","Sahagún","San Adrián del Valle","San Andrés del Rabanedo","San Cristóbal de la Polantera","San Emiliano","San Esteban de Nogales","San Justo de la Vega","San Millán de los Caballeros","San Pedro Bercianos","Sancedo","Santa Colomba de Curueño","Santa Colomba de Somoza","Santa Cristina de Valmadrigal","Santa Elena de Jamuz","Santa María de la Isla","Santa María de Ordás","Santa María del Monte de Cea","Santa María del Páramo","Santa Marina del Rey","Santas Martas","Santiago Millas","Santovenia de la Valdoncina","Sariegos","Sena de Luna","Sobrado","Soto de la Vega","Soto y Amío","Toral de los Guzmanes","Toral de los Vados","Toreno","Torre del Bierzo","Trabadelo","Truchas","Turcia","Urdiales del Páramo","Val de San Lorenzo","Valdefresno","Valdefuentes del Páramo","Valdelugueros","Valdemora","Valdepiélago","Valdepolo","Valderas","Valderrey","Valderrueda","Valdesamario","Valdevimbre","Valencia de Don Juan","Vallecillo","Valverde de la Virgen","Valverde-Enrique","Vecilla, La","Vega de Espinareda","Vega de Infanzones","Vega de Valcarce","Vegacervera","Vegaquemada","Vegas del Condado","Villablino","Villabraz","Villadangos del Páramo","Villademor de la Vega","Villafranca del Bierzo","Villagatón","Villamandos","Villamanín","Villamañán","Villamartín de Don Sancho","Villamejil","Villamol","Villamontán de la Valduerna","Villanueva de las Manzanas","Villaobispo de Otero","Villaornate y Castro","Villaquejida","Villaquilambre","Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"];
 
-const ICONOS_IMAGEN = {
-  'arco': 'arco',
-  'arco_muy_nuevo': 'arco_muy_nuevo',
-  'carpa_hinchable': 'carpa_hinchable',
-  'carpa_metalica': 'carpa_metalica',
-  'podio': 'podio',
-  'pancarta': 'pancarta',
-  'mesa_pingpon': 'mesa_pingpon',
-  'tatami': 'tatami',
-  'balon': 'balon',
-  'red': 'red',
-  'cono': 'cono'
-};
+const ICONOS_IMAGEN = {'arco':'arco','arco_muy_nuevo':'arco_muy_nuevo','carpa_hinchable':'carpa_hinchable','carpa_metalica':'carpa_metalica','podio':'podio','pancarta':'pancarta','mesa_pingpon':'mesa_pingpon','tatami':'tatami','balon':'balon','red':'red','cono':'cono'};
+const ICONOS_EMOJI = {'arco':'🏁','arco_muy_nuevo':'🏁','carpa_hinchable':'🎪','carpa_metalica':'⛺','podio':'🏆','pancarta':'🪧','mesa_pingpon':'🏓','tatami':'🥋','balon':'⚽','red':'🥅','cono':'🔶','default':'📦'};
 
-const ICONOS_EMOJI = {
-  'arco': '🏁',
-  'arco_muy_nuevo': '🏁',
-  'carpa_hinchable': '🎪',
-  'carpa_metalica': '⛺',
-  'podio': '🏆',
-  'pancarta': '🪧',
-  'mesa_pingpon': '🏓',
-  'tatami': '🥋',
-  'balon': '⚽',
-  'red': '🥅',
-  'cono': '🔶',
-  'default': '📦'
-};
-
-function iconoError(el, tipo) {
-  el.outerHTML = '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>';
-}
-
-function getIconoHTML(tipo) {
-  const nombreImagen = ICONOS_IMAGEN[tipo];
-  if (nombreImagen) {
-    return '<img src="img/' + nombreImagen + '.png" alt="' + tipo + '" class="icono-articulo" onerror="iconoError(this,\'' + tipo + '\')">';
-  }
-  return '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>';
-}
-
+function iconoError(el, tipo) { el.outerHTML = '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>'; }
+function getIconoHTML(tipo) { const n = ICONOS_IMAGEN[tipo]; if (n) return '<img src="img/' + n + '.png" alt="' + tipo + '" class="icono-articulo" onerror="iconoError(this,\'' + tipo + '\')">'; return '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>'; }
 function getIconoTexto(tipo) { return ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default; }
-
-function esDatosValidos(d) {
-  return d && Array.isArray(d.articulos) && Array.isArray(d.unidades) && Array.isArray(d.prestamos) && d.articulos.length > 0;
-}
+function esDatosValidos(d) { return d && Array.isArray(d.articulos) && Array.isArray(d.unidades) && Array.isArray(d.prestamos) && d.articulos.length > 0; }
 
 function guardar() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-  if (db) {
-    db.ref('datos').set(datos)
-      .then(function() { setEstado('sync', 'Sincronizado'); })
-      .catch(function() { setEstado('error', 'Error al sincronizar'); });
-  }
+  if (db) db.ref('datos').set(datos).then(function() { setEstado('sync', 'Sincronizado'); }).catch(function() { setEstado('error', 'Error'); });
 }
 
 function inicializarInventario() {
-  const inventarioInicial = [
-    { nombre: "Arcos hinchables", tipo: "arco", cantidad: 3, descripcion: "Arcos hinchables de meta/salida para carreras (más viejos). Saco azul claro" },
-    { nombre: "Arcos hinchables nuevos", tipo: "arco_muy_nuevo", cantidad: 3, descripcion: "Arcos hinchables de meta/salida para carreras (más nuevos y manejables). En caja" },
+  const inv = [
+    { nombre: "Arcos hinchables", tipo: "arco", cantidad: 3, descripcion: "Arcos hinchables de meta/salida (más viejos). Saco azul claro" },
+    { nombre: "Arcos hinchables nuevos", tipo: "arco_muy_nuevo", cantidad: 3, descripcion: "Arcos hinchables de meta/salida (más nuevos y manejables)" },
     { nombre: "Carpas hinchables", tipo: "carpa_hinchable", cantidad: 2, descripcion: "Carpas en saco/bolsa de tela, cuadradas, con ruedas" },
     { nombre: "Carpas metálicas", tipo: "carpa_metalica", cantidad: 4, descripcion: "Carpas metálicas en estuche negro, altas, con dos ruedas" },
     { nombre: "Podios", tipo: "podio", cantidad: 1, descripcion: "" },
@@ -553,7 +552,7 @@ function inicializarInventario() {
     { nombre: "Tatamis", tipo: "tatami", cantidad: 2, descripcion: "Alfombra/colchoneta para lucha leonesa" },
     { nombre: "Mesas de ping-pong", tipo: "mesa_pingpon", cantidad: 2, descripcion: "" },
   ];
-  inventarioInicial.forEach(function(a) {
+  inv.forEach(function(a) {
     const idA = datos.nextId.articulo++;
     datos.articulos.push({ id: idA, nombre: a.nombre, tipo: a.tipo, cantidad: a.cantidad, descripcion: a.descripcion, activo: true });
     for (let i = 1; i <= a.cantidad; i++) {
@@ -566,64 +565,35 @@ function inicializarInventario() {
 function init() {
   initFirebase();
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    try {
-      const localData = JSON.parse(raw);
-      if (esDatosValidos(localData)) { datos = localData; } else { inicializarInventario(); }
-    } catch (e) { inicializarInventario(); }
-  } else { inicializarInventario(); }
+  if (raw) { try { const d = JSON.parse(raw); if (esDatosValidos(d)) datos = d; else inicializarInventario(); } catch(e) { inicializarInventario(); } }
+  else inicializarInventario();
   renderTodo();
   if (db) {
     db.ref('datos').once('value').then(function(snap) {
-      const remoto = snap.val();
-      if (remoto && esDatosValidos(remoto)) {
-        const remotoStr = JSON.stringify(remoto);
-        const localStr = JSON.stringify(datos);
-        if (remotoStr !== localStr) {
-          datos = remoto;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-          setEstado('sync', 'Sincronizado (desde nube)');
-          renderTodo();
-        } else { setEstado('sync', 'Sincronizado'); }
-      } else {
-        db.ref('datos').set(datos).then(function() { setEstado('sync', 'Sincronizado (subido a nube)'); }).catch(function() { setEstado('error', 'Error al subir'); });
-      }
-    }).catch(function(err) { console.error('Error Firebase:', err); setEstado('error', 'Sin conexión'); });
+      const r = snap.val();
+      if (r && esDatosValidos(r)) {
+        if (JSON.stringify(r) !== JSON.stringify(datos)) { datos = r; localStorage.setItem(STORAGE_KEY, JSON.stringify(datos)); setEstado('sync', 'Sincronizado (nube)'); renderTodo(); }
+        else setEstado('sync', 'Sincronizado');
+      } else db.ref('datos').set(datos).then(function() { setEstado('sync', 'Sincronizado (subido)'); });
+    }).catch(function() { setEstado('error', 'Sin conexión'); });
     db.ref('datos').on('value', function(snap) {
-      const remoto = snap.val();
-      if (remoto && esDatosValidos(remoto)) {
-        const remotoStr = JSON.stringify(remoto);
-        const localStr = JSON.stringify(datos);
-        if (remotoStr !== localStr) {
-          datos = remoto;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-          setEstado('sync', 'Sincronizado');
-          renderTodo();
-        }
-      }
+      const r = snap.val();
+      if (r && esDatosValidos(r) && JSON.stringify(r) !== JSON.stringify(datos)) { datos = r; localStorage.setItem(STORAGE_KEY, JSON.stringify(datos)); renderTodo(); }
     });
   }
   renderEstadoFirebase();
 }
 
 function notificar(mensaje, tipo, titulo) {
-  tipo = tipo || 'info';
-  titulo = titulo || '';
-  const contenedor = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = 'toast ' + tipo;
+  tipo = tipo || 'info'; titulo = titulo || '';
+  const c = document.getElementById('toast-container'), t = document.createElement('div');
+  t.className = 'toast ' + tipo;
   const iconos = { exito: '✅', error: '❌', aviso: '⚠️', info: 'ℹ️' };
-  const titulosPorDefecto = { exito: '¡Hecho!', error: 'Error', aviso: 'Atención', info: 'Información' };
-  const tituloFinal = titulo || titulosPorDefecto[tipo] || 'Aviso';
-  toast.innerHTML = '<span class="toast-icono">' + (iconos[tipo] || 'ℹ️') + '</span><div class="toast-texto"><div class="toast-titulo">' + tituloFinal + '</div><div>' + mensaje + '</div></div><button class="toast-cerrar" onclick="cerrarToast(this.parentElement)" title="Cerrar">×</button>';
-  contenedor.appendChild(toast);
-  setTimeout(function() { if (toast.parentElement) cerrarToast(toast); }, 4000);
+  const titulos = { exito: '¡Hecho!', error: 'Error', aviso: 'Atención', info: 'Información' };
+  t.innerHTML = '<span class="toast-icono">' + (iconos[tipo]||'ℹ️') + '</span><div class="toast-texto"><div class="toast-titulo">' + (titulo||titulos[tipo]||'Aviso') + '</div><div>' + mensaje + '</div></div><button class="toast-cerrar" onclick="cerrarToast(this.parentElement)">×</button>';
+  c.appendChild(t); setTimeout(function() { if (t.parentElement) cerrarToast(t); }, 4000);
 }
-function cerrarToast(toast) {
-  if (!toast || !toast.parentElement) return;
-  toast.classList.add('saliendo');
-  setTimeout(function() { if (toast.parentElement) toast.parentElement.removeChild(toast); }, 300);
-}
+function cerrarToast(t) { if (!t || !t.parentElement) return; t.classList.add('saliendo'); setTimeout(function() { if (t.parentElement) t.parentElement.removeChild(t); }, 300); }
 
 function showTab(id, btn) {
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
@@ -631,26 +601,14 @@ function showTab(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   renderTodo();
+  if (id === 'qr') generarTodosQR();
+  if (id === 'calendario') renderCalendario();
 }
 
-function renderTodo() {
-  renderDashboard();
-  renderSelectUnidades();
-  renderDevoluciones();
-  renderHistorico();
-  renderInventario();
-  cargarAyuntamientos();
-  renderEstadoFirebase();
-}
-
+function renderTodo() { renderDashboard(); renderResumenRapido(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
 function getArticulo(id) { return datos.articulos.find(function(a) { return a.id === id; }); }
-function getPrestamoActivo(unidadId) { return datos.prestamos.find(function(p) { return p.unidadId === unidadId && !p.fechaDevolucion; }); }
-
-function toggleGrupo(id, btn) {
-  const contenido = document.getElementById(id);
-  const abierto = contenido.classList.toggle('abierto');
-  btn.classList.toggle('abierto', abierto);
-}
+function getPrestamoActivo(uId) { return datos.prestamos.find(function(p) { return p.unidadId === uId && !p.fechaDevolucion; }); }
+function toggleGrupo(id, btn) { const c = document.getElementById(id); const a = c.classList.toggle('abierto'); btn.classList.toggle('abierto', a); }
 
 function renderDashboard() {
   const grid = document.getElementById('dashboardGrid');
@@ -660,134 +618,161 @@ function renderDashboard() {
     if (!a.activo) return;
     const unidades = datos.unidades.filter(function(u) { return u.articuloId === a.id; });
     if (unidades.length === 0) return;
-    const disponibles = unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
-    const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
-    const averiados = unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
-    let estadoClase = 'estado-almacen';
-    if (averiados > 0) estadoClase = 'estado-averiado';
-    else if (prestados > 0) estadoClase = 'estado-parcial';
-    const idGrupo = 'grupo-' + a.id;
-    let htmlUnidades = '';
+    const disp = unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
+    const prest = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
+    const av = unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
+    let ec = 'estado-almacen';
+    if (av > 0) ec = 'estado-averiado'; else if (prest > 0) ec = 'estado-parcial';
+    const idG = 'grupo-' + a.id;
+    let htmlU = '';
+    let contadorPrest = 0, contadorAv = 0;
     unidades.forEach(function(u) {
-      const prestamo = getPrestamoActivo(u.id);
-      let meta = '📍 En almacén';
-      let badge = '<span class="badge ok">DISPONIBLE</span>';
-      if (u.estado === 'prestado' && prestamo) {
-        meta = '👤 ' + prestamo.solicitante + ' · 📅 ' + formatFecha(prestamo.fechaSalida);
-        badge = '<span class="badge prestado">PRESTADO</span>';
+      const pr = getPrestamoActivo(u.id);
+      let meta = '📍 En almacén', badge = '<span class="badge ok">DISPONIBLE</span>';
+      if (u.estado === 'prestado' && pr) {
+        contadorPrest++;
+        const vencido = pr.fechaPrevista && new Date() > new Date(pr.fechaPrevista);
+        meta = '👤 ' + pr.solicitante + ' · 📅 ' + formatFecha(pr.fechaSalida);
+        badge = vencido ? '<span class="badge vencido">VENCIDO</span>' : '<span class="badge prestado">PRESTADO</span>';
       } else if (u.estado === 'averiado') {
+        contadorAv++;
         meta = '🔧 ' + (u.observaciones || 'Con incidencias');
         badge = '<span class="badge danio">AVERIADO</span>';
       }
-      htmlUnidades += '<div class="unidad-row ' + u.estado + '"><div><strong>' + u.identificador + '</strong><div class="meta">' + meta + '</div></div>' + badge + '</div>';
+      htmlU += '<div class="unidad-row ' + u.estado + '"><div><strong>' + u.identificador + '</strong><div class="meta">' + meta + '</div></div>' + badge + '</div>';
     });
-    grid.innerHTML += '<div class="grupo-articulo"><button class="grupo-btn ' + estadoClase + '" onclick="toggleGrupo(\'' + idGrupo + '\', this)"><span>' + getIconoHTML(a.tipo) + ' ' + a.nombre + ' <span class="contador">(' + disponibles + ' disp. · ' + prestados + ' prest. · ' + averiados + ' av.)</span></span><span class="flecha">▼</span></button><div class="grupo-contenido" id="' + idGrupo + '">' + htmlUnidades + '</div></div>';
+    const contadorTexto = prest > 0 || av > 0 ? ' <span style="color:var(--warning);">(' + contadorPrest + ' prest.</span>' + (av > 0 ? '<span style="color:var(--danger);"> · ' + contadorAv + ' av.)</span>' : ')') : '';
+    grid.innerHTML += '<div class="grupo-articulo"><button class="grupo-btn ' + ec + '" onclick="toggleGrupo(\'' + idG + '\', this)"><span>' + getIconoHTML(a.tipo) + ' ' + a.nombre + ' <span class="contador">(' + disp + ' disp.' + contadorTexto + '</span></span><span class="flecha">▼</span></button><div class="grupo-contenido" id="' + idG + '">' + htmlU + '</div></div>';
   });
+}
+
+function renderResumenRapido() {
+  const c = document.getElementById('resumenRapido');
+  if (!c) return;
+  const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; }).length;
+  const enAlm = datos.unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
+  const av = datos.unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
+  const total = datos.unidades.length;
+  c.innerHTML = '<div class="grid">' +
+    '<div style="border-left:4px solid var(--success); padding:0.75rem; background:#f0fdf4; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">En almacén</div><div style="font-size:1.5rem; font-weight:700; color:var(--success);">' + enAlm + '</div></div>' +
+    '<div style="border-left:4px solid var(--warning); padding:0.75rem; background:#fffbeb; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">Prestados</div><div style="font-size:1.5rem; font-weight:700; color:var(--warning);">' + activos + '</div></div>' +
+    '<div style="border-left:4px solid var(--danger); padding:0.75rem; background:#fef2f2; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">Averiados</div><div style="font-size:1.5rem; font-weight:700; color:var(--danger);">' + av + '</div></div>' +
+    '<div style="border-left:4px solid var(--primary); padding:0.75rem; background:#eff6ff; border-radius:6px;"><div style="font-size:0.8rem; color:var(--muted);">Total unidades</div><div style="font-size:1.5rem; font-weight:700; color:var(--primary);">' + total + '</div></div></div>';
 }
 
 function renderSelectUnidades() {
   const sel = document.getElementById('p_unidad');
   if (!sel) return;
-  const valorActual = sel.value;
+  const va = sel.value;
   sel.innerHTML = '<option value="">-- Selecciona --</option>';
-  datos.unidades.forEach(function(u) {
-    if (u.estado === 'almacen') sel.innerHTML += '<option value="' + u.id + '">' + u.identificador + '</option>';
-  });
-  if (valorActual && datos.unidades.find(function(u) { return u.id === parseInt(valorActual) && u.estado === 'almacen'; })) sel.value = valorActual;
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  const pSalida = document.getElementById('p_salida');
-  if (pSalida) pSalida.value = now.toISOString().slice(0,16);
+  datos.unidades.forEach(function(u) { if (u.estado === 'almacen') sel.innerHTML += '<option value="' + u.id + '">' + u.identificador + '</option>'; });
+  if (va && datos.unidades.find(function(u) { return u.id === parseInt(va) && u.estado === 'almacen'; })) sel.value = va;
+  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const ps = document.getElementById('p_salida'); if (ps) ps.value = now.toISOString().slice(0,16);
 }
 
 function renderDevoluciones() {
-  const cont = document.getElementById('listaDevoluciones');
-  if (!cont) return;
+  const c = document.getElementById('listaDevoluciones');
+  if (!c) return;
   const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; });
-  if (activos.length === 0) {
-    cont.innerHTML = '<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div></div>';
-    return;
-  }
-  const ahora = new Date();
-  let html = '';
+  if (activos.length === 0) { c.innerHTML = '<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div></div>'; return; }
+  const ahora = new Date(); let html = '';
   activos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     if (!u) return;
-    const diasPrestado = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000);
-    let textoDias = 'Hace ' + diasPrestado + ' día' + (diasPrestado === 1 ? '' : 's');
-    let infoPrevista = '', clasePrevista = '';
+    const dp = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000);
+    let ip = '', cp = '', vencido = false;
     if (p.fechaPrevista) {
-      const fp = new Date(p.fechaPrevista);
-      const diasRestantes = Math.ceil((fp - ahora) / 86400000);
-      if (ahora > fp) {
-        const d = Math.abs(diasRestantes);
-        infoPrevista = '⚠️ Vencida hace ' + d + ' día' + (d === 1 ? '' : 's');
-        clasePrevista = 'prevista-vencida';
-      } else infoPrevista = 'Faltan ' + diasRestantes + ' día' + (diasRestantes === 1 ? '' : 's');
+      const fp = new Date(p.fechaPrevista), dr = Math.ceil((fp - ahora) / 86400000);
+      if (ahora > fp) { const d = Math.abs(dr); ip = '⚠️ Vencida hace ' + d + ' día' + (d===1?'':'s'); cp = 'prevista-vencida'; vencido = true; }
+      else ip = 'Faltan ' + dr + ' día' + (dr===1?'':'s');
     }
-    html += '<div class="devolucion-card"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">Prestado ' + textoDias + '</div></div><span class="badge prestado">PENDIENTE</span></div><div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div><div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto || '-') + (p.telefono ? ' · ' + p.telefono : '') + '</span></div><div class="info-item"><span class="info-label">Fecha de salida</span><span class="info-valor">' + formatFecha(p.fechaSalida) + '</span></div>' + (p.fechaPrevista ? '<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor ' + clasePrevista + '">' + formatFecha(p.fechaPrevista) + '<br><small>' + infoPrevista + '</small></span></div>' : '') + '</div><button class="btn success big" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button></div>';
+    html += '<div class="devolucion-card' + (vencido ? ' vencido' : '') + '"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">Prestado hace ' + dp + ' día' + (dp===1?'':'s') + (vencido ? ' · <strong style="color:var(--danger);">VENCIDO</strong>' : '') + '</div></div><span class="badge ' + (vencido ? 'vencido' : 'prestado') + '">' + (vencido ? 'VENCIDO' : 'PENDIENTE') + '</span></div><div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div><div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto||'-') + (p.telefono?' · '+p.telefono:'') + '</span></div><div class="info-item"><span class="info-label">Fecha salida</span><span class="info-valor">' + formatFecha(p.fechaSalida) + '</span></div>' + (p.fechaPrevista?'<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor '+cp+'">' + formatFecha(p.fechaPrevista) + '<br><small>' + ip + '</small></span></div>':'') + '</div>';
+    if (p.notas) html += '<div class="notas-texto">📝 ' + p.notas + '</div>';
+    html += '<button class="btn success big" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button></div>';
   });
-  cont.innerHTML = html;
+  c.innerHTML = html;
 }
 
 function renderHistorico() {
   const tbody = document.querySelector('#tablaHistorico tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  const ordenados = datos.prestamos.slice().sort(function(a,b) { return new Date(b.fechaSalida) - new Date(a.fechaSalida); });
-  ordenados.forEach(function(p) {
+  const fs = document.getElementById('filtroSolicitante').value.toLowerCase();
+  const fa = document.getElementById('filtroArticulo').value.toLowerCase();
+  const fe = document.getElementById('filtroEstado').value;
+  let lista = datos.prestamos.slice().filter(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    const artNombre = u ? u.identificador.toLowerCase() : '';
+    if (fs && p.solicitante.toLowerCase().indexOf(fs) === -1) return false;
+    if (fa && artNombre.indexOf(fa) === -1) return false;
+    if (fe === 'activo' && p.fechaDevolucion) return false;
+    if (fe === 'devuelto_correcto' && (!p.fechaDevolucion || p.estadoMaterial !== 'correcto')) return false;
+    if (fe === 'devuelto_averiado' && (!p.fechaDevolucion || p.estadoMaterial !== 'averiado')) return false;
+    return true;
+  });
+  lista.sort(function(a,b) {
+    let va, vb;
+    if (ordenHistorico.campo === 'articulo') { const ua = datos.unidades.find(function(x){return x.id===a.unidadId;}); const ub = datos.unidades.find(function(x){return x.id===b.unidadId;}); va = ua?ua.identificador:''; vb = ub?ub.identificador:''; }
+    else if (ordenHistorico.campo === 'solicitante') { va = a.solicitante; vb = b.solicitante; }
+    else if (ordenHistorico.campo === 'salida') { va = a.fechaSalida; vb = b.fechaSalida; }
+    else if (ordenHistorico.campo === 'devuelto') { va = a.fechaDevolucion || '9999'; vb = b.fechaDevolucion || '9999'; }
+    else { va = a.fechaSalida; vb = b.fechaSalida; }
+    if (va < vb) return -1 * ordenHistorico.dir;
+    if (va > vb) return 1 * ordenHistorico.dir;
+    return 0;
+  });
+  ['articulo','solicitante','salida','devuelto'].forEach(function(c) {
+    const el = document.getElementById('sort-'+c);
+    if (el) el.textContent = ordenHistorico.campo === c ? (ordenHistorico.dir === 1 ? '▲' : '▼') : '';
+  });
+  lista.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     let badge = '<span class="badge prestado">EN CURSO</span>';
     if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
-    tbody.innerHTML += '<tr><td>' + (u ? u.identificador : '?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto || '-') + (p.telefono ? '<br><small>'+p.telefono+'</small>' : '') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion ? formatFecha(p.fechaDevolucion) : '-') + '</td><td>' + badge + '</td><td>' + (p.incidencias || '-') + '</td><td>' + (!p.fechaDevolucion ? '<button class="btn small success" onclick="abrirDevolucion(' + p.id + ')">Devolver</button>' : '') + '<button class="btn small danger" onclick="eliminarPrestamo(' + p.id + ')">🗑️</button></td></tr>';
+    tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-') + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td>' + (!p.fechaDevolucion?'<button class="btn small success" onclick="abrirDevolucion('+p.id+')">Devolver</button>':'') + '<button class="btn small danger" onclick="eliminarPrestamo('+p.id+')">🗑️</button></td></tr>';
   });
-  if (ordenados.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
+  if (lista.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
+}
+
+function ordenarHistorico(campo) {
+  if (ordenHistorico.campo === campo) ordenHistorico.dir *= -1;
+  else { ordenHistorico.campo = campo; ordenHistorico.dir = 1; }
+  renderHistorico();
 }
 
 function renderInventario() {
-  const tbody = document.getElementById('tbodyInventario');
-  const tabla = document.getElementById('tablaInventario');
-  const vacio = document.getElementById('inventarioVacio');
+  const tbody = document.getElementById('tbodyInventario'), tabla = document.getElementById('tablaInventario'), vacio = document.getElementById('inventarioVacio');
   if (!tbody) return;
   tbody.innerHTML = '';
-  if (datos.articulos.length === 0) { tabla.style.display = 'none'; vacio.style.display = 'block'; return; }
-  tabla.style.display = 'table'; vacio.style.display = 'none';
+  if (datos.articulos.length === 0) { tabla.style.display='none'; vacio.style.display='block'; return; }
+  tabla.style.display='table'; vacio.style.display='none';
   datos.articulos.forEach(function(a) {
     if (!a.activo) return;
-    const unidades = datos.unidades.filter(function(u) { return u.articuloId === a.id; });
-    const disponibles = unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
-    const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
-    const averiados = unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
-    const total = unidades.length;
+    const un = datos.unidades.filter(function(u) { return u.articuloId === a.id; });
+    const d = un.filter(function(u) { return u.estado==='almacen'; }).length;
+    const pr = un.filter(function(u) { return u.estado==='prestado'; }).length;
+    const av = un.filter(function(u) { return u.estado==='averiado'; }).length;
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td class="nombre-celda" title="' + a.nombre + '">' + getIconoHTML(a.tipo) + ' ' + a.nombre + '</td><td class="tipo-celda">' + (a.tipo || '-') + '</td><td><div class="stats-celda"><span class="stat total">T:' + total + '</span><span class="stat ok">📍' + disponibles + '</span><span class="stat prest">👤' + prestados + '</span><span class="stat av">🔧' + averiados + '</span></div></td><td class="descripcion-celda" title="' + (a.descripcion || '') + '">' + (a.descripcion || '-') + '</td><td><div class="acciones-celda"><button class="btn small warning" onclick="abrirModalEditar(' + a.id + ')" title="Editar">✏️</button><button class="btn small danger" onclick="darDeBaja(' + a.id + ')" title="Dar de baja">🗑️</button></div></td>';
+    tr.innerHTML = '<td class="nombre-celda" title="'+a.nombre+'">' + getIconoHTML(a.tipo) + ' ' + a.nombre + '</td><td class="tipo-celda">' + (a.tipo||'-') + '</td><td><div class="stats-celda"><span class="stat total">T:'+un.length+'</span><span class="stat ok">📍'+d+'</span><span class="stat prest">👤'+pr+'</span><span class="stat av">🔧'+av+'</span></div></td><td class="descripcion-celda" title="'+(a.descripcion||'')+'">' + (a.descripcion||'-') + '</td><td><div class="acciones-celda"><button class="btn small warning" onclick="abrirModalEditar('+a.id+')">✏️</button><button class="btn small danger" onclick="darDeBaja('+a.id+')">🗑️</button></div></td>';
     tbody.appendChild(tr);
   });
 }
 
-function toggleFormAlta() {
-  const cont = document.getElementById('formAltaContainer');
-  const btn = document.getElementById('btnToggleAlta');
-  cont.classList.toggle('campo-oculto');
-  btn.textContent = cont.classList.contains('campo-oculto') ? '➕ Dar de alta un artículo' : '➖ Ocultar formulario';
-}
+function toggleFormAlta() { const c = document.getElementById('formAltaContainer'), b = document.getElementById('btnToggleAlta'); c.classList.toggle('campo-oculto'); b.textContent = c.classList.contains('campo-oculto') ? '➕ Dar de alta un artículo' : '➖ Ocultar formulario'; }
 
 function abrirModalEditar(id) {
-  const articulo = datos.articulos.find(function(a) { return a.id === id; });
-  if (!articulo) return;
-  const unidades = datos.unidades.filter(function(u) { return u.articuloId === id; });
-  const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
-  const total = unidades.length;
+  const a = datos.articulos.find(function(x) { return x.id === id; }); if (!a) return;
+  const un = datos.unidades.filter(function(u) { return u.articuloId === id; });
+  const pr = un.filter(function(u) { return u.estado === 'prestado'; }).length;
   document.getElementById('e_id').value = id;
-  document.getElementById('e_nombre').value = articulo.nombre;
-  document.getElementById('e_tipo').value = articulo.tipo || '';
-  document.getElementById('e_cantidad').value = total;
-  document.getElementById('e_cantidad').min = prestados;
-  document.getElementById('e_descripcion').value = articulo.descripcion || '';
-  let ayudaTexto = 'Tienes ' + total + ' unidad(es) en total.';
-  if (prestados > 0) ayudaTexto += ' ⚠️ No puedes bajar de ' + prestados + ' porque hay ' + prestados + ' prestada(s).';
-  document.getElementById('e_cantidad_ayuda').textContent = ayudaTexto;
-  document.getElementById('editInfo').innerHTML = 'Editando: <strong>' + getIconoTexto(articulo.tipo) + ' ' + articulo.nombre + '</strong>';
+  document.getElementById('e_nombre').value = a.nombre;
+  document.getElementById('e_tipo').value = a.tipo || '';
+  document.getElementById('e_cantidad').value = un.length;
+  document.getElementById('e_cantidad').min = pr;
+  document.getElementById('e_descripcion').value = a.descripcion || '';
+  document.getElementById('e_cantidad_ayuda').textContent = 'Tienes ' + un.length + ' unidad(es).' + (pr > 0 ? ' ⚠️ No puedes bajar de ' + pr + '.' : '');
+  document.getElementById('editInfo').innerHTML = 'Editando: <strong>' + getIconoTexto(a.tipo) + ' ' + a.nombre + '</strong>';
   document.getElementById('modalEditar').classList.add('show');
 }
 function cerrarModalEditar() { document.getElementById('modalEditar').classList.remove('show'); }
@@ -795,125 +780,66 @@ function cerrarModalEditar() { document.getElementById('modalEditar').classList.
 document.getElementById('formEditar').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById('e_id').value);
-  const articulo = datos.articulos.find(function(a) { return a.id === id; });
-  if (!articulo) return;
-  const nombreNuevo = document.getElementById('e_nombre').value.trim();
-  const tipoNuevo = document.getElementById('e_tipo').value.trim();
-  const cantidadNueva = parseInt(document.getElementById('e_cantidad').value);
-  const descripcionNueva = document.getElementById('e_descripcion').value.trim();
-  if (!nombreNuevo || !cantidadNueva || cantidadNueva < 1) { notificar('Introduce al menos el nombre y una cantidad válida.', 'aviso', 'Faltan datos'); return; }
-  const unidades = datos.unidades.filter(function(u) { return u.articuloId === id; });
-  const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
-  if (cantidadNueva < prestados) { notificar('No puedes reducir la cantidad por debajo de ' + prestados + ' porque hay unidades prestadas.', 'error', 'Cantidad no válida'); return; }
-  articulo.nombre = nombreNuevo;
-  articulo.tipo = tipoNuevo;
-  articulo.cantidad = cantidadNueva;
-  articulo.descripcion = descripcionNueva;
-  const cantidadAnterior = unidades.length;
-  if (cantidadNueva > cantidadAnterior) {
-    const aAñadir = cantidadNueva - cantidadAnterior;
-    for (let i = 0; i < aAñadir; i++) {
-      const idU = datos.nextId.unidad++;
-      datos.unidades.push({ id: idU, articuloId: id, identificador: nombreNuevo + ' #' + (cantidadAnterior + i + 1), estado: 'almacen', observaciones: '' });
-    }
-    notificar('Se han añadido <strong>' + aAñadir + '</strong> unidad(es) a "' + nombreNuevo + '".', 'exito', 'Unidades añadidas');
-  } else if (cantidadNueva < cantidadAnterior) {
-    const aEliminar = cantidadAnterior - cantidadNueva;
-    const ordenadas = unidades.slice().sort(function(a, b) {
-      const orden = { almacen: 0, averiado: 1, prestado: 2 };
-      return (orden[a.estado] || 0) - (orden[b.estado] || 0);
-    });
-    const aBorrar = ordenadas.slice(0, aEliminar);
-    const idsBorrar = aBorrar.map(function(u) { return u.id; });
-    datos.unidades = datos.unidades.filter(function(u) { return idsBorrar.indexOf(u.id) === -1; });
-    notificar('Se han eliminado <strong>' + aEliminar + '</strong> unidad(es) de "' + nombreNuevo + '".', 'aviso', 'Unidades eliminadas');
-  }
-  datos.unidades.filter(function(u) { return u.articuloId === id; }).forEach(function(u, idx) { u.identificador = nombreNuevo + ' #' + (idx + 1); });
-  guardar(); cerrarModalEditar(); renderTodo();
-  notificar('Artículo "' + nombreNuevo + '" actualizado correctamente.', 'exito', 'Artículo editado');
+  const a = datos.articulos.find(function(x) { return x.id === id; }); if (!a) return;
+  const nn = document.getElementById('e_nombre').value.trim(), tn = document.getElementById('e_tipo').value.trim(), cn = parseInt(document.getElementById('e_cantidad').value), dn = document.getElementById('e_descripcion').value.trim();
+  if (!nn || !cn || cn < 1) { notificar('Introduce nombre y cantidad válida.', 'aviso', 'Faltan datos'); return; }
+  const un = datos.unidades.filter(function(u) { return u.articuloId === id; });
+  const pr = un.filter(function(u) { return u.estado === 'prestado'; }).length;
+  if (cn < pr) { notificar('No puedes bajar de ' + pr + ' (unidades prestadas).', 'error', 'Cantidad no válida'); return; }
+  a.nombre = nn; a.tipo = tn; a.cantidad = cn; a.descripcion = dn;
+  const ca = un.length;
+  if (cn > ca) { for (let i = 0; i < cn - ca; i++) { const idU = datos.nextId.unidad++; datos.unidades.push({ id: idU, articuloId: id, identificador: nn + ' #' + (ca + i + 1), estado: 'almacen', observaciones: '' }); } notificar('Añadidas <strong>' + (cn-ca) + '</strong> unidad(es).', 'exito', 'Unidades añadidas'); }
+  else if (cn < ca) { const ord = un.slice().sort(function(x,y) { const o = {almacen:0,averiado:1,prestado:2}; return (o[x.estado]||0)-(o[y.estado]||0); }); const bor = ord.slice(0, ca-cn).map(function(u) { return u.id; }); datos.unidades = datos.unidades.filter(function(u) { return bor.indexOf(u.id) === -1; }); notificar('Eliminadas <strong>' + (ca-cn) + '</strong> unidad(es).', 'aviso', 'Unidades eliminadas'); }
+  datos.unidades.filter(function(u) { return u.articuloId === id; }).forEach(function(u, i) { u.identificador = nn + ' #' + (i+1); });
+  guardar(); cerrarModalEditar(); renderTodo(); notificar('Artículo actualizado.', 'exito', 'Editado');
 });
 
 function darDeBaja(id) {
-  const articulo = datos.articulos.find(function(a) { return a.id === id; });
-  if (!articulo) return;
-  const unidades = datos.unidades.filter(function(u) { return u.articuloId === id; });
-  const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
-  if (prestados > 0) {
-    notificar('No se puede dar de baja "' + articulo.nombre + '" porque tiene ' + prestados + ' unidad(es) prestada(s). Devuélvelas primero.', 'error', 'No se puede dar de baja');
-    return;
-  }
-  if (!confirm('⚠️ PRIMERA CONFIRMACIÓN\n\n¿Seguro que quieres dar de baja "' + articulo.nombre + '"?\n\nSe eliminarán ' + unidades.length + ' unidad(es) del inventario.\n\nEsta acción NO se puede deshacer.')) return;
-  if (!confirm('🔴 SEGUNDA CONFIRMACIÓN (DEFINITIVA)\n\nVas a eliminar PERMANENTEMENTE:\n• Artículo: ' + articulo.nombre + '\n• Unidades: ' + unidades.length + '\n\n¿Estás completamente seguro?')) return;
-  datos.articulos = datos.articulos.filter(function(a) { return a.id !== id; });
+  const a = datos.articulos.find(function(x) { return x.id === id; }); if (!a) return;
+  const un = datos.unidades.filter(function(u) { return u.articuloId === id; });
+  const pr = un.filter(function(u) { return u.estado === 'prestado'; }).length;
+  if (pr > 0) { notificar('No se puede: tiene ' + pr + ' prestada(s).', 'error', 'No se puede'); return; }
+  if (!confirm('⚠️ ¿Seguro que quieres dar de baja "' + a.nombre + '" (' + un.length + ' ud.)?')) return;
+  if (!confirm('🔴 SEGUNDA CONFIRMACIÓN: ¿Eliminar PERMANENTEMENTE?')) return;
+  datos.articulos = datos.articulos.filter(function(x) { return x.id !== id; });
   datos.unidades = datos.unidades.filter(function(u) { return u.articuloId !== id; });
-  guardar(); renderTodo();
-  notificar('"' + articulo.nombre + '" dado de baja correctamente.', 'exito', 'Artículo dado de baja');
+  guardar(); renderTodo(); notificar('Dado de baja.', 'exito', 'Baja');
 }
 
-function renderEstadoFirebase() {
-  const el = document.getElementById('estadoFirebaseInfo');
-  if (!el) return;
-  if (firebaseActivo) {
-    el.innerHTML = '<p style="color:var(--success); font-weight:600;">✅ Sincronización en la nube ACTIVA</p><p style="font-size:0.85rem; color:var(--muted);">Todos los dispositivos que abran esta web verán los mismos datos en tiempo real.</p>';
-  } else {
-    el.innerHTML = '<p style="color:var(--warning); font-weight:600;">📴 Modo local (sin sincronizar)</p><p style="font-size:0.85rem; color:var(--muted);">Cada dispositivo guarda sus datos por separado.</p>';
-  }
-}
-
-function cargarAyuntamientos() {
-  const sel = document.getElementById('p_ayuntamiento');
-  if (!sel) return;
-  if (sel.options.length > 1) return;
-  sel.innerHTML = '<option value="">-- Selecciona ayuntamiento --</option>';
-  AYUNTAMIENTOS_LEON.forEach(function(a) { sel.innerHTML += '<option value="' + a + '">' + a + '</option>'; });
-}
+function renderEstadoFirebase() { const el = document.getElementById('estadoFirebaseInfo'); if (!el) return; el.innerHTML = firebaseActivo ? '<p style="color:var(--success); font-weight:600;">✅ Sincronización ACTIVA</p>' : '<p style="color:var(--warning); font-weight:600;">📴 Modo local</p>'; }
+function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Selecciona --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 function cambiarTipoSolicitante() {
-  const tipo = document.getElementById('p_tipo_solicitante').value;
-  const campoAyto = document.getElementById('campo_ayuntamiento');
-  const campoLibre = document.getElementById('campo_nombre_libre');
-  const labelLibre = document.getElementById('label_nombre_libre');
-  const inputLibre = document.getElementById('p_nombre_libre');
-  campoAyto.classList.add('campo-oculto'); campoLibre.classList.add('campo-oculto');
-  document.getElementById('p_ayuntamiento').value = ''; inputLibre.value = '';
-  if (tipo === 'ayuntamiento') campoAyto.classList.remove('campo-oculto');
-  else if (tipo === 'asociacion') { labelLibre.textContent = 'Nombre de la asociación'; inputLibre.placeholder = 'Ej: Asociación Cultural La Legua'; campoLibre.classList.remove('campo-oculto'); }
-  else if (tipo === 'otro') { labelLibre.textContent = 'Nombre / Entidad'; inputLibre.placeholder = 'Ej: Colegio, empresa, particular...'; campoLibre.classList.remove('campo-oculto'); }
+  const t = document.getElementById('p_tipo_solicitante').value;
+  const ca = document.getElementById('campo_ayuntamiento'), cl = document.getElementById('campo_nombre_libre'), ll = document.getElementById('label_nombre_libre'), il = document.getElementById('p_nombre_libre');
+  ca.classList.add('campo-oculto'); cl.classList.add('campo-oculto'); document.getElementById('p_ayuntamiento').value = ''; il.value = '';
+  if (t === 'ayuntamiento') ca.classList.remove('campo-oculto');
+  else if (t === 'asociacion') { ll.textContent = 'Nombre de la asociación'; il.placeholder = 'Ej: Asociación Cultural La Legua'; cl.classList.remove('campo-oculto'); }
+  else if (t === 'otro') { ll.textContent = 'Nombre / Entidad'; il.placeholder = 'Ej: Colegio, empresa...'; cl.classList.remove('campo-oculto'); }
 }
-function obtenerSolicitante() {
-  const tipo = document.getElementById('p_tipo_solicitante').value;
-  if (tipo === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value;
-  else if (tipo === 'asociacion' || tipo === 'otro') return document.getElementById('p_nombre_libre').value.trim();
-  return '';
-}
+function obtenerSolicitante() { const t = document.getElementById('p_tipo_solicitante').value; if (t === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value; else if (t === 'asociacion' || t === 'otro') return document.getElementById('p_nombre_libre').value.trim(); return ''; }
 
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   e.preventDefault();
-  const unidadId = parseInt(document.getElementById('p_unidad').value);
-  const tipoSolicitante = document.getElementById('p_tipo_solicitante').value;
-  const solicitante = obtenerSolicitante();
-  const contacto = document.getElementById('p_contacto').value.trim();
-  const telefono = document.getElementById('p_telefono').value.trim();
-  const salida = document.getElementById('p_salida').value;
-  const prevista = document.getElementById('p_prevista').value;
-  if (!unidadId || !tipoSolicitante || !solicitante || !salida) { notificar('Completa todos los campos obligatorios antes de continuar.', 'aviso', 'Faltan datos'); return; }
-  const unidad = datos.unidades.find(function(u) { return u.id === unidadId; });
-  if (!unidad || unidad.estado !== 'almacen') { notificar('Esta unidad no está disponible en este momento.', 'error', 'Unidad no disponible'); return; }
+  const uId = parseInt(document.getElementById('p_unidad').value), ts = document.getElementById('p_tipo_solicitante').value, sol = obtenerSolicitante(), con = document.getElementById('p_contacto').value.trim(), tel = document.getElementById('p_telefono').value.trim(), sal = document.getElementById('p_salida').value, pre = document.getElementById('p_prevista').value, not = document.getElementById('p_notas').value.trim();
+  if (!uId || !ts || !sol || !sal) { notificar('Completa los campos obligatorios.', 'aviso', 'Faltan datos'); return; }
+  if (tel && tel.replace(/\D/g,'').length < 9) { notificar('El teléfono debe tener al menos 9 dígitos.', 'aviso', 'Teléfono no válido'); return; }
+  const u = datos.unidades.find(function(x) { return x.id === uId; });
+  if (!u || u.estado !== 'almacen') { notificar('Unidad no disponible.', 'error', 'No disponible'); return; }
   const id = datos.nextId.prestamo++;
-  datos.prestamos.push({ id: id, unidadId: unidadId, tipoSolicitante: tipoSolicitante, solicitante: solicitante, contacto: contacto, telefono: telefono, fechaSalida: salida, fechaPrevista: prevista || null, fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: '' });
-  unidad.estado = 'prestado';
+  datos.prestamos.push({ id: id, unidadId: uId, tipoSolicitante: ts, solicitante: sol, contacto: con, telefono: tel, fechaSalida: sal, fechaPrevista: pre || null, fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: '', notas: not });
+  u.estado = 'prestado';
   guardar(); renderTodo(); e.target.reset();
   document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
-  notificar('Préstamo de <strong>' + unidad.identificador + '</strong> registrado correctamente.', 'exito', 'Préstamo registrado');
+  notificar('Préstamo de <strong>' + u.identificador + '</strong> registrado.', 'exito', 'Préstamo registrado');
   showTab('dashboard', document.querySelector('nav button'));
 });
 
-function abrirDevolucion(prestamoId) {
-  const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
-  if (!p) return;
+function abrirDevolucion(pId) {
+  const p = datos.prestamos.find(function(x) { return x.id === pId; }); if (!p) return;
   const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-  document.getElementById('d_prestamoId').value = prestamoId;
-  document.getElementById('devInfo').innerHTML = '<strong style="font-size:1.05rem;">' + u.identificador + '</strong><br><span style="color:var(--muted);">Prestado a:</span> ' + p.solicitante + '<br><span style="color:var(--muted);">Contacto:</span> ' + (p.contacto || '-') + (p.telefono ? ' (' + p.telefono + ')' : '') + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p.fechaSalida) + (p.fechaPrevista ? '<br><span style="color:var(--muted);">Prevista:</span> ' + formatFecha(p.fechaPrevista) : '');
+  document.getElementById('d_prestamoId').value = pId;
+  document.getElementById('devInfo').innerHTML = '<strong style="font-size:1.05rem;">' + u.identificador + '</strong><br><span style="color:var(--muted);">Prestado a:</span> ' + p.solicitante + '<br><span style="color:var(--muted);">Contacto:</span> ' + (p.contacto||'-') + (p.telefono?' ('+p.telefono+')':'') + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p.fechaSalida) + (p.fechaPrevista?'<br><span style="color:var(--muted);">Prevista:</span> '+formatFecha(p.fechaPrevista):'') + (p.notas?'<br><span style="color:var(--muted);">Notas:</span> '+p.notas:'');
   const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('d_fecha').value = now.toISOString().slice(0,16);
   document.getElementById('d_estado').value = 'correcto';
@@ -922,124 +848,405 @@ function abrirDevolucion(prestamoId) {
   document.getElementById('d_incidencias_label').style.display = 'none';
   document.getElementById('modalDevolucion').classList.add('show');
 }
-document.getElementById('d_estado').addEventListener('change', function(e) {
-  const show = e.target.value === 'averiado';
-  document.getElementById('d_incidencias').style.display = show ? 'block' : 'none';
-  document.getElementById('d_incidencias_label').style.display = show ? 'block' : 'none';
-});
+document.getElementById('d_estado').addEventListener('change', function(e) { const s = e.target.value === 'averiado'; document.getElementById('d_incidencias').style.display = s ? 'block' : 'none'; document.getElementById('d_incidencias_label').style.display = s ? 'block' : 'none'; });
 document.getElementById('formDevolucion').addEventListener('submit', function(e) {
   e.preventDefault();
-  const id = parseInt(document.getElementById('d_prestamoId').value);
-  const p = datos.prestamos.find(function(x) { return x.id === id; });
-  if (!p) return;
-  p.fechaDevolucion = document.getElementById('d_fecha').value;
-  p.estadoMaterial = document.getElementById('d_estado').value;
-  p.incidencias = document.getElementById('d_incidencias').value.trim();
-  p.estado = 'devuelto';
-  const unidad = datos.unidades.find(function(u) { return u.id === p.unidadId; });
-  if (p.estadoMaterial === 'averiado') {
-    unidad.estado = 'averiado'; unidad.observaciones = p.incidencias;
-    notificar('Devolución registrada con incidencias. La unidad queda marcada como averiada.', 'aviso', 'Devolución con incidencias');
-  } else {
-    unidad.estado = 'almacen'; unidad.observaciones = '';
-    notificar('Devolución de <strong>' + unidad.identificador + '</strong> registrada correctamente.', 'exito', 'Devolución registrada');
-  }
+  const id = parseInt(document.getElementById('d_prestamoId').value), p = datos.prestamos.find(function(x) { return x.id === id; }); if (!p) return;
+  p.fechaDevolucion = document.getElementById('d_fecha').value; p.estadoMaterial = document.getElementById('d_estado').value; p.incidencias = document.getElementById('d_incidencias').value.trim(); p.estado = 'devuelto';
+  const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+  if (p.estadoMaterial === 'averiado') { u.estado = 'averiado'; u.observaciones = p.incidencias; notificar('Devolución con incidencias.', 'aviso', 'Incidencia'); }
+  else { u.estado = 'almacen'; u.observaciones = ''; notificar('Devolución de <strong>' + u.identificador + '</strong> registrada.', 'exito', 'Devuelto'); }
   guardar(); cerrarModal(); renderTodo();
 });
 function cerrarModal() { document.getElementById('modalDevolucion').classList.remove('show'); }
 function eliminarPrestamo(id) {
-  if (!confirm('¿Seguro que quieres eliminar este préstamo?')) return;
+  if (!confirm('¿Eliminar este préstamo?')) return;
   const p = datos.prestamos.find(function(x) { return x.id === id; });
   if (p && !p.fechaDevolucion) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); if (u) u.estado = 'almacen'; }
   datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
-  guardar(); renderTodo(); notificar('Préstamo eliminado del registro.', 'info', 'Préstamo eliminado');
+  guardar(); renderTodo(); notificar('Préstamo eliminado.', 'info', 'Eliminado');
 }
 
 document.getElementById('formArticulo').addEventListener('submit', function(e) {
   e.preventDefault();
-  const nombre = document.getElementById('a_nombre').value.trim();
-  const tipo = document.getElementById('a_tipo').value.trim();
-  const cantidad = parseInt(document.getElementById('a_cantidad').value);
-  const descripcion = document.getElementById('a_descripcion').value.trim();
-  if (!nombre || !cantidad || cantidad < 1) { notificar('Introduce al menos el nombre y la cantidad del artículo.', 'aviso', 'Faltan datos'); return; }
+  const n = document.getElementById('a_nombre').value.trim(), t = document.getElementById('a_tipo').value.trim(), c = parseInt(document.getElementById('a_cantidad').value), d = document.getElementById('a_descripcion').value.trim();
+  if (!n || !c || c < 1) { notificar('Introduce nombre y cantidad.', 'aviso', 'Faltan datos'); return; }
   const idA = datos.nextId.articulo++;
-  datos.articulos.push({ id: idA, nombre: nombre, tipo: tipo, cantidad: cantidad, descripcion: descripcion, activo: true });
-  for (let i = 1; i <= cantidad; i++) {
-    const idU = datos.nextId.unidad++;
-    datos.unidades.push({ id: idU, articuloId: idA, identificador: nombre + ' #' + i, estado: 'almacen', observaciones: '' });
-  }
+  datos.articulos.push({ id: idA, nombre: n, tipo: t, cantidad: c, descripcion: d, activo: true });
+  for (let i = 1; i <= c; i++) { const idU = datos.nextId.unidad++; datos.unidades.push({ id: idU, articuloId: idA, identificador: n + ' #' + i, estado: 'almacen', observaciones: '' }); }
   guardar(); renderTodo(); e.target.reset(); toggleFormAlta();
-  notificar('Se han dado de alta <strong>' + cantidad + '</strong> unidad(es) de "' + nombre + '".', 'exito', 'Artículo dado de alta');
+  notificar('Dadas de alta <strong>' + c + '</strong> unidad(es) de "' + n + '".', 'exito', 'Alta');
 });
 
-function exportarDatos() {
-  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click(); URL.revokeObjectURL(url);
-  notificar('Copia de seguridad descargada correctamente.', 'exito', 'Datos exportados');
-}
-function importarDatos(event) {
-  const file = event.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (!imported.articulos || !imported.unidades || !imported.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; }
-      if (!confirm('¿Reemplazar todos los datos actuales con los del archivo?')) return;
-      datos = imported;
-      guardar(); renderTodo(); notificar('Datos importados correctamente.', 'exito', 'Datos importados');
-    } catch (err) { notificar('No se ha podido leer el archivo: ' + err.message, 'error', 'Error al importar'); }
-  };
-  reader.readAsText(file); event.target.value = '';
-}
-function resetearDatos() {
-  if (!confirm('¿Seguro? Se borrarán TODOS los datos.')) return;
-  if (!confirm('Última confirmación: ¿realmente quieres borrar todo?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
-  inicializarInventario();
-  guardar(); renderTodo();
-  notificar('Datos borrados y restaurado el inventario inicial.', 'aviso', 'Datos borrados');
-}
+function exportarDatos() { const b = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(u); notificar('Copia descargada.', 'exito', 'Exportado'); }
+function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('Archivo no válido.', 'error', 'Error'); return; } if (!confirm('¿Reemplazar todos los datos?')) return; datos = imp; guardar(); renderTodo(); notificar('Datos importados.', 'exito', 'Importado'); } catch(err) { notificar('Error: ' + err.message, 'error', 'Error'); } }; r.readAsText(f); ev.target.value = ''; }
+function resetearDatos() { if (!confirm('¿Borrar TODOS los datos?')) return; if (!confirm('Última confirmación: ¿borrar todo?')) return; localStorage.removeItem(STORAGE_KEY); datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } }; inicializarInventario(); guardar(); renderTodo(); notificar('Datos borrados.', 'aviso', 'Borrado'); }
 
-function formatFecha(iso) {
-  if (!iso) return '-';
-  const d = new Date(iso);
-  return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-}
+function formatFecha(iso) { if (!iso) return '-'; const d = new Date(iso); return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+function formatFechaCorta(iso) { if (!iso) return '-'; const d = new Date(iso); return d.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }); }
 
-// ===== PREVIEW DE IMAGEN AL PASAR EL RATÓN =====
 (function() {
-  const preview = document.getElementById('icono-preview');
-  if (!preview) return;
+  const p = document.getElementById('icono-preview'); if (!p) return;
+  document.addEventListener('mouseover', function(e) { const i = e.target.closest('.icono-articulo'); if (i && i.tagName === 'IMG' && i.src) { p.innerHTML = '<img src="' + i.src + '">'; p.style.display = 'block'; } });
+  document.addEventListener('mouseout', function(e) { const i = e.target.closest('.icono-articulo'); if (i) p.style.display = 'none'; });
+  document.addEventListener('mousemove', function(e) { if (p.style.display === 'block') { let x = e.clientX + 15, y = e.clientY + 15; if (x + 180 > window.innerWidth) x = e.clientX - 195; if (y + 180 > window.innerHeight) y = e.clientY - 195; p.style.left = x + 'px'; p.style.top = y + 'px'; } });
+})();
 
-  document.addEventListener('mouseover', function(e) {
-    const img = e.target.closest('.icono-articulo');
-    if (img && img.tagName === 'IMG' && img.src) {
-      preview.innerHTML = '<img src="' + img.src + '" alt="Vista ampliada">';
-      preview.style.display = 'block';
-    }
-  });
+// ===== LISTADOS =====
+function seleccionarListado(tipo, el) {
+  listadoSeleccionado = tipo;
+  document.querySelectorAll('.listado-opcion').forEach(function(e) { e.classList.remove('seleccionada'); });
+  el.classList.add('seleccionada');
+  const c = document.getElementById('listadoConfig'), ch = document.getElementById('configHistorico');
+  c.classList.remove('campo-oculto');
+  ch.classList.toggle('campo-oculto', tipo !== 'historico');
+}
 
-  document.addEventListener('mouseout', function(e) {
-    const img = e.target.closest('.icono-articulo');
-    if (img) {
-      preview.style.display = 'none';
-    }
-  });
+function generarListado() {
+  if (!listadoSeleccionado) { notificar('Selecciona un tipo.', 'aviso', 'Falta selección'); return; }
+  let contenido = '', titulo = '';
+  if (listadoSeleccionado === 'inventario') { titulo = 'Inventario completo'; contenido = genListadoInventario(); }
+  else if (listadoSeleccionado === 'solicitante') { titulo = 'Listado por solicitante'; contenido = genListadoSolicitante(); }
+  else if (listadoSeleccionado === 'material') { titulo = 'Listado por material prestado'; contenido = genListadoMaterial(); }
+  else if (listadoSeleccionado === 'estado') { titulo = 'Listado por estado'; contenido = genListadoEstado(); }
+  else if (listadoSeleccionado === 'historico') { titulo = 'Histórico por fechas'; const fd = document.getElementById('l_fechaDesde').value, fh = document.getElementById('l_fechaHasta').value; contenido = genListadoHistorico(fd, fh); }
+  else if (listadoSeleccionado === 'prestado') { titulo = 'Material actualmente prestado'; contenido = genListadoPrestado(); }
+  else if (listadoSeleccionado === 'averiado') { titulo = 'Material averiado'; contenido = genListadoAveriado(); }
+  else if (listadoSeleccionado === 'almacen') { titulo = 'Material en almacén'; contenido = genListadoAlmacen(); }
+  abrirVentanaListado(titulo, contenido);
+}
 
-  document.addEventListener('mousemove', function(e) {
-    if (preview.style.display === 'block') {
-      let x = e.clientX + 15;
-      let y = e.clientY + 15;
-      if (x + 180 > window.innerWidth) x = e.clientX - 195;
-      if (y + 180 > window.innerHeight) y = e.clientY - 195;
-      preview.style.left = x + 'px';
-      preview.style.top = y + 'px';
-    }
+function genListadoInventario() {
+  let h = '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:11pt;"><thead><tr style="background:#f0f0f0;"><th style="text-align:left;">Artículo</th><th>Tipo</th><th>Total</th><th>Disp.</th><th>Prest.</th><th>Aver.</th><th style="text-align:left;">Descripción</th></tr></thead><tbody>';
+  let tT=0,tD=0,tP=0,tA=0;
+  datos.articulos.forEach(function(a) {
+    if (!a.activo) return;
+    const u = datos.unidades.filter(function(x) { return x.articuloId === a.id; });
+    const d = u.filter(function(x) { return x.estado==='almacen'; }).length, p = u.filter(function(x) { return x.estado==='prestado'; }).length, av = u.filter(function(x) { return x.estado==='averiado'; }).length;
+    tT+=u.length; tD+=d; tP+=p; tA+=av;
+    h += '<tr><td style="text-align:left;"><strong>'+a.nombre+'</strong></td><td>'+(a.tipo||'-')+'</td><td style="text-align:center;">'+u.length+'</td><td style="text-align:center;color:green;">'+d+'</td><td style="text-align:center;color:orange;">'+p+'</td><td style="text-align:center;color:red;">'+av+'</td><td style="text-align:left;">'+(a.descripcion||'-')+'</td></tr>';
   });
+  h += '<tr style="background:#f0f0f0; font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tT+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tA+'</td><td></td></tr></tbody></table>';
+  return h;
+}
+
+function genListadoSolicitante() {
+  const agrupado = {};
+  datos.prestamos.forEach(function(p) {
+    const key = p.solicitante;
+    if (!agrupado[key]) agrupado[key] = [];
+    agrupado[key].push(p);
+  });
+  let h = '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:10pt;"><thead><tr style="background:#e0e7ff;"><th style="text-align:left;">Solicitante</th><th>Tipo</th><th>Nº préstamos</th><th>En curso</th><th>Devueltos</th><th>Con incidencias</th></tr></thead><tbody>';
+  const keys = Object.keys(agrupado).sort();
+  let totalP=0, totalC=0, totalD=0, totalI=0;
+  keys.forEach(function(k) {
+    const ps = agrupado[k];
+    const enCurso = ps.filter(function(p) { return !p.fechaDevolucion; }).length;
+    const devueltos = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'correcto'; }).length;
+    const incidencias = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; }).length;
+    totalP += ps.length; totalC += enCurso; totalD += devueltos; totalI += incidencias;
+    h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>-</td><td style="text-align:center;">'+ps.length+'</td><td style="text-align:center;color:orange;">'+enCurso+'</td><td style="text-align:center;color:green;">'+devueltos+'</td><td style="text-align:center;color:red;">'+incidencias+'</td></tr>';
+  });
+  h += '<tr style="background:#e0e7ff; font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+totalP+'</td><td style="text-align:center;">'+totalC+'</td><td style="text-align:center;">'+totalD+'</td><td style="text-align:center;">'+totalI+'</td></tr></tbody></table>';
+  return h;
+}
+
+function genListadoMaterial() {
+  const agrupado = {};
+  datos.prestamos.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
+    const key = a ? a.nombre : 'Desconocido';
+    if (!agrupado[key]) agrupado[key] = { total: 0, enCurso: 0, devueltos: 0, incidencias: 0, tipo: a ? a.tipo : '-' };
+    agrupado[key].total++;
+    if (!p.fechaDevolucion) agrupado[key].enCurso++;
+    else if (p.estadoMaterial === 'correcto') agrupado[key].devueltos++;
+    else agrupado[key].incidencias++;
+  });
+  let h = '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:10pt;"><thead><tr style="background:#dbeafe;"><th style="text-align:left;">Material</th><th>Tipo</th><th>Total préstamos</th><th>En curso</th><th>Devueltos OK</th><th>Con incidencias</th></tr></thead><tbody>';
+  const keys = Object.keys(agrupado).sort();
+  let tT=0,tC=0,tD=0,tI=0;
+  keys.forEach(function(k) {
+    const d = agrupado[k];
+    tT+=d.total; tC+=d.enCurso; tD+=d.devueltos; tI+=d.incidencias;
+    h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>'+d.tipo+'</td><td style="text-align:center;">'+d.total+'</td><td style="text-align:center;color:orange;">'+d.enCurso+'</td><td style="text-align:center;color:green;">'+d.devueltos+'</td><td style="text-align:center;color:red;">'+d.incidencias+'</td></tr>';
+  });
+  h += '<tr style="background:#dbeafe; font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tT+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>';
+  return h;
+}
+
+function genListadoEstado() {
+  const almacen = datos.unidades.filter(function(u) { return u.estado === 'almacen'; });
+  const prestados = datos.unidades.filter(function(u) { return u.estado === 'prestado'; });
+  const averiados = datos.unidades.filter(function(u) { return u.estado === 'averiado'; });
+  let h = '';
+  h += '<h3 style="color:green; margin-top:15px;">📍 En almacén (' + almacen.length + ')</h3>';
+  h += '<table border="1" cellpadding="5" style="width:100%; border-collapse:collapse; font-size:10pt;"><thead><tr style="background:#d4edda;"><th>Unidad</th><th>Artículo</th><th>Tipo</th></tr></thead><tbody>';
+  almacen.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(a?a.tipo:'-')+'</td></tr>'; });
+  h += '</tbody></table>';
+  h += '<h3 style="color:orange; margin-top:15px;">👤 Prestados (' + prestados.length + ')</h3>';
+  h += '<table border="1" cellpadding="5" style="width:100%; border-collapse:collapse; font-size:10pt;"><thead><tr style="background:#fff3cd;"><th>Unidad</th><th>Artículo</th><th>Solicitante</th><th>Desde</th></tr></thead><tbody>';
+  prestados.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); const p = getPrestamoActivo(u.id); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(p?p.solicitante:'?')+'</td><td>'+(p?formatFecha(p.fechaSalida):'-')+'</td></tr>'; });
+  h += '</tbody></table>';
+  h += '<h3 style="color:red; margin-top:15px;">🔧 Averiados (' + averiados.length + ')</h3>';
+  h += '<table border="1" cellpadding="5" style="width:100%; border-collapse:collapse; font-size:10pt;"><thead><tr style="background:#f8d7da;"><th>Unidad</th><th>Artículo</th><th>Incidencia</th></tr></thead><tbody>';
+  averiados.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(u.observaciones||'-')+'</td></tr>'; });
+  h += '</tbody></table>';
+  return h;
+}
+
+function genListadoHistorico(fd, fh) {
+  let f = datos.prestamos.slice();
+  if (fd) { const d = new Date(fd); f = f.filter(function(p) { return new Date(p.fechaSalida) >= d; }); }
+  if (fh) { const h = new Date(fh); h.setHours(23,59,59); f = f.filter(function(p) { return new Date(p.fechaSalida) <= h; }); }
+  f.sort(function(a,b) { return new Date(b.fechaSalida) - new Date(a.fechaSalida); });
+  let h = '';
+  if (fd || fh) h += '<p style="font-size:10pt; color:#666;">Período: ' + (fd?formatFechaCorta(fd):'inicio') + ' → ' + (fh?formatFechaCorta(fh):'actual') + '</p>';
+  h += '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:10pt;"><thead><tr style="background:#f0f0f0;"><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Teléfono</th><th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th>Notas</th></tr></thead><tbody>';
+  f.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    const et = p.fechaDevolucion ? (p.estadoMaterial==='correcto'?'OK':'INCIDENCIA') : 'EN CURSO';
+    h += '<tr><td>'+(u?u.identificador:'?')+'</td><td>'+p.solicitante+'</td><td>'+(p.contacto||'-')+'</td><td>'+(p.telefono||'-')+'</td><td>'+formatFecha(p.fechaSalida)+'</td><td>'+(p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-')+'</td><td style="text-align:center;">'+et+'</td><td>'+(p.incidencias||'-')+'</td><td>'+(p.notas||'-')+'</td></tr>';
+  });
+  h += '</tbody></table><p style="font-size:10pt; margin-top:10px;"><strong>Total: ' + f.length + ' registros</strong></p>';
+  return h;
+}
+
+function genListadoPrestado() {
+  const a = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; });
+  let h = '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:11pt;"><thead><tr style="background:#fff3cd;"><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Teléfono</th><th>Salida</th><th>Prevista</th><th>Días</th><th>Notas</th></tr></thead><tbody>';
+  const ahora = new Date();
+  a.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    const dp = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000);
+    h += '<tr><td><strong>'+(u?u.identificador:'?')+'</strong></td><td>'+p.solicitante+'</td><td>'+(p.contacto||'-')+'</td><td>'+(p.telefono||'-')+'</td><td>'+formatFecha(p.fechaSalida)+'</td><td>'+(p.fechaPrevista?formatFecha(p.fechaPrevista):'-')+'</td><td style="text-align:center;">'+dp+'d</td><td>'+(p.notas||'-')+'</td></tr>';
+  });
+  h += '</tbody></table><p style="font-size:10pt; margin-top:10px;"><strong>Total prestados: ' + a.length + '</strong></p>';
+  return h;
+}
+
+function genListadoAveriado() {
+  const av = datos.unidades.filter(function(u) { return u.estado === 'averiado'; });
+  let h = '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:11pt;"><thead><tr style="background:#f8d7da;"><th>Unidad</th><th>Artículo</th><th>Tipo</th><th>Incidencia</th></tr></thead><tbody>';
+  av.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(a?a.tipo:'-')+'</td><td>'+(u.observaciones||'-')+'</td></tr>'; });
+  h += '</tbody></table><p style="font-size:10pt; margin-top:10px;"><strong>Total averiados: ' + av.length + '</strong></p>';
+  return h;
+}
+
+function genListadoAlmacen() {
+  const al = datos.unidades.filter(function(u) { return u.estado === 'almacen'; });
+  let h = '<table border="1" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:11pt;"><thead><tr style="background:#d4edda;"><th>Unidad</th><th>Artículo</th><th>Tipo</th></tr></thead><tbody>';
+  al.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(a?a.tipo:'-')+'</td></tr>'; });
+  h += '</tbody></table><p style="font-size:10pt; margin-top:10px;"><strong>Total en almacén: ' + al.length + '</strong></p>';
+  return h;
+}
+
+function abrirVentanaListado(titulo, contenido) {
+  const ahora = new Date();
+  const fg = ahora.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const v = window.open('', '_blank', 'width=900,height=700');
+  if (!v) { notificar('Permite ventanas emergentes.', 'error', 'Bloqueada'); return; }
+  v.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titulo+'</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937;}h1{color:#15407a;border-bottom:2px solid #1e5aa8;padding-bottom:10px;font-size:18pt;}h2{color:#1e5aa8;font-size:14pt;margin-top:5px;}.meta{color:#6b7280;font-size:10pt;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:15px;}th{background:#f0f0f0;padding:8px;text-align:left;border:1px solid #ccc;font-size:10pt;}td{padding:6px 8px;border:1px solid #ccc;font-size:10pt;}tr:nth-child(even){background:#f9fafb;}.pie{margin-top:20px;font-size:9pt;color:#6b7280;border-top:1px solid #ccc;padding-top:10px;}@media print{body{padding:10px;}.no-print{display:none;}}</style></head><body><h1>🏛️ Control de Préstamos - Diputación de León</h1><h2>'+titulo+'</h2><p class="meta">Generado el '+fg+'</p>'+contenido+'<div class="pie">Documento generado automáticamente.</div><div class="no-print" style="margin-top:20px;text-align:center;"><button onclick="window.print()" style="padding:10px 20px;font-size:12pt;background:#1e5aa8;color:white;border:none;border-radius:6px;cursor:pointer;">🖨️ Imprimir / PDF</button> <button onclick="window.close()" style="padding:10px 20px;font-size:12pt;background:#6b7280;color:white;border:none;border-radius:6px;cursor:pointer;margin-left:10px;">Cerrar</button></div></body></html>');
+  v.document.close();
+}
+
+// ===== QR =====
+function generarTodosQR() {
+  const grid = document.getElementById('qrGrid'); if (!grid) return;
+  grid.innerHTML = '';
+  const urlBase = window.location.href.split('?')[0];
+  datos.unidades.forEach(function(u) {
+    const a = datos.articulos.find(function(x) { return x.id === u.articuloId; });
+    const card = document.createElement('div');
+    card.className = 'qr-card';
+    const qrDiv = document.createElement('div');
+    qrDiv.className = 'qr-img';
+    const urlUnidad = urlBase + '?unidad=' + u.id;
+    try { new QRCode(qrDiv, { text: urlUnidad, width: 140, height: 140, colorDark: '#15407a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch(e) { qrDiv.innerHTML = '<p style="color:red;">Error QR</p>'; }
+    const estadoTexto = u.estado === 'almacen' ? '📍 Almacén' : u.estado === 'prestado' ? '👤 Prestado' : '🔧 Averiado';
+    const estadoColor = u.estado === 'almacen' ? 'green' : u.estado === 'prestado' ? 'orange' : 'red';
+    card.innerHTML = '<div class="qr-nombre">' + u.identificador + '</div><div class="qr-estado" style="color:' + estadoColor + ';">' + estadoTexto + '</div>';
+    card.insertBefore(qrDiv, card.firstChild);
+    grid.appendChild(card);
+  });
+  if (datos.unidades.length === 0) grid.innerHTML = '<div class="vacio"><div class="icono">📦</div><div>No hay unidades</div></div>';
+}
+
+function iniciarLectorQR() {
+  if (html5QrCode) { detenerLectorQR(); return; }
+  html5QrCode = new Html5Qrcode("qr-reader");
+  const urlBase = window.location.href.split('?')[0];
+  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, function(decodedText) {
+    detenerLectorQR();
+    if (decodedText.indexOf('unidad=') !== -1) {
+      const match = decodedText.match(/unidad=(\d+)/);
+      if (match) {
+        const uId = parseInt(match[1]);
+        mostrarFichaUnidad(uId);
+      } else { notificar('QR no válido.', 'error', 'Error'); }
+    } else { notificar('QR no reconocido: ' + decodedText, 'aviso', 'QR desconocido'); }
+  }, function(err) { }).catch(function(err) { notificar('Error al iniciar cámara: ' + err, 'error', 'Error cámara'); });
+  document.getElementById('btnIniciarLector').style.display = 'none';
+  document.getElementById('btnDetenerLector').style.display = 'inline-block';
+}
+
+function detenerLectorQR() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(function() { html5QrCode.clear(); html5QrCode = null; }).catch(function() {});
+  }
+  document.getElementById('btnIniciarLector').style.display = 'inline-block';
+  document.getElementById('btnDetenerLector').style.display = 'none';
+}
+
+function mostrarFichaUnidad(uId) {
+  const u = datos.unidades.find(function(x) { return x.id === uId; });
+  if (!u) { notificar('Unidad no encontrada.', 'error', 'Error'); return; }
+  const a = datos.articulos.find(function(x) { return x.id === u.articuloId; });
+  const prestamoActivo = getPrestamoActivo(u.id);
+  const historial = datos.prestamos.filter(function(p) { return p.unidadId === uId; }).sort(function(x,y) { return new Date(y.fechaSalida) - new Date(x.fechaSalida); });
+  
+  let estadoTexto = u.estado === 'almacen' ? '📍 En almacén (disponible)' : u.estado === 'prestado' ? '👤 Prestado' : '🔧 Averiado';
+  let estadoColor = u.estado === 'almacen' ? 'var(--success)' : u.estado === 'prestado' ? 'var(--warning)' : 'var(--danger)';
+  
+  let html = '<div class="unidad-ficha">';
+  html += '<h4>' + (a ? getIconoHTML(a.tipo) : '') + ' ' + u.identificador + '</h4>';
+  html += '<p><strong>Artículo:</strong> ' + (a ? a.nombre : '?') + ' (' + (a ? a.tipo : '-') + ')</p>';
+  html += '<p><strong>Estado:</strong> <span style="color:' + estadoColor + '; font-weight:600;">' + estadoTexto + '</span></p>';
+  if (u.observaciones) html += '<p><strong>Observaciones:</strong> ' + u.observaciones + '</p>';
+  
+  if (prestamoActivo) {
+    html += '<div style="background:#fffbeb; padding:0.75rem; border-radius:6px; margin-top:0.75rem;">';
+    html += '<p><strong>👤 Prestado a:</strong> ' + prestamoActivo.solicitante + '</p>';
+    html += '<p><strong>📞 Contacto:</strong> ' + (prestamoActivo.contacto||'-') + (prestamoActivo.telefono?' ('+prestamoActivo.telefono+')':'') + '</p>';
+    html += '<p><strong>📅 Desde:</strong> ' + formatFecha(prestamoActivo.fechaSalida) + '</p>';
+    if (prestamoActivo.fechaPrevista) html += '<p><strong>📅 Prevista:</strong> ' + formatFecha(prestamoActivo.fechaPrevista) + '</p>';
+    if (prestamoActivo.notas) html += '<p><strong>📝 Notas:</strong> ' + prestamoActivo.notas + '</p>';
+    html += '<button class="btn success" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\'); abrirDevolucion(' + prestamoActivo.id + ');" style="margin-top:0.5rem;">↩️ Registrar devolución</button>';
+    html += '</div>';
+  } else if (u.estado === 'almacen') {
+    html += '<div style="background:#f0fdf4; padding:0.75rem; border-radius:6px; margin-top:0.75rem;">';
+    html += '<p style="color:var(--success); font-weight:600;">✅ Disponible para prestar</p>';
+    html += '<button class="btn success" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\'); document.getElementById(\'p_unidad\').value=\'' + u.id + '\'; showTab(\'prestamo\', document.querySelectorAll(\'nav button\')[1]);" style="margin-top:0.5rem;">➕ Prestar esta unidad</button>';
+    html += '</div>';
+  }
+  
+  if (historial.length > 0) {
+    html += '<h4 style="margin-top:1rem;">📜 Historial de movimientos (' + historial.length + ')</h4>';
+    historial.forEach(function(p) {
+      const et = p.fechaDevolucion ? (p.estadoMaterial==='correcto'?'✅ OK':'⚠️ Incidencia') : '🔄 En curso';
+      html += '<div class="historial-item"><strong>' + et + '</strong><br>';
+      html += '📅 Salida: ' + formatFecha(p.fechaSalida);
+      if (p.fechaDevolucion) html += ' → Devuelto: ' + formatFecha(p.fechaDevolucion);
+      html += '<br>👤 ' + p.solicitante;
+      if (p.incidencias) html += '<br>⚠️ ' + p.incidencias;
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+  
+  document.getElementById('modalUnidadTitulo').textContent = 'Ficha: ' + u.identificador;
+  document.getElementById('modalUnidadContenido').innerHTML = html;
+  document.getElementById('modalUnidad').classList.add('show');
+}
+
+// ===== CALENDARIO =====
+function cambiarMes(delta) { mesCalendario += delta; if (mesCalendario > 11) { mesCalendario = 0; anioCalendario++; } if (mesCalendario < 0) { mesCalendario = 11; anioCalendario--; } renderCalendario(); }
+function irAMesActual() { const h = new Date(); mesCalendario = h.getMonth(); anioCalendario = h.getFullYear(); renderCalendario(); }
+
+function renderCalendario() {
+  const tabla = document.getElementById('tablaCalendario');
+  const mesLabel = document.getElementById('calendarioMes');
+  if (!tabla || !mesLabel) return;
+  const nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const nombresDia = ['D','L','M','X','J','V','S'];
+  mesLabel.textContent = nombresMes[mesCalendario] + ' ' + anioCalendario;
+  const diasEnMes = new Date(anioCalendario, mesCalendario + 1, 0).getDate();
+  
+  let html = '<thead><tr><th class="fila-articulo">Artículo</th>';
+  for (let d = 1; d <= diasEnMes; d++) {
+    const fecha = new Date(anioCalendario, mesCalendario, d);
+    const diaSemana = fecha.getDay();
+    const esFinSemana = diaSemana === 0 || diaSemana === 6;
+    html += '<th class="' + (esFinSemana ? 'fin-semana' : '') + '">' + d + '<br><small>' + nombresDia[diaSemana] + '</small></th>';
+  }
+  html += '</tr></thead><tbody>';
+  
+  datos.articulos.forEach(function(a) {
+    if (!a.activo) return;
+    const unidades = datos.unidades.filter(function(u) { return u.articuloId === a.id; });
+    if (unidades.length === 0) return;
+    html += '<tr><td class="fila-articulo" title="' + a.nombre + '">' + getIconoHTML(a.tipo) + ' ' + a.nombre + '</td>';
+    for (let d = 1; d <= diasEnMes; d++) {
+      const fecha = new Date(anioCalendario, mesCalendario, d);
+      fecha.setHours(12, 0, 0, 0);
+      const diaSemana = fecha.getDay();
+      const esFinSemana = diaSemana === 0 || diaSemana === 6;
+      const fechaInicio = new Date(fecha); fechaInicio.setHours(0,0,0,0);
+      const fechaFin = new Date(fecha); fechaFin.setHours(23,59,59,999);
+      const fechaInicioStr = fechaInicio.toISOString();
+      const fechaFinStr = fechaFin.toISOString();
+      
+      let prestados = 0, averiados = 0, total = unidades.length;
+      unidades.forEach(function(u) {
+        let estadoDia = 'almacen';
+        const prestamosUnidad = datos.prestamos.filter(function(p) { return p.unidadId === u.id; });
+        prestamosUnidad.forEach(function(p) {
+          const salida = new Date(p.fechaSalida);
+          const devolucion = p.fechaDevolucion ? new Date(p.fechaDevolucion) : new Date();
+          if (fecha >= salida && fecha <= devolucion) {
+            if (p.fechaDevolucion && p.estadoMaterial === 'averiado' && fecha >= devolucion) estadoDia = 'averiado';
+            else if (p.fechaDevolucion) estadoDia = 'almacen';
+            else estadoDia = 'prestado';
+          }
+        });
+        if (estadoDia === 'prestado') prestados++;
+        else if (estadoDia === 'averiado') averiados++;
+      });
+      
+      let clase = 'dia-vacio';
+      let contenido = '';
+      if (esFinSemana) clase = 'fin-semana';
+      else if (averiados > 0) { clase = 'dia-averiado'; contenido = '🔧'+averiados; }
+      else if (prestados > 0) { clase = 'dia-prestado'; contenido = '👤'+prestados; }
+      else { clase = 'dia-almacen'; contenido = '📍'+(total-prestados-averiados); }
+      html += '<td class="' + clase + '" title="' + contenido + '">' + contenido + '</td>';
+    }
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  tabla.innerHTML = html;
+}
+
+function formatFecha(iso) { if (!iso) return '-'; const d = new Date(iso); return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+function formatFechaCorta(iso) { if (!iso) return '-'; const d = new Date(iso); return d.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' }); }
+
+// ===== ATAJOS DE TECLADO =====
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-bg.show').forEach(function(m) { m.classList.remove('show'); });
+    detenerLectorQR();
+  }
+  if (e.key === 'n' || e.key === 'N') showTab('prestamo', document.querySelectorAll('nav button')[1]);
+  if (e.key === 'd' || e.key === 'D') showTab('devoluciones', document.querySelectorAll('nav button')[2]);
+  if (e.key === 'h' || e.key === 'H') showTab('historico', document.querySelectorAll('nav button')[3]);
+  if (e.key === 'i' || e.key === 'I') showTab('inventario', document.querySelectorAll('nav button')[4]);
+  if (e.key === 'q' || e.key === 'Q') showTab('qr', document.querySelectorAll('nav button')[5]);
+  if (e.key === 'c' || e.key === 'C') showTab('calendario', document.querySelectorAll('nav button')[6]);
+  if (e.key === 'l' || e.key === 'L') showTab('listados', document.querySelectorAll('nav button')[7]);
+});
+
+// ===== DETECTAR QR EN URL =====
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const uId = params.get('unidad');
+  if (uId) {
+    setTimeout(function() {
+      const unidadId = parseInt(uId);
+      if (!isNaN(unidadId)) mostrarFichaUnidad(unidadId);
+    }, 500);
+  }
 })();
 
 init();
