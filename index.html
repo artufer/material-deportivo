@@ -395,7 +395,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-// ===================== FIREBASE =====================
 const firebaseConfig = {
   apiKey: "AIzaSyAXMxcl7SCIkxLcg4smfMljksCd-WNDiOE",
   authDomain: "material-deportes.firebaseapp.com",
@@ -423,7 +422,6 @@ function setEstado(tipo, texto) {
   if (el) { el.className = 'estado-sync ' + tipo; document.getElementById('estadoSyncTexto').textContent = texto; }
 }
 
-// ===================== DATOS =====================
 const STORAGE_KEY = 'dipuleon_prestamos_v1';
 let datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
 
@@ -451,7 +449,6 @@ const AYUNTAMIENTOS_LEON = [
   "Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"
 ];
 
-// ===================== ICONOS (FOTOS + EMOJIS) =====================
 const ICONOS_IMAGEN = {
   'arco': 'arco',
   'arco_muy_nuevo': 'arco_muy_nuevo',
@@ -481,13 +478,19 @@ const ICONOS_EMOJI = {
   'default': '📦'
 };
 
+// Función global de fallback para iconos
+function iconoError(el, tipo) {
+  el.outerHTML = '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>';
+}
+
 function getIconoHTML(tipo) {
   const nombreImagen = ICONOS_IMAGEN[tipo];
   if (nombreImagen) {
-    return `<img src="./img/${nombreImagen}.png" alt="${tipo}" class="icono-articulo" onerror="this.outerHTML='<span class=\\'icono-articulo emoji\\'>${ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default}</span>'">`;
+    return '<img src="img/' + nombreImagen + '.png" alt="' + tipo + '" class="icono-articulo" onerror="iconoError(this,\'' + tipo + '\')">';
   }
-  return `<span class="icono-articulo emoji">${ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default}</span>`;
+  return '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>';
 }
+
 function getIconoTexto(tipo) { return ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default; }
 
 function esDatosValidos(d) {
@@ -519,12 +522,11 @@ function inicializarInventario() {
     datos.articulos.push({ id: idA, nombre: a.nombre, tipo: a.tipo, cantidad: a.cantidad, descripcion: a.descripcion, activo: true });
     for (let i = 1; i <= a.cantidad; i++) {
       const idU = datos.nextId.unidad++;
-      datos.unidades.push({ id: idU, articuloId: idA, identificador: `${a.nombre} #${i}`, estado: 'almacen', observaciones: '' });
+      datos.unidades.push({ id: idU, articuloId: idA, identificador: a.nombre + ' #' + i, estado: 'almacen', observaciones: '' });
     }
   });
 }
 
-// ===================== ARRANQUE =====================
 function init() {
   initFirebase();
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -568,38 +570,33 @@ function init() {
   renderEstadoFirebase();
 }
 
-// ===================== NOTIFICACIONES =====================
-function notificar(mensaje, tipo = 'info', titulo = '') {
+function notificar(mensaje, tipo, titulo) {
+  tipo = tipo || 'info';
+  titulo = titulo || '';
   const contenedor = document.getElementById('toast-container');
   const toast = document.createElement('div');
-  toast.className = `toast ${tipo}`;
+  toast.className = 'toast ' + tipo;
   const iconos = { exito: '✅', error: '❌', aviso: '⚠️', info: 'ℹ️' };
   const titulosPorDefecto = { exito: '¡Hecho!', error: 'Error', aviso: 'Atención', info: 'Información' };
   const tituloFinal = titulo || titulosPorDefecto[tipo] || 'Aviso';
-  toast.innerHTML = `
-    <span class="toast-icono">${iconos[tipo] || 'ℹ️'}</span>
-    <div class="toast-texto"><div class="toast-titulo">${tituloFinal}</div><div>${mensaje}</div></div>
-    <button class="toast-cerrar" onclick="cerrarToast(this.parentElement)" title="Cerrar">×</button>
-  `;
+  toast.innerHTML = '<span class="toast-icono">' + (iconos[tipo] || 'ℹ️') + '</span><div class="toast-texto"><div class="toast-titulo">' + tituloFinal + '</div><div>' + mensaje + '</div></div><button class="toast-cerrar" onclick="cerrarToast(this.parentElement)" title="Cerrar">×</button>';
   contenedor.appendChild(toast);
-  setTimeout(() => { if (toast.parentElement) cerrarToast(toast); }, 4000);
+  setTimeout(function() { if (toast.parentElement) cerrarToast(toast); }, 4000);
 }
 function cerrarToast(toast) {
   if (!toast || !toast.parentElement) return;
   toast.classList.add('saliendo');
-  setTimeout(() => { if (toast.parentElement) toast.parentElement.removeChild(toast); }, 300);
+  setTimeout(function() { if (toast.parentElement) toast.parentElement.removeChild(toast); }, 300);
 }
 
-// ===================== NAVEGACIÓN =====================
 function showTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   renderTodo();
 }
 
-// ===================== RENDER =====================
 function renderTodo() {
   renderDashboard();
   renderSelectUnidades();
@@ -610,8 +607,8 @@ function renderTodo() {
   renderEstadoFirebase();
 }
 
-function getArticulo(id) { return datos.articulos.find(a => a.id === id); }
-function getPrestamoActivo(unidadId) { return datos.prestamos.find(p => p.unidadId === unidadId && !p.fechaDevolucion); }
+function getArticulo(id) { return datos.articulos.find(function(a) { return a.id === id; }); }
+function getPrestamoActivo(unidadId) { return datos.prestamos.find(function(p) { return p.unidadId === unidadId && !p.fechaDevolucion; }); }
 
 function toggleGrupo(id, btn) {
   const contenido = document.getElementById(id);
@@ -623,45 +620,32 @@ function renderDashboard() {
   const grid = document.getElementById('dashboardGrid');
   if (!grid) return;
   grid.innerHTML = '';
-  datos.articulos.forEach(a => {
+  datos.articulos.forEach(function(a) {
     if (!a.activo) return;
-    const unidades = datos.unidades.filter(u => u.articuloId === a.id);
+    const unidades = datos.unidades.filter(function(u) { return u.articuloId === a.id; });
     if (unidades.length === 0) return;
-    const disponibles = unidades.filter(u => u.estado === 'almacen').length;
-    const prestados = unidades.filter(u => u.estado === 'prestado').length;
-    const averiados = unidades.filter(u => u.estado === 'averiado').length;
+    const disponibles = unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
+    const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
+    const averiados = unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
     let estadoClase = 'estado-almacen';
     if (averiados > 0) estadoClase = 'estado-averiado';
     else if (prestados > 0) estadoClase = 'estado-parcial';
     const idGrupo = 'grupo-' + a.id;
     let htmlUnidades = '';
-    unidades.forEach(u => {
+    unidades.forEach(function(u) {
       const prestamo = getPrestamoActivo(u.id);
       let meta = '📍 En almacén';
       let badge = '<span class="badge ok">DISPONIBLE</span>';
       if (u.estado === 'prestado' && prestamo) {
-        meta = `👤 ${prestamo.solicitante} · 📅 ${formatFecha(prestamo.fechaSalida)}`;
+        meta = '👤 ' + prestamo.solicitante + ' · 📅 ' + formatFecha(prestamo.fechaSalida);
         badge = '<span class="badge prestado">PRESTADO</span>';
       } else if (u.estado === 'averiado') {
         meta = '🔧 ' + (u.observaciones || 'Con incidencias');
         badge = '<span class="badge danio">AVERIADO</span>';
       }
-      htmlUnidades += `
-        <div class="unidad-row ${u.estado}">
-          <div><strong>${u.identificador}</strong><div class="meta">${meta}</div></div>
-          ${badge}
-        </div>
-      `;
+      htmlUnidades += '<div class="unidad-row ' + u.estado + '"><div><strong>' + u.identificador + '</strong><div class="meta">' + meta + '</div></div>' + badge + '</div>';
     });
-    grid.innerHTML += `
-      <div class="grupo-articulo">
-        <button class="grupo-btn ${estadoClase}" onclick="toggleGrupo('${idGrupo}', this)">
-          <span>${getIconoHTML(a.tipo)} ${a.nombre}<span class="contador">(${disponibles} disp. · ${prestados} prest. · ${averiados} av.)</span></span>)</span></span>
-          <span class="flecha">▼</span>
-        </button>
-        <div class="grupo-contenido" id="${idGrupo}">${htmlUnidades}</div>
-      </div>
-    `;
+    grid.innerHTML += '<div class="grupo-articulo"><button class="grupo-btn ' + estadoClase + '" onclick="toggleGrupo(\'' + idGrupo + '\', this)"><span>' + getIconoHTML(a.tipo) + ' ' + a.nombre + ' <span class="contador">(' + disponibles + ' disp. · ' + prestados + ' prest. · ' + averiados + ' av.)</span></span><span class="flecha">▼</span></button><div class="grupo-contenido" id="' + idGrupo + '">' + htmlUnidades + '</div></div>';
   });
 }
 
@@ -670,10 +654,10 @@ function renderSelectUnidades() {
   if (!sel) return;
   const valorActual = sel.value;
   sel.innerHTML = '<option value="">-- Selecciona --</option>';
-  datos.unidades.forEach(u => {
-    if (u.estado === 'almacen') sel.innerHTML += `<option value="${u.id}">${u.identificador}</option>`;
+  datos.unidades.forEach(function(u) {
+    if (u.estado === 'almacen') sel.innerHTML += '<option value="' + u.id + '">' + u.identificador + '</option>';
   });
-  if (valorActual && datos.unidades.find(u => u.id === parseInt(valorActual) && u.estado === 'almacen')) sel.value = valorActual;
+  if (valorActual && datos.unidades.find(function(u) { return u.id === parseInt(valorActual) && u.estado === 'almacen'; })) sel.value = valorActual;
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   const pSalida = document.getElementById('p_salida');
@@ -683,46 +667,29 @@ function renderSelectUnidades() {
 function renderDevoluciones() {
   const cont = document.getElementById('listaDevoluciones');
   if (!cont) return;
-  const activos = datos.prestamos.filter(p => !p.fechaDevolucion);
+  const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; });
   if (activos.length === 0) {
-    cont.innerHTML = `<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div></div>`;
+    cont.innerHTML = '<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">No hay préstamos pendientes de devolución.</div></div>';
     return;
   }
   const ahora = new Date();
   let html = '';
-  activos.forEach(p => {
-    const u = datos.unidades.find(x => x.id === p.unidadId);
+  activos.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     if (!u) return;
     const diasPrestado = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000);
-    let textoDias = `Hace ${diasPrestado} día${diasPrestado === 1 ? '' : 's'}`;
+    let textoDias = 'Hace ' + diasPrestado + ' día' + (diasPrestado === 1 ? '' : 's');
     let infoPrevista = '', clasePrevista = '';
     if (p.fechaPrevista) {
       const fp = new Date(p.fechaPrevista);
       const diasRestantes = Math.ceil((fp - ahora) / 86400000);
       if (ahora > fp) {
         const d = Math.abs(diasRestantes);
-        infoPrevista = `⚠️ Vencida hace ${d} día${d === 1 ? '' : 's'}`;
+        infoPrevista = '⚠️ Vencida hace ' + d + ' día' + (d === 1 ? '' : 's');
         clasePrevista = 'prevista-vencida';
-      } else infoPrevista = `Faltan ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}`;
+      } else infoPrevista = 'Faltan ' + diasRestantes + ' día' + (diasRestantes === 1 ? '' : 's');
     }
-    html += `
-      <div class="devolucion-card">
-        <div class="cabecera">
-          <div>
-            <div class="articulo">${u.identificador}</div>
-            <div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">Prestado ${textoDias}</div>
-          </div>
-          <span class="badge prestado">PENDIENTE</span>
-        </div>
-        <div class="info-grid">
-          <div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">${p.solicitante}</span></div>
-          <div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">${p.contacto || '-'}${p.telefono ? ' · ' + p.telefono : ''}</span></div>
-          <div class="info-item"><span class="info-label">Fecha de salida</span><span class="info-valor">${formatFecha(p.fechaSalida)}</span></div>
-          ${p.fechaPrevista ? `<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor ${clasePrevista}">${formatFecha(p.fechaPrevista)}<br><small>${infoPrevista}</small></span></div>` : ''}
-        </div>
-        <button class="btn success big" onclick="abrirDevolucion(${p.id})">↩️ Registrar devolución</button>
-      </div>
-    `;
+    html += '<div class="devolucion-card"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">Prestado ' + textoDias + '</div></div><span class="badge prestado">PENDIENTE</span></div><div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div><div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto || '-') + (p.telefono ? ' · ' + p.telefono : '') + '</span></div><div class="info-item"><span class="info-label">Fecha de salida</span><span class="info-valor">' + formatFecha(p.fechaSalida) + '</span></div>' + (p.fechaPrevista ? '<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor ' + clasePrevista + '">' + formatFecha(p.fechaPrevista) + '<br><small>' + infoPrevista + '</small></span></div>' : '') + '</div><button class="btn success big" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button></div>';
   });
   cont.innerHTML = html;
 }
@@ -731,26 +698,12 @@ function renderHistorico() {
   const tbody = document.querySelector('#tablaHistorico tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  const ordenados = [...datos.prestamos].sort((a,b) => new Date(b.fechaSalida) - new Date(a.fechaSalida));
-  ordenados.forEach(p => {
-    const u = datos.unidades.find(x => x.id === p.unidadId);
+  const ordenados = datos.prestamos.slice().sort(function(a,b) { return new Date(b.fechaSalida) - new Date(a.fechaSalida); });
+  ordenados.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     let badge = '<span class="badge prestado">EN CURSO</span>';
     if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
-    tbody.innerHTML += `
-      <tr>
-        <td>${u ? u.identificador : '?'}</td>
-        <td>${p.solicitante}</td>
-        <td>${p.contacto || '-'}${p.telefono ? '<br><small>'+p.telefono+'</small>' : ''}</td>
-        <td>${formatFecha(p.fechaSalida)}</td>
-        <td>${p.fechaDevolucion ? formatFecha(p.fechaDevolucion) : '-'}</td>
-        <td>${badge}</td>
-        <td>${p.incidencias || '-'}</td>
-        <td>
-          ${!p.fechaDevolucion ? `<button class="btn small success" onclick="abrirDevolucion(${p.id})">Devolver</button>` : ''}
-          <button class="btn small danger" onclick="eliminarPrestamo(${p.id})">🗑️</button>
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML += '<tr><td>' + (u ? u.identificador : '?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto || '-') + (p.telefono ? '<br><small>'+p.telefono+'</small>' : '') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion ? formatFecha(p.fechaDevolucion) : '-') + '</td><td>' + badge + '</td><td>' + (p.incidencias || '-') + '</td><td>' + (!p.fechaDevolucion ? '<button class="btn small success" onclick="abrirDevolucion(' + p.id + ')">Devolver</button>' : '') + '<button class="btn small danger" onclick="eliminarPrestamo(' + p.id + ')">🗑️</button></td></tr>';
   });
   if (ordenados.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
 }
@@ -763,33 +716,15 @@ function renderInventario() {
   tbody.innerHTML = '';
   if (datos.articulos.length === 0) { tabla.style.display = 'none'; vacio.style.display = 'block'; return; }
   tabla.style.display = 'table'; vacio.style.display = 'none';
-  datos.articulos.forEach(a => {
+  datos.articulos.forEach(function(a) {
     if (!a.activo) return;
-    const unidades = datos.unidades.filter(u => u.articuloId === a.id);
-    const disponibles = unidades.filter(u => u.estado === 'almacen').length;
-    const prestados = unidades.filter(u => u.estado === 'prestado').length;
-    const averiados = unidades.filter(u => u.estado === 'averiado').length;
+    const unidades = datos.unidades.filter(function(u) { return u.articuloId === a.id; });
+    const disponibles = unidades.filter(function(u) { return u.estado === 'almacen'; }).length;
+    const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
+    const averiados = unidades.filter(function(u) { return u.estado === 'averiado'; }).length;
     const total = unidades.length;
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="nombre-celda" title="${a.nombre}">${getIconoHTML(a.tipo)} ${a.nombre}</td>
-      <td class="tipo-celda">${a.tipo || '-'}</td>
-      <td>
-        <div class="stats-celda">
-          <span class="stat total">T:${total}</span>
-          <span class="stat ok">📍${disponibles}</span>
-          <span class="stat prest">👤${prestados}</span>
-          <span class="stat av">🔧${averiados}</span>
-        </div>
-      </td>
-      <td class="descripcion-celda" title="${a.descripcion || ''}">${a.descripcion || '-'}</td>
-      <td>
-        <div class="acciones-celda">
-          <button class="btn small warning" onclick="abrirModalEditar(${a.id})" title="Editar">✏️</button>
-          <button class="btn small danger" onclick="darDeBaja(${a.id})" title="Dar de baja">🗑️</button>
-        </div>
-      </td>
-    `;
+    tr.innerHTML = '<td class="nombre-celda" title="' + a.nombre + '">' + getIconoHTML(a.tipo) + ' ' + a.nombre + '</td><td class="tipo-celda">' + (a.tipo || '-') + '</td><td><div class="stats-celda"><span class="stat total">T:' + total + '</span><span class="stat ok">📍' + disponibles + '</span><span class="stat prest">👤' + prestados + '</span><span class="stat av">🔧' + averiados + '</span></div></td><td class="descripcion-celda" title="' + (a.descripcion || '') + '">' + (a.descripcion || '-') + '</td><td><div class="acciones-celda"><button class="btn small warning" onclick="abrirModalEditar(' + a.id + ')" title="Editar">✏️</button><button class="btn small danger" onclick="darDeBaja(' + a.id + ')" title="Dar de baja">🗑️</button></div></td>';
     tbody.appendChild(tr);
   });
 }
@@ -802,10 +737,10 @@ function toggleFormAlta() {
 }
 
 function abrirModalEditar(id) {
-  const articulo = datos.articulos.find(a => a.id === id);
+  const articulo = datos.articulos.find(function(a) { return a.id === id; });
   if (!articulo) return;
-  const unidades = datos.unidades.filter(u => u.articuloId === id);
-  const prestados = unidades.filter(u => u.estado === 'prestado').length;
+  const unidades = datos.unidades.filter(function(u) { return u.articuloId === id; });
+  const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
   const total = unidades.length;
   document.getElementById('e_id').value = id;
   document.getElementById('e_nombre').value = articulo.nombre;
@@ -813,27 +748,27 @@ function abrirModalEditar(id) {
   document.getElementById('e_cantidad').value = total;
   document.getElementById('e_cantidad').min = prestados;
   document.getElementById('e_descripcion').value = articulo.descripcion || '';
-  let ayudaTexto = `Tienes ${total} unidad(es) en total.`;
-  if (prestados > 0) ayudaTexto += ` ⚠️ No puedes bajar de ${prestados} porque hay ${prestados} prestada(s).`;
+  let ayudaTexto = 'Tienes ' + total + ' unidad(es) en total.';
+  if (prestados > 0) ayudaTexto += ' ⚠️ No puedes bajar de ' + prestados + ' porque hay ' + prestados + ' prestada(s).';
   document.getElementById('e_cantidad_ayuda').textContent = ayudaTexto;
-  document.getElementById('editInfo').innerHTML = `Editando: <strong>${getIconoTexto(articulo.tipo)} ${articulo.nombre}</strong>`;
+  document.getElementById('editInfo').innerHTML = 'Editando: <strong>' + getIconoTexto(articulo.tipo) + ' ' + articulo.nombre + '</strong>';
   document.getElementById('modalEditar').classList.add('show');
 }
 function cerrarModalEditar() { document.getElementById('modalEditar').classList.remove('show'); }
 
-document.getElementById('formEditar').addEventListener('submit', e => {
+document.getElementById('formEditar').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById('e_id').value);
-  const articulo = datos.articulos.find(a => a.id === id);
+  const articulo = datos.articulos.find(function(a) { return a.id === id; });
   if (!articulo) return;
   const nombreNuevo = document.getElementById('e_nombre').value.trim();
   const tipoNuevo = document.getElementById('e_tipo').value.trim();
   const cantidadNueva = parseInt(document.getElementById('e_cantidad').value);
   const descripcionNueva = document.getElementById('e_descripcion').value.trim();
   if (!nombreNuevo || !cantidadNueva || cantidadNueva < 1) { notificar('Introduce al menos el nombre y una cantidad válida.', 'aviso', 'Faltan datos'); return; }
-  const unidades = datos.unidades.filter(u => u.articuloId === id);
-  const prestados = unidades.filter(u => u.estado === 'prestado').length;
-  if (cantidadNueva < prestados) { notificar(`No puedes reducir la cantidad por debajo de ${prestados} porque hay unidades prestadas.`, 'error', 'Cantidad no válida'); return; }
+  const unidades = datos.unidades.filter(function(u) { return u.articuloId === id; });
+  const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
+  if (cantidadNueva < prestados) { notificar('No puedes reducir la cantidad por debajo de ' + prestados + ' porque hay unidades prestadas.', 'error', 'Cantidad no válida'); return; }
   articulo.nombre = nombreNuevo;
   articulo.tipo = tipoNuevo;
   articulo.cantidad = cantidadNueva;
@@ -843,51 +778,49 @@ document.getElementById('formEditar').addEventListener('submit', e => {
     const aAñadir = cantidadNueva - cantidadAnterior;
     for (let i = 0; i < aAñadir; i++) {
       const idU = datos.nextId.unidad++;
-      datos.unidades.push({ id: idU, articuloId: id, identificador: `${nombreNuevo} #${cantidadAnterior + i + 1}`, estado: 'almacen', observaciones: '' });
+      datos.unidades.push({ id: idU, articuloId: id, identificador: nombreNuevo + ' #' + (cantidadAnterior + i + 1), estado: 'almacen', observaciones: '' });
     }
-    notificar(`Se han añadido <strong>${aAñadir}</strong> unidad(es) a "${nombreNuevo}".`, 'exito', 'Unidades añadidas');
+    notificar('Se han añadido <strong>' + aAñadir + '</strong> unidad(es) a "' + nombreNuevo + '".', 'exito', 'Unidades añadidas');
   } else if (cantidadNueva < cantidadAnterior) {
     const aEliminar = cantidadAnterior - cantidadNueva;
-    const ordenadas = [...unidades].sort((a, b) => {
+    const ordenadas = unidades.slice().sort(function(a, b) {
       const orden = { almacen: 0, averiado: 1, prestado: 2 };
       return (orden[a.estado] || 0) - (orden[b.estado] || 0);
     });
     const aBorrar = ordenadas.slice(0, aEliminar);
-    const idsBorrar = aBorrar.map(u => u.id);
-    datos.unidades = datos.unidades.filter(u => !idsBorrar.includes(u.id));
-    notificar(`Se han eliminado <strong>${aEliminar}</strong> unidad(es) de "${nombreNuevo}".`, 'aviso', 'Unidades eliminadas');
+    const idsBorrar = aBorrar.map(function(u) { return u.id; });
+    datos.unidades = datos.unidades.filter(function(u) { return idsBorrar.indexOf(u.id) === -1; });
+    notificar('Se han eliminado <strong>' + aEliminar + '</strong> unidad(es) de "' + nombreNuevo + '".', 'aviso', 'Unidades eliminadas');
   }
-  datos.unidades.filter(u => u.articuloId === id).forEach((u, idx) => { u.identificador = `${nombreNuevo} #${idx + 1}`; });
+  datos.unidades.filter(function(u) { return u.articuloId === id; }).forEach(function(u, idx) { u.identificador = nombreNuevo + ' #' + (idx + 1); });
   guardar(); cerrarModalEditar(); renderTodo();
-  notificar(`Artículo "${nombreNuevo}" actualizado correctamente.`, 'exito', 'Artículo editado');
+  notificar('Artículo "' + nombreNuevo + '" actualizado correctamente.', 'exito', 'Artículo editado');
 });
 
 function darDeBaja(id) {
-  const articulo = datos.articulos.find(a => a.id === id);
+  const articulo = datos.articulos.find(function(a) { return a.id === id; });
   if (!articulo) return;
-  const unidades = datos.unidades.filter(u => u.articuloId === id);
-  const prestados = unidades.filter(u => u.estado === 'prestado').length;
+  const unidades = datos.unidades.filter(function(u) { return u.articuloId === id; });
+  const prestados = unidades.filter(function(u) { return u.estado === 'prestado'; }).length;
   if (prestados > 0) {
-    notificar(`No se puede dar de baja "${articulo.nombre}" porque tiene ${prestados} unidad(es) prestada(s). Devuélvelas primero.`, 'error', 'No se puede dar de baja');
+    notificar('No se puede dar de baja "' + articulo.nombre + '" porque tiene ' + prestados + ' unidad(es) prestada(s). Devuélvelas primero.', 'error', 'No se puede dar de baja');
     return;
   }
-  // Primera confirmación
-  if (!confirm(`⚠️ PRIMERA CONFIRMACIÓN\n\n¿Seguro que quieres dar de baja "${articulo.nombre}"?\n\nSe eliminarán ${unidades.length} unidad(es) del inventario.\n\nEsta acción NO se puede deshacer.`)) return;
-  // Segunda confirmación
-  if (!confirm(`🔴 SEGUNDA CONFIRMACIÓN (DEFINITIVA)\n\nVas a eliminar PERMANENTEMENTE:\n• Artículo: ${articulo.nombre}\n• Unidades: ${unidades.length}\n\n¿Estás completamente seguro?`)) return;
-  datos.articulos = datos.articulos.filter(a => a.id !== id);
-  datos.unidades = datos.unidades.filter(u => u.articuloId !== id);
+  if (!confirm('⚠️ PRIMERA CONFIRMACIÓN\n\n¿Seguro que quieres dar de baja "' + articulo.nombre + '"?\n\nSe eliminarán ' + unidades.length + ' unidad(es) del inventario.\n\nEsta acción NO se puede deshacer.')) return;
+  if (!confirm('🔴 SEGUNDA CONFIRMACIÓN (DEFINITIVA)\n\nVas a eliminar PERMANENTEMENTE:\n• Artículo: ' + articulo.nombre + '\n• Unidades: ' + unidades.length + '\n\n¿Estás completamente seguro?')) return;
+  datos.articulos = datos.articulos.filter(function(a) { return a.id !== id; });
+  datos.unidades = datos.unidades.filter(function(u) { return u.articuloId !== id; });
   guardar(); renderTodo();
-  notificar(`"${articulo.nombre}" dado de baja correctamente.`, 'exito', 'Artículo dado de baja');
+  notificar('"' + articulo.nombre + '" dado de baja correctamente.', 'exito', 'Artículo dado de baja');
 }
 
 function renderEstadoFirebase() {
   const el = document.getElementById('estadoFirebaseInfo');
   if (!el) return;
   if (firebaseActivo) {
-    el.innerHTML = `<p style="color:var(--success); font-weight:600;">✅ Sincronización en la nube ACTIVA</p><p style="font-size:0.85rem; color:var(--muted);">Todos los dispositivos que abran esta web verán los mismos datos en tiempo real.</p>`;
+    el.innerHTML = '<p style="color:var(--success); font-weight:600;">✅ Sincronización en la nube ACTIVA</p><p style="font-size:0.85rem; color:var(--muted);">Todos los dispositivos que abran esta web verán los mismos datos en tiempo real.</p>';
   } else {
-    el.innerHTML = `<p style="color:var(--warning); font-weight:600;">📴 Modo local (sin sincronizar)</p><p style="font-size:0.85rem; color:var(--muted);">Cada dispositivo guarda sus datos por separado.</p>`;
+    el.innerHTML = '<p style="color:var(--warning); font-weight:600;">📴 Modo local (sin sincronizar)</p><p style="font-size:0.85rem; color:var(--muted);">Cada dispositivo guarda sus datos por separado.</p>';
   }
 }
 
@@ -896,7 +829,7 @@ function cargarAyuntamientos() {
   if (!sel) return;
   if (sel.options.length > 1) return;
   sel.innerHTML = '<option value="">-- Selecciona ayuntamiento --</option>';
-  AYUNTAMIENTOS_LEON.forEach(a => { sel.innerHTML += `<option value="${a}">${a}</option>`; });
+  AYUNTAMIENTOS_LEON.forEach(function(a) { sel.innerHTML += '<option value="' + a + '">' + a + '</option>'; });
 }
 function cambiarTipoSolicitante() {
   const tipo = document.getElementById('p_tipo_solicitante').value;
@@ -917,7 +850,7 @@ function obtenerSolicitante() {
   return '';
 }
 
-document.getElementById('formPrestamo').addEventListener('submit', e => {
+document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   e.preventDefault();
   const unidadId = parseInt(document.getElementById('p_unidad').value);
   const tipoSolicitante = document.getElementById('p_tipo_solicitante').value;
@@ -927,30 +860,24 @@ document.getElementById('formPrestamo').addEventListener('submit', e => {
   const salida = document.getElementById('p_salida').value;
   const prevista = document.getElementById('p_prevista').value;
   if (!unidadId || !tipoSolicitante || !solicitante || !salida) { notificar('Completa todos los campos obligatorios antes de continuar.', 'aviso', 'Faltan datos'); return; }
-  const unidad = datos.unidades.find(u => u.id === unidadId);
+  const unidad = datos.unidades.find(function(u) { return u.id === unidadId; });
   if (!unidad || unidad.estado !== 'almacen') { notificar('Esta unidad no está disponible en este momento.', 'error', 'Unidad no disponible'); return; }
   const id = datos.nextId.prestamo++;
-  datos.prestamos.push({ id, unidadId, tipoSolicitante, solicitante, contacto, telefono, fechaSalida: salida, fechaPrevista: prevista || null, fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: '' });
+  datos.prestamos.push({ id: id, unidadId: unidadId, tipoSolicitante: tipoSolicitante, solicitante: solicitante, contacto: contacto, telefono: telefono, fechaSalida: salida, fechaPrevista: prevista || null, fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: '' });
   unidad.estado = 'prestado';
   guardar(); renderTodo(); e.target.reset();
   document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
-  notificar(`Préstamo de <strong>${unidad.identificador}</strong> registrado correctamente.`, 'exito', 'Préstamo registrado');
+  notificar('Préstamo de <strong>' + unidad.identificador + '</strong> registrado correctamente.', 'exito', 'Préstamo registrado');
   showTab('dashboard', document.querySelector('nav button'));
 });
 
 function abrirDevolucion(prestamoId) {
-  const p = datos.prestamos.find(x => x.id === prestamoId);
+  const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
   if (!p) return;
-  const u = datos.unidades.find(x => x.id === p.unidadId);
+  const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
   document.getElementById('d_prestamoId').value = prestamoId;
-  document.getElementById('devInfo').innerHTML = `
-    <strong style="font-size:1.05rem;">${u.identificador}</strong><br>
-    <span style="color:var(--muted);">Prestado a:</span> ${p.solicitante}<br>
-    <span style="color:var(--muted);">Contacto:</span> ${p.contacto || '-'} ${p.telefono ? '('+p.telefono+')' : ''}<br>
-    <span style="color:var(--muted);">Salida:</span> ${formatFecha(p.fechaSalida)}
-    ${p.fechaPrevista ? '<br><span style="color:var(--muted);">Prevista:</span> ' + formatFecha(p.fechaPrevista) : ''}
-  `;
+  document.getElementById('devInfo').innerHTML = '<strong style="font-size:1.05rem;">' + u.identificador + '</strong><br><span style="color:var(--muted);">Prestado a:</span> ' + p.solicitante + '<br><span style="color:var(--muted);">Contacto:</span> ' + (p.contacto || '-') + (p.telefono ? ' (' + p.telefono + ')' : '') + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p.fechaSalida) + (p.fechaPrevista ? '<br><span style="color:var(--muted);">Prevista:</span> ' + formatFecha(p.fechaPrevista) : '');
   const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('d_fecha').value = now.toISOString().slice(0,16);
   document.getElementById('d_estado').value = 'correcto';
@@ -959,40 +886,40 @@ function abrirDevolucion(prestamoId) {
   document.getElementById('d_incidencias_label').style.display = 'none';
   document.getElementById('modalDevolucion').classList.add('show');
 }
-document.getElementById('d_estado').addEventListener('change', e => {
+document.getElementById('d_estado').addEventListener('change', function(e) {
   const show = e.target.value === 'averiado';
   document.getElementById('d_incidencias').style.display = show ? 'block' : 'none';
   document.getElementById('d_incidencias_label').style.display = show ? 'block' : 'none';
 });
-document.getElementById('formDevolucion').addEventListener('submit', e => {
+document.getElementById('formDevolucion').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById('d_prestamoId').value);
-  const p = datos.prestamos.find(x => x.id === id);
+  const p = datos.prestamos.find(function(x) { return x.id === id; });
   if (!p) return;
   p.fechaDevolucion = document.getElementById('d_fecha').value;
   p.estadoMaterial = document.getElementById('d_estado').value;
   p.incidencias = document.getElementById('d_incidencias').value.trim();
   p.estado = 'devuelto';
-  const unidad = datos.unidades.find(u => u.id === p.unidadId);
+  const unidad = datos.unidades.find(function(u) { return u.id === p.unidadId; });
   if (p.estadoMaterial === 'averiado') {
     unidad.estado = 'averiado'; unidad.observaciones = p.incidencias;
-    notificar(`Devolución registrada con incidencias. La unidad queda marcada como averiada.`, 'aviso', 'Devolución con incidencias');
+    notificar('Devolución registrada con incidencias. La unidad queda marcada como averiada.', 'aviso', 'Devolución con incidencias');
   } else {
     unidad.estado = 'almacen'; unidad.observaciones = '';
-    notificar(`Devolución de <strong>${unidad.identificador}</strong> registrada correctamente.`, 'exito', 'Devolución registrada');
+    notificar('Devolución de <strong>' + unidad.identificador + '</strong> registrada correctamente.', 'exito', 'Devolución registrada');
   }
   guardar(); cerrarModal(); renderTodo();
 });
 function cerrarModal() { document.getElementById('modalDevolucion').classList.remove('show'); }
 function eliminarPrestamo(id) {
   if (!confirm('¿Seguro que quieres eliminar este préstamo?')) return;
-  const p = datos.prestamos.find(x => x.id === id);
-  if (p && !p.fechaDevolucion) { const u = datos.unidades.find(x => x.id === p.unidadId); if (u) u.estado = 'almacen'; }
-  datos.prestamos = datos.prestamos.filter(x => x.id !== id);
+  const p = datos.prestamos.find(function(x) { return x.id === id; });
+  if (p && !p.fechaDevolucion) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); if (u) u.estado = 'almacen'; }
+  datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
   guardar(); renderTodo(); notificar('Préstamo eliminado del registro.', 'info', 'Préstamo eliminado');
 }
 
-document.getElementById('formArticulo').addEventListener('submit', e => {
+document.getElementById('formArticulo').addEventListener('submit', function(e) {
   e.preventDefault();
   const nombre = document.getElementById('a_nombre').value.trim();
   const tipo = document.getElementById('a_tipo').value.trim();
@@ -1000,27 +927,27 @@ document.getElementById('formArticulo').addEventListener('submit', e => {
   const descripcion = document.getElementById('a_descripcion').value.trim();
   if (!nombre || !cantidad || cantidad < 1) { notificar('Introduce al menos el nombre y la cantidad del artículo.', 'aviso', 'Faltan datos'); return; }
   const idA = datos.nextId.articulo++;
-  datos.articulos.push({ id: idA, nombre, tipo, cantidad, descripcion, activo: true });
+  datos.articulos.push({ id: idA, nombre: nombre, tipo: tipo, cantidad: cantidad, descripcion: descripcion, activo: true });
   for (let i = 1; i <= cantidad; i++) {
     const idU = datos.nextId.unidad++;
-    datos.unidades.push({ id: idU, articuloId: idA, identificador: `${nombre} #${i}`, estado: 'almacen', observaciones: '' });
+    datos.unidades.push({ id: idU, articuloId: idA, identificador: nombre + ' #' + i, estado: 'almacen', observaciones: '' });
   }
   guardar(); renderTodo(); e.target.reset(); toggleFormAlta();
-  notificar(`Se han dado de alta <strong>${cantidad}</strong> unidad(es) de "${nombre}".`, 'exito', 'Artículo dado de alta');
+  notificar('Se han dado de alta <strong>' + cantidad + '</strong> unidad(es) de "' + nombre + '".', 'exito', 'Artículo dado de alta');
 });
 
 function exportarDatos() {
   const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `prestamos_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.href = url; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json';
   a.click(); URL.revokeObjectURL(url);
   notificar('Copia de seguridad descargada correctamente.', 'exito', 'Datos exportados');
 }
 function importarDatos(event) {
   const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
       if (!imported.articulos || !imported.unidades || !imported.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; }
