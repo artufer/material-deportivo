@@ -28,7 +28,6 @@
   .tab.active { display:block; }
   .card { background:var(--card); border-radius:8px; padding:1rem; margin-bottom:1rem; box-shadow:0 1px 3px rgba(0,0,0,.05); }
   .card h2 { font-size:1.1rem; margin-bottom:.75rem; color:var(--primary-dark); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:.75rem; }
   .grupo-articulo { margin-bottom:.75rem; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#fff; }
   .grupo-btn { width:100%; text-align:left; padding:.85rem 1rem; background:#f9fafb; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-size:.95rem; font-weight:600; color:var(--text); transition:background .2s; gap:.5rem; }
   .grupo-btn:hover { background:#f0f2f5; }
@@ -63,8 +62,9 @@
   .row > * { flex:1; min-width:150px; }
   table { width:100%; border-collapse:collapse; font-size:.85rem; }
   th,td { padding:.5rem; text-align:left; border-bottom:1px solid var(--border); }
-  th { background:#f9fafb; font-weight:600; cursor:pointer; user-select:none; }
-  th:hover { background:#e5e7eb; }
+  th { background:#f9fafb; font-weight:600; }
+  th.sortable { cursor:pointer; user-select:none; }
+  th.sortable:hover { background:#e5e7eb; }
   th .sort-icon { margin-left:4px; font-size:.7rem; }
   .alert { padding:.75rem; border-radius:6px; margin-bottom:1rem; font-size:.85rem; }
   .alert.warn { background:#fef3c7; color:#92400e; }
@@ -90,8 +90,7 @@
   .devolucion-card .prevista-vencida { color:var(--danger); font-weight:600; }
   .inv-tabla-wrap { overflow-x:auto; }
   .inv-tabla { width:100%; border-collapse:collapse; font-size:.88rem; table-layout:fixed; }
-  .inv-tabla th { background:#f9fafb; padding:.6rem .4rem; text-align:center; border-bottom:2px solid var(--border); font-weight:600; font-size:.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; cursor:default; }
-  .inv-tabla th:hover { background:#f9fafb; }
+  .inv-tabla th { background:#f9fafb; padding:.6rem .4rem; text-align:center; border-bottom:2px solid var(--border); font-weight:600; font-size:.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
   .inv-tabla td { padding:.5rem .4rem; border-bottom:1px solid var(--border); vertical-align:middle; text-align:center; }
   .inv-tabla tr:hover { background:#f9fafb; }
   .inv-tabla th:nth-child(1),.inv-tabla td:nth-child(1) { width:22%; text-align:left; }
@@ -167,14 +166,10 @@
   .unidad-ficha h4 { color:var(--primary-dark); margin-bottom:.5rem; }
   .unidad-ficha .historial-item { padding:.5rem; border-left:3px solid var(--primary); margin-bottom:.5rem; background:#fff; border-radius:4px; font-size:.85rem; }
   .notas-texto { font-size:.82rem; color:var(--muted); font-style:italic; margin-top:.25rem; }
-
-  /* ===== FIRMA DIGITAL ===== */
   .firma-canvas-wrap { border:2px dashed var(--border); border-radius:8px; background:#fafafa; padding:0.5rem; margin-bottom:0.75rem; touch-action:none; }
   .firma-canvas { width:100%; height:180px; display:block; cursor:crosshair; background:#fff; border-radius:4px; }
   .firma-botones { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
   .firma-preview { max-width:200px; border:1px solid var(--border); border-radius:4px; margin-top:0.5rem; }
-
-  /* ===== ALBARÁN (solo para imprimir) ===== */
   .albaran-print { font-family: Arial, sans-serif; padding: 20px; color: #000; max-width: 800px; margin: 0 auto; }
   .albaran-print h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; }
   .albaran-print h2 { text-align: center; font-size: 12pt; margin-bottom: 20px; font-weight: normal; }
@@ -190,18 +185,17 @@
   .albaran-print .firma-box .titulo { font-weight: bold; margin-bottom: 5px; font-size: 10pt; }
   .albaran-print .firma-box .nombre { font-size: 10pt; margin-bottom: 5px; }
   .albaran-print .firma-box .firma-img { max-width: 200px; max-height: 80px; border-bottom: 1px solid #000; margin: 0 auto; }
+  .albaran-print .firma-linea { border-bottom: 1px solid #000; height: 60px; width: 200px; margin: 0 auto; }
   .albaran-print .fecha-final { text-align: center; margin-top: 20px; font-size: 11pt; }
   .albaran-print .incidencias-box { border: 1px solid #000; padding: 10px; margin: 10px 0; min-height: 80px; }
   .albaran-print .checkbox-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 11pt; }
   .albaran-print .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; }
-
   @media print {
     body { background: white; padding: 0; }
     header, nav, main > .tab:not(.albaran-tab), #toast-container, #icono-preview, .no-print { display: none !important; }
     .albaran-tab { display: block !important; }
     .albaran-print { padding: 10px; }
   }
-
   @media (max-width:600px) {
     .row > * { min-width:100%; }
     table { font-size:.75rem; }
@@ -274,7 +268,7 @@
         <div id="campo_asociacion" class="campo-oculto">
           <label>Asociación</label>
           <select id="p_asociacion" onchange="cambioAsociacion()">
-            <option value="">-- Selecciona o escribe nueva --</option>
+            <option value="">-- Selecciona asociación --</option>
           </select>
           <input type="text" id="p_asociacion_nueva" placeholder="Nombre de la nueva asociación..." class="campo-oculto">
         </div>
@@ -299,9 +293,8 @@
         <input type="text" id="p_localidad" placeholder="Localidad donde se celebra">
         <label>Notas / Observaciones</label>
         <textarea id="p_notas" placeholder="Ej: Se lo lleva el concejal Juan, lo recogen en almacén B..."></textarea>
-        
         <h3 style="margin:1rem 0 0.5rem 0; color:var(--primary-dark); font-size:1rem;">✍️ Firma del solicitante</h3>
-        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:0.5rem;">Firma con el dedo (móvil) o el ratón (PC). Esta firma aparecerá en el albarán de entrega.</p>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:0.5rem;">Firma con el dedo (móvil) o el ratón (PC). Si no firmas, el albarán saldrá con línea en blanco para firmar a mano.</p>
         <div class="firma-canvas-wrap">
           <canvas id="canvasFirma" class="firma-canvas"></canvas>
         </div>
@@ -309,7 +302,6 @@
           <button type="button" class="btn secondary" onclick="limpiarFirma()">🗑️ Limpiar firma</button>
         </div>
         <img id="firmaPreview" class="firma-preview campo-oculto" alt="Firma">
-        
         <button type="submit" class="btn success big" style="margin-top:1rem;">✅ Registrar préstamo y generar albarán</button>
       </form>
     </div>
@@ -391,15 +383,15 @@
         <table id="tablaHistorico">
           <thead>
             <tr>
-              <th onclick="ordenarHistorico('articulo')">Artículo <span class="sort-icon" id="sort-articulo"></span></th>
-              <th onclick="ordenarHistorico('solicitante')">Solicitante <span class="sort-icon" id="sort-solicitante"></span></th>
+              <th class="sortable" onclick="ordenarHistorico('articulo')">Artículo <span class="sort-icon" id="sort-articulo"></span></th>
+              <th class="sortable" onclick="ordenarHistorico('solicitante')">Solicitante <span class="sort-icon" id="sort-solicitante"></span></th>
               <th>Contacto</th>
-              <th onclick="ordenarHistorico('salida')">Salida <span class="sort-icon" id="sort-salida"></span></th>
-              <th onclick="ordenarHistorico('devuelto')">Devuelto <span class="sort-icon" id="sort-devuelto"></span></th>
+              <th class="sortable" onclick="ordenarHistorico('salida')">Salida <span class="sort-icon" id="sort-salida"></span></th>
+              <th class="sortable" onclick="ordenarHistorico('devuelto')">Devuelto <span class="sort-icon" id="sort-devuelto"></span></th>
               <th>Estado</th>
               <th>Incidencias</th>
               <th>Albarán</th>
-              <th></th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -536,7 +528,6 @@
     </div>
   </div>
 
-  <!-- PESTAÑA OCULTA PARA ALBARÁN (solo se muestra al imprimir) -->
   <div id="albaranTab" class="tab albaran-tab">
     <div id="albaranContenido" class="albaran-print"></div>
     <div class="no-print" style="text-align:center; margin-top:20px;">
@@ -564,7 +555,7 @@ let db = null, firebaseActivo = false, listadoSeleccionado = null;
 let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
 let ordenHistorico = { campo: 'salida', dir: -1 };
 let html5QrCode = null;
-let firmaData = null; // base64 de la firma
+let firmaData = null;
 let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
 
 function initFirebase() {
@@ -659,7 +650,6 @@ function showTab(id, btn) {
 }
 
 function renderTodo() { renderDashboard(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
-function getArticulo(id) { return datos.articulos.find(function(a) { return a.id === id; }); }
 function getPrestamoActivo(uId) { return datos.prestamos.find(function(p) { return p.unidadId === uId && !p.fechaDevolucion; }); }
 function toggleGrupo(id, btn) { const c = document.getElementById(id); const a = c.classList.toggle('abierto'); btn.classList.toggle('abierto', a); }
 
@@ -678,23 +668,20 @@ function renderDashboard() {
     if (av > 0) ec = 'estado-averiado'; else if (prest > 0) ec = 'estado-parcial';
     const idG = 'grupo-' + a.id;
     let htmlU = '';
-    let contadorPrest = 0, contadorAv = 0;
     unidades.forEach(function(u) {
       const pr = getPrestamoActivo(u.id);
       let meta = '📍 En almacén', badge = '<span class="badge ok">DISPONIBLE</span>';
       if (u.estado === 'prestado' && pr) {
-        contadorPrest++;
         const vencido = pr.fechaPrevista && new Date() > new Date(pr.fechaPrevista);
         meta = '👤 ' + pr.solicitante + ' · 📅 ' + formatFecha(pr.fechaSalida);
         badge = vencido ? '<span class="badge vencido">VENCIDO</span>' : '<span class="badge prestado">PRESTADO</span>';
       } else if (u.estado === 'averiado') {
-        contadorAv++;
         meta = '🔧 ' + (u.observaciones || 'Con incidencias');
         badge = '<span class="badge danio">AVERIADO</span>';
       }
       htmlU += '<div class="unidad-row ' + u.estado + '"><div><strong>' + u.identificador + '</strong><div class="meta">' + meta + '</div></div>' + badge + '</div>';
     });
-    const contadorTexto = prest > 0 || av > 0 ? ' <span style="color:var(--warning);">(' + contadorPrest + ' prest.</span>' + (av > 0 ? '<span style="color:var(--danger);"> · ' + contadorAv + ' av.)</span>' : ')') : '';
+    const contadorTexto = prest > 0 || av > 0 ? ' <span style="color:var(--warning);">(' + prest + ' prest.</span>' + (av > 0 ? '<span style="color:var(--danger);"> · ' + av + ' av.)</span>' : ')') : '';
     grid.innerHTML += '<div class="grupo-articulo"><button class="grupo-btn ' + ec + '" onclick="toggleGrupo(\'' + idG + '\', this)"><span>' + getIconoHTML(a.tipo) + ' ' + a.nombre + ' <span class="contador">(' + disp + ' disp.' + contadorTexto + '</span></span><span class="flecha">▼</span></button><div class="grupo-contenido" id="' + idG + '">' + htmlU + '</div></div>';
   });
 }
@@ -728,9 +715,8 @@ function renderDevoluciones() {
     }
     html += '<div class="devolucion-card' + (vencido ? ' vencido' : '') + '"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Prestado hace ' + dp + ' día' + (dp===1?'':'s') + (vencido ? ' · <strong style="color:var(--danger);">VENCIDO</strong>' : '') + '</div></div><span class="badge ' + (vencido ? 'vencido' : 'prestado') + '">' + (vencido ? 'VENCIDO' : 'PENDIENTE') + '</span></div><div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div><div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto||'-') + (p.telefono?' · '+p.telefono:'') + '</span></div><div class="info-item"><span class="info-label">Fecha salida</span><span class="info-valor">' + formatFecha(p.fechaSalida) + '</span></div>' + (p.fechaPrevista?'<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor '+cp+'">' + formatFecha(p.fechaPrevista) + '<br><small>' + ip + '</small></span></div>':'') + '</div>';
     if (p.notas) html += '<div class="notas-texto">📝 ' + p.notas + '</div>';
-    html += '<button class="btn success big" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button>';
-    html += ' <button class="btn outline" onclick="generarAlbaran(' + p.id + ')" style="margin-top:.5rem;">📄 Ver albarán</button>';
-    html += '</div>';
+    html += '<div class="row"><button class="btn success" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button>';
+    html += '<button class="btn outline" onclick="generarAlbaran(' + p.id + ')">📄 Ver albarán</button></div></div>';
   });
   c.innerHTML = html;
 }
@@ -771,7 +757,11 @@ function renderHistorico() {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     let badge = '<span class="badge prestado">EN CURSO</span>';
     if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
-    tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-') + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td>' + (p.firma ? '<button class="btn small" onclick="generarAlbaran('+p.id+')">📄</button>' : '-') + '</td><td>' + (!p.fechaDevolucion?'<button class="btn small success" onclick="abrirDevolucion('+p.id+')">Devolver</button>':'') + '<button class="btn small danger" onclick="eliminarPrestamo('+p.id+')">🗑️</button></td></tr>';
+    // Acciones: Devolver (si activo) + Eliminar siempre
+    let acciones = '';
+    if (!p.fechaDevolucion) acciones += '<button class="btn small success" onclick="abrirDevolucion(' + p.id + ')">↩️ Devolver</button> ';
+    acciones += '<button class="btn small danger" onclick="eliminarPrestamo(' + p.id + ')">🗑️ Eliminar</button>';
+    tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-') + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td><button class="btn small" onclick="generarAlbaran(' + p.id + ')">📄 Ver/Imprimir</button></td><td>' + acciones + '</td></tr>';
   });
   if (lista.length === 0) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);">Sin registros</td></tr>';
 }
@@ -850,16 +840,12 @@ function darDeBaja(id) {
 function renderEstadoFirebase() { const el = document.getElementById('estadoFirebaseInfo'); if (!el) return; el.innerHTML = firebaseActivo ? '<p style="color:var(--success);font-weight:600;">✅ Sincronización ACTIVA</p>' : '<p style="color:var(--warning);font-weight:600;">📴 Modo local</p>'; }
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Selecciona --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 
-// ===== ASOCIACIONES =====
 function cargarAsociaciones() {
   const sel = document.getElementById('p_asociacion');
   if (!sel) return;
-  // Extraer asociaciones únicas de préstamos existentes
   const asociaciones = {};
   datos.prestamos.forEach(function(p) {
-    if (p.tipoSolicitante === 'asociacion' && p.solicitante) {
-      asociaciones[p.solicitante] = true;
-    }
+    if (p.tipoSolicitante === 'asociacion' && p.solicitante) asociaciones[p.solicitante] = true;
   });
   const keys = Object.keys(asociaciones).sort();
   sel.innerHTML = '<option value="">-- Selecciona asociación --</option>';
@@ -870,14 +856,8 @@ function cargarAsociaciones() {
 function cambioAsociacion() {
   const sel = document.getElementById('p_asociacion');
   const inputNueva = document.getElementById('p_asociacion_nueva');
-  if (sel.value === '__nueva__') {
-    inputNueva.classList.remove('campo-oculto');
-    inputNueva.value = '';
-    inputNueva.focus();
-  } else {
-    inputNueva.classList.add('campo-oculto');
-    inputNueva.value = '';
-  }
+  if (sel.value === '__nueva__') { inputNueva.classList.remove('campo-oculto'); inputNueva.value = ''; inputNueva.focus(); }
+  else { inputNueva.classList.add('campo-oculto'); inputNueva.value = ''; }
 }
 
 function cambiarTipoSolicitante() {
@@ -911,12 +891,11 @@ function obtenerSolicitante() {
   return '';
 }
 
-// ===== FIRMA DIGITAL =====
 function initCanvasFirma() {
   canvasFirma = document.getElementById('canvasFirma');
-  if (!canvasFirma) return;
-  // Ajustar tamaño real del canvas
+  if (!canvasFirma || !canvasFirma.getContext) return;
   const rect = canvasFirma.getBoundingClientRect();
+  if (rect.width === 0) return;
   canvasFirma.width = rect.width * 2;
   canvasFirma.height = rect.height * 2;
   ctxFirma = canvasFirma.getContext('2d');
@@ -925,13 +904,12 @@ function initCanvasFirma() {
   ctxFirma.lineWidth = 2;
   ctxFirma.lineCap = 'round';
   ctxFirma.lineJoin = 'round';
-  
-  // Eventos ratón
+  if (canvasFirma.dataset.inicializado) return;
+  canvasFirma.dataset.inicializado = '1';
   canvasFirma.addEventListener('mousedown', firmaInicio);
   canvasFirma.addEventListener('mousemove', firmaMov);
   canvasFirma.addEventListener('mouseup', firmaFin);
   canvasFirma.addEventListener('mouseout', firmaFin);
-  // Eventos táctiles
   canvasFirma.addEventListener('touchstart', function(e) { e.preventDefault(); firmaInicio(e.touches[0]); }, {passive:false});
   canvasFirma.addEventListener('touchmove', function(e) { e.preventDefault(); firmaMov(e.touches[0]); }, {passive:false});
   canvasFirma.addEventListener('touchend', function(e) { e.preventDefault(); firmaFin(); }, {passive:false});
@@ -957,21 +935,14 @@ function firmaMov(e) {
   ultimaX = pos.x; ultimaY = pos.y;
 }
 function firmaFin() {
-  if (firmando) {
-    firmando = false;
-    ctxFirma.closePath();
-    guardarFirma();
-  }
+  if (firmando) { firmando = false; ctxFirma.closePath(); guardarFirma(); }
 }
 
 function guardarFirma() {
   if (!canvasFirma) return;
-  // Comprobar si hay algo dibujado (no está en blanco)
   const pixelData = ctxFirma.getImageData(0, 0, canvasFirma.width, canvasFirma.height).data;
   let hayTrazo = false;
-  for (let i = 3; i < pixelData.length; i += 4) {
-    if (pixelData[i] > 0) { hayTrazo = true; break; }
-  }
+  for (let i = 3; i < pixelData.length; i += 4) { if (pixelData[i] > 0) { hayTrazo = true; break; } }
   if (hayTrazo) {
     firmaData = canvasFirma.toDataURL('image/png');
     const preview = document.getElementById('firmaPreview');
@@ -991,7 +962,6 @@ function limpiarFirma() {
   document.getElementById('firmaPreview').classList.add('campo-oculto');
 }
 
-// ===== PRÉSTAMO CON ALBARÁN =====
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   e.preventDefault();
   const uId = parseInt(document.getElementById('p_unidad').value);
@@ -1007,12 +977,10 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   const prueba = document.getElementById('p_prueba').value.trim();
   const localidad = document.getElementById('p_localidad').value.trim();
   const not = document.getElementById('p_notas').value.trim();
-  
   if (!uId || !ts || !sol || !con || !sal) { notificar('Completa los campos obligatorios (unidad, solicitante, contacto, fecha).', 'aviso', 'Faltan datos'); return; }
   if (tel && tel.replace(/\D/g,'').length < 9) { notificar('El teléfono debe tener al menos 9 dígitos.', 'aviso', 'Teléfono no válido'); return; }
   const u = datos.unidades.find(function(x) { return x.id === uId; });
   if (!u || u.estado !== 'almacen') { notificar('Unidad no disponible.', 'error', 'No disponible'); return; }
-  
   const id = datos.nextId.prestamo++;
   datos.prestamos.push({
     id: id, unidadId: uId, tipoSolicitante: ts, solicitante: sol,
@@ -1024,51 +992,37 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   });
   u.estado = 'prestado';
   guardar(); renderTodo();
-  
-  // Limpiar formulario
   e.target.reset();
   document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
   document.getElementById('campo_asociacion').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
   limpiarFirma();
-  
   notificar('Préstamo de <strong>' + u.identificador + '</strong> registrado.', 'exito', 'Préstamo registrado');
-  
-  // Generar albarán automáticamente
   setTimeout(function() { generarAlbaran(id); }, 300);
 });
 
-// ===== ALBARÁN =====
+// ===== ALBARÁN (funciona con o sin firma) =====
 function generarAlbaran(prestamoId) {
   const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
   if (!p) { notificar('Préstamo no encontrado.', 'error', 'Error'); return; }
   const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
   const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
-  
-  // Fecha formato imagen: "León, 4 de 09 de 2025"
   const fechaSalida = new Date(p.fechaSalida);
   const dia = fechaSalida.getDate();
   const mes = ('0' + (fechaSalida.getMonth() + 1)).slice(-2);
   const anio = fechaSalida.getFullYear();
   const fechaFormateada = 'León, ' + dia + ' de ' + mes + ' de ' + anio;
-  
-  // Determinar qué material es (para marcar en la tabla del albarán)
   const tipoMaterial = a ? a.tipo : '';
   const nombreMaterial = u ? u.identificador : '';
-  
   let html = '';
   html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
   html += '<h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
-  
-  // SECCIÓN ENTREGA
   html += '<h3>ENTREGA</h3>';
   html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:10px;">con D. N. I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
   html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea">' + (p.calidad || '') + '</span><strong style="margin-left:10px;">del</strong><span class="linea">' + p.solicitante + '</span></div>';
   html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:10px;">Teléfono de contacto:</strong><span class="linea">' + (p.telefono || '') + '</span><strong style="margin-left:10px;">e-mail:</strong><span class="linea">' + (p.email || '') + '</span></div>';
   html += '<div class="campo-linea"><strong>RETIRA</strong> el material que se detalla a continuación para la prueba <span class="linea">' + (p.prueba || '') + '</span></div>';
   html += '<div class="campo-linea">a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p.localidad || '') + '</span></div>';
-  
-  // Tabla de material
   html += '<table><thead><tr><th style="width:20%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
   const tiposAlbaran = [
     { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
@@ -1085,48 +1039,34 @@ function generarAlbaran(prestamoId) {
     html += '<tr><td style="text-align:center;">' + (esEste ? '1' : '') + '</td><td>' + t.nombre + (esEste ? ' - ' + nombreMaterial : '') + '</td></tr>';
   });
   html += '</tbody></table>';
-  
-  // Firmas
   html += '<div class="firmas-row">';
-  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div></div>';
+  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><div class="firma-linea"></div></div>';
   html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p.solicitante + '</div><div class="nombre">Firmado:</div>';
   if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma">';
+  else html += '<div class="firma-linea"></div>';
   html += '</div>';
   html += '</div>';
-  
   html += '<div class="fecha-final">' + fechaFormateada + '</div>';
-  
-  // SECCIÓN DEVOLUCIÓN (vacía)
   html += '<h3 style="margin-top:30px;">DEVOLUCIÓN</h3>';
   html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:10px;">con D. N. I.:</strong><span class="linea"></span></div>';
   html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea"></span><strong style="margin-left:10px;">del</strong><span class="linea"></span></div>';
   html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:10px;">Teléfono de contacto:</strong><span class="linea"></span><strong style="margin-left:10px;">e-mail:</strong><span class="linea"></span></div>';
   html += '<div class="campo-linea"><strong>DEVUELVE</strong> el material que se detalla a continuación cedido para la prueba <span class="linea"></span>:</div>';
-  
   html += '<table><thead><tr><th style="width:20%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
-  tiposAlbaran.forEach(function(t) {
-    html += '<tr><td></td><td>' + t.nombre + '</td></tr>';
-  });
+  tiposAlbaran.forEach(function(t) { html += '<tr><td></td><td>' + t.nombre + '</td></tr>'; });
   html += '</tbody></table>';
-  
   html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong><br><br><br></div>';
   html += '<div class="checkbox-item"><input type="checkbox" checked disabled> Viene todo completo y en buen estado</div>';
   html += '<div class="checkbox-item"><input type="checkbox" disabled> Falta algo o está deteriorado (especificar)</div>';
-  
   html += '<div class="firmas-row" style="margin-top:30px;">';
-  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div></div>';
-  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">Firmado:</div></div>';
+  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><div class="firma-linea"></div></div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">Firmado:</div><div class="firma-linea"></div></div>';
   html += '</div>';
-  
   html += '<div class="fecha-final">León, _____ de __________ de 20___</div>';
-  
-  // Mostrar albarán
   document.getElementById('albaranContenido').innerHTML = html;
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('albaranTab').classList.add('active');
   document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
-  
-  // Auto-imprimir tras un momento
   setTimeout(function() { window.print(); }, 500);
 }
 
@@ -1134,6 +1074,7 @@ function cerrarAlbaran() {
   document.getElementById('albaranTab').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
   document.querySelector('nav button').classList.add('active');
+  renderTodo();
 }
 
 document.getElementById('formArticulo').addEventListener('submit', function(e) {
@@ -1146,6 +1087,54 @@ document.getElementById('formArticulo').addEventListener('submit', function(e) {
   guardar(); renderTodo(); e.target.reset(); toggleFormAlta();
   notificar('Dadas de alta <strong>' + c + '</strong> unidad(es) de "' + n + '".', 'exito', 'Alta');
 });
+
+function abrirDevolucion(pId) {
+  const p = datos.prestamos.find(function(x) { return x.id === pId; }); if (!p) return;
+  const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+  document.getElementById('d_prestamoId').value = pId;
+  document.getElementById('devInfo').innerHTML = '<strong style="font-size:1.05rem;">' + u.identificador + '</strong><br><span style="color:var(--muted);">Prestado a:</span> ' + p.solicitante + '<br><span style="color:var(--muted);">Contacto:</span> ' + (p.contacto||'-') + (p.telefono?' ('+p.telefono+')':'') + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p.fechaSalida) + (p.fechaPrevista?'<br><span style="color:var(--muted);">Prevista:</span> '+formatFecha(p.fechaPrevista):'') + (p.notas?'<br><span style="color:var(--muted);">Notas:</span> '+p.notas:'');
+  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('d_fecha').value = now.toISOString().slice(0,16);
+  document.getElementById('d_estado').value = 'correcto';
+  document.getElementById('d_incidencias').value = '';
+  document.getElementById('d_incidencias').style.display = 'none';
+  document.getElementById('d_incidencias_label').style.display = 'none';
+  document.getElementById('modalDevolucion').classList.add('show');
+}
+document.getElementById('d_estado').addEventListener('change', function(e) { const s = e.target.value === 'averiado'; document.getElementById('d_incidencias').style.display = s ? 'block' : 'none'; document.getElementById('d_incidencias_label').style.display = s ? 'block' : 'none'; });
+document.getElementById('formDevolucion').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('d_prestamoId').value), p = datos.prestamos.find(function(x) { return x.id === id; }); if (!p) return;
+  p.fechaDevolucion = document.getElementById('d_fecha').value; p.estadoMaterial = document.getElementById('d_estado').value; p.incidencias = document.getElementById('d_incidencias').value.trim(); p.estado = 'devuelto';
+  const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+  if (p.estadoMaterial === 'averiado') { u.estado = 'averiado'; u.observaciones = p.incidencias; notificar('Devolución con incidencias.', 'aviso', 'Incidencia'); }
+  else { u.estado = 'almacen'; u.observaciones = ''; notificar('Devolución de <strong>' + u.identificador + '</strong> registrada.', 'exito', 'Devuelto'); }
+  guardar(); cerrarModal(); renderTodo();
+});
+function cerrarModal() { document.getElementById('modalDevolucion').classList.remove('show'); }
+
+// ===== ELIMINAR PRÉSTAMO (arreglado con confirmación clara) =====
+function eliminarPrestamo(id) {
+  const p = datos.prestamos.find(function(x) { return x.id === id; });
+  if (!p) { notificar('Préstamo no encontrado.', 'error', 'Error'); return; }
+  const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+  let msg = '🗑️ ELIMINAR PRÉSTAMO DEL HISTÓRICO\n\n• Material: ' + (u ? u.identificador : 'desconocido') + '\n• Solicitante: ' + p.solicitante + '\n• Salida: ' + formatFecha(p.fechaSalida);
+  if (!p.fechaDevolucion) {
+    msg += '\n\n⚠️ El material ESTÁ PRESTADO.\nAl eliminar, la unidad volverá AL ALMACÉN.';
+  } else {
+    msg += '\n\n✅ El préstamo ya fue devuelto.\nSe eliminará solo del histórico.';
+  }
+  msg += '\n\n¿Continuar?';
+  if (!confirm(msg)) return;
+  if (!p.fechaDevolucion) {
+    if (u) u.estado = 'almacen';
+    notificar('Préstamo eliminado y unidad devuelta al almacén.', 'info', 'Eliminado');
+  } else {
+    notificar('Préstamo eliminado del histórico.', 'info', 'Eliminado');
+  }
+  datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
+  guardar(); renderTodo();
+}
 
 function exportarDatos() { const b = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(u); notificar('Copia descargada.', 'exito', 'Exportado'); }
 function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('Archivo no válido.', 'error', 'Error'); return; } if (!confirm('¿Reemplazar todos los datos?')) return; datos = imp; guardar(); renderTodo(); notificar('Datos importados.', 'exito', 'Importado'); } catch(err) { notificar('Error: ' + err.message, 'error', 'Error'); } }; r.readAsText(f); ev.target.value = ''; }
@@ -1201,7 +1190,7 @@ function genListadoInventario() {
 function genListadoSolicitante() {
   const agrupado = {};
   datos.prestamos.forEach(function(p) { const k = p.solicitante; if (!agrupado[k]) agrupado[k] = []; agrupado[k].push(p); });
-  let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#e0e7ff;"><th style="text-align:left;">Solicitante</th><th>Tipo</th><th>Nº préstamos</th><th>En curso</th><th>Devueltos</th><th>Con incidencias</th></tr></thead><tbody>';
+  let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#e0e7ff;"><th style="text-align:left;">Solicitante</th><th>Nº préstamos</th><th>En curso</th><th>Devueltos</th><th>Con incidencias</th></tr></thead><tbody>';
   const keys = Object.keys(agrupado).sort();
   let tP=0,tC=0,tD=0,tI=0;
   keys.forEach(function(k) {
@@ -1210,9 +1199,9 @@ function genListadoSolicitante() {
     const devueltos = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'correcto'; }).length;
     const incidencias = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; }).length;
     tP += ps.length; tC += enCurso; tD += devueltos; tI += incidencias;
-    h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>-</td><td style="text-align:center;">'+ps.length+'</td><td style="text-align:center;color:orange;">'+enCurso+'</td><td style="text-align:center;color:green;">'+devueltos+'</td><td style="text-align:center;color:red;">'+incidencias+'</td></tr>';
+    h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td style="text-align:center;">'+ps.length+'</td><td style="text-align:center;color:orange;">'+enCurso+'</td><td style="text-align:center;color:green;">'+devueltos+'</td><td style="text-align:center;color:red;">'+incidencias+'</td></tr>';
   });
-  h += '<tr style="background:#e0e7ff;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>';
+  h += '<tr style="background:#e0e7ff;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>';
   return h;
 }
 
@@ -1366,7 +1355,7 @@ function mostrarFichaUnidad(uId) {
     html += '<p><strong>📅 Desde:</strong> ' + formatFecha(prestamoActivo.fechaSalida) + '</p>';
     if (prestamoActivo.fechaPrevista) html += '<p><strong>📅 Prevista:</strong> ' + formatFecha(prestamoActivo.fechaPrevista) + '</p>';
     if (prestamoActivo.notas) html += '<p><strong>📝 Notas:</strong> ' + prestamoActivo.notas + '</p>';
-    html += '<button class="btn success" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\');abrirDevolucion(' + prestamoActivo.id + ');" style="margin-top:.5rem;">↩️ Registrar devolución</button>';
+    html += '<button class="btn success" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\');abrirDevolucion(' + prestamoActivo.id + ');" style="margin-top:.5rem;">↩️ Devolver</button>';
     html += ' <button class="btn outline" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\');generarAlbaran(' + prestamoActivo.id + ');" style="margin-top:.5rem;">📄 Albarán</button>';
     html += '</div>';
   } else if (u.estado === 'almacen') {
@@ -1383,6 +1372,7 @@ function mostrarFichaUnidad(uId) {
       if (p.fechaDevolucion) html += ' → Devuelto: ' + formatFecha(p.fechaDevolucion);
       html += '<br>👤 ' + p.solicitante;
       if (p.incidencias) html += '<br>⚠️ ' + p.incidencias;
+      html += ' <button class="btn small" onclick="generarAlbaran(' + p.id + ')">📄 Albarán</button>';
       html += '</div>';
     });
   }
