@@ -656,7 +656,7 @@ function renderDashboard() {
     grid.innerHTML += `
       <div class="grupo-articulo">
         <button class="grupo-btn ${estadoClase}" onclick="toggleGrupo('${idGrupo}', this)">
-          <span>${getIconoTexto(a.tipo)} ${a.nombre}<span class="contador">(${disponibles} disp. · ${prestados} prest. · ${averiados} av.)</span></span>
+          <span>${getIconoHTML(a.tipo)} ${a.nombre}<span class="contador">(${disponibles} disp. · ${prestados} prest. · ${averiados} av.)</span></span>)</span></span>
           <span class="flecha">▼</span>
         </button>
         <div class="grupo-contenido" id="${idGrupo}">${htmlUnidades}</div>
