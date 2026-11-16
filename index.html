@@ -167,6 +167,41 @@
   .unidad-ficha h4 { color:var(--primary-dark); margin-bottom:.5rem; }
   .unidad-ficha .historial-item { padding:.5rem; border-left:3px solid var(--primary); margin-bottom:.5rem; background:#fff; border-radius:4px; font-size:.85rem; }
   .notas-texto { font-size:.82rem; color:var(--muted); font-style:italic; margin-top:.25rem; }
+
+  /* ===== FIRMA DIGITAL ===== */
+  .firma-canvas-wrap { border:2px dashed var(--border); border-radius:8px; background:#fafafa; padding:0.5rem; margin-bottom:0.75rem; touch-action:none; }
+  .firma-canvas { width:100%; height:180px; display:block; cursor:crosshair; background:#fff; border-radius:4px; }
+  .firma-botones { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
+  .firma-preview { max-width:200px; border:1px solid var(--border); border-radius:4px; margin-top:0.5rem; }
+
+  /* ===== ALBARÁN (solo para imprimir) ===== */
+  .albaran-print { font-family: Arial, sans-serif; padding: 20px; color: #000; max-width: 800px; margin: 0 auto; }
+  .albaran-print h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; }
+  .albaran-print h2 { text-align: center; font-size: 12pt; margin-bottom: 20px; font-weight: normal; }
+  .albaran-print h3 { font-size: 12pt; margin: 15px 0 10px 0; text-decoration: underline; }
+  .albaran-print .campo-linea { display: flex; align-items: baseline; margin-bottom: 8px; font-size: 11pt; }
+  .albaran-print .campo-linea strong { margin-right: 5px; white-space: nowrap; }
+  .albaran-print .campo-linea .linea { flex: 1; border-bottom: 1px solid #000; min-height: 18px; padding: 0 5px; }
+  .albaran-print table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11pt; }
+  .albaran-print table th, .albaran-print table td { border: 1px solid #000; padding: 6px 8px; }
+  .albaran-print table th { background: #f0f0f0; text-align: center; }
+  .albaran-print .firmas-row { display: flex; justify-content: space-between; margin-top: 30px; gap: 20px; }
+  .albaran-print .firma-box { flex: 1; text-align: center; }
+  .albaran-print .firma-box .titulo { font-weight: bold; margin-bottom: 5px; font-size: 10pt; }
+  .albaran-print .firma-box .nombre { font-size: 10pt; margin-bottom: 5px; }
+  .albaran-print .firma-box .firma-img { max-width: 200px; max-height: 80px; border-bottom: 1px solid #000; margin: 0 auto; }
+  .albaran-print .fecha-final { text-align: center; margin-top: 20px; font-size: 11pt; }
+  .albaran-print .incidencias-box { border: 1px solid #000; padding: 10px; margin: 10px 0; min-height: 80px; }
+  .albaran-print .checkbox-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 11pt; }
+  .albaran-print .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    header, nav, main > .tab:not(.albaran-tab), #toast-container, #icono-preview, .no-print { display: none !important; }
+    .albaran-tab { display: block !important; }
+    .albaran-print { padding: 10px; }
+  }
+
   @media (max-width:600px) {
     .row > * { min-width:100%; }
     table { font-size:.75rem; }
@@ -184,6 +219,7 @@
     #icono-preview img { width:140px; height:140px; }
     .listado-opciones { grid-template-columns:1fr 1fr; }
     nav button { font-size:.75rem; min-width:70px; padding:.7rem .3rem; }
+    .firma-canvas { height: 150px; }
   }
 </style>
 </head>
@@ -235,18 +271,46 @@
           <option value="otro">Otro</option>
         </select>
         <div id="campo_ayuntamiento" class="campo-oculto"><label>Ayuntamiento</label><select id="p_ayuntamiento"></select></div>
+        <div id="campo_asociacion" class="campo-oculto">
+          <label>Asociación</label>
+          <select id="p_asociacion" onchange="cambioAsociacion()">
+            <option value="">-- Selecciona o escribe nueva --</option>
+          </select>
+          <input type="text" id="p_asociacion_nueva" placeholder="Nombre de la nueva asociación..." class="campo-oculto">
+        </div>
         <div id="campo_nombre_libre" class="campo-oculto"><label id="label_nombre_libre">Nombre</label><input type="text" id="p_nombre_libre" placeholder=""></div>
         <div class="row">
-          <div><label>Persona de contacto</label><input type="text" id="p_contacto" placeholder="Nombre y apellidos"></div>
-          <div><label>Teléfono</label><input type="tel" id="p_telefono" placeholder="600 000 000"></div>
+          <div><label>Persona de contacto *</label><input type="text" id="p_contacto" placeholder="Nombre y apellidos" required></div>
+          <div><label>D.N.I. / N.I.F.</label><input type="text" id="p_dni" placeholder="12345678A"></div>
         </div>
+        <div class="row">
+          <div><label>Teléfono</label><input type="tel" id="p_telefono" placeholder="600 000 000"></div>
+          <div><label>e-mail</label><input type="email" id="p_email" placeholder="correo@ejemplo.com"></div>
+        </div>
+        <label>En calidad de</label>
+        <input type="text" id="p_calidad" placeholder="Ej: Operario, Presidente, Concejal...">
         <div class="row">
           <div><label>Fecha y hora de salida</label><input type="datetime-local" id="p_salida" required></div>
           <div><label>Fecha prevista de devolución</label><input type="datetime-local" id="p_prevista"></div>
         </div>
+        <label>Prueba / Evento</label>
+        <input type="text" id="p_prueba" placeholder="Nombre de la prueba o evento">
+        <label>Localidad</label>
+        <input type="text" id="p_localidad" placeholder="Localidad donde se celebra">
         <label>Notas / Observaciones</label>
         <textarea id="p_notas" placeholder="Ej: Se lo lleva el concejal Juan, lo recogen en almacén B..."></textarea>
-        <button type="submit" class="btn">Registrar préstamo</button>
+        
+        <h3 style="margin:1rem 0 0.5rem 0; color:var(--primary-dark); font-size:1rem;">✍️ Firma del solicitante</h3>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:0.5rem;">Firma con el dedo (móvil) o el ratón (PC). Esta firma aparecerá en el albarán de entrega.</p>
+        <div class="firma-canvas-wrap">
+          <canvas id="canvasFirma" class="firma-canvas"></canvas>
+        </div>
+        <div class="firma-botones">
+          <button type="button" class="btn secondary" onclick="limpiarFirma()">🗑️ Limpiar firma</button>
+        </div>
+        <img id="firmaPreview" class="firma-preview campo-oculto" alt="Firma">
+        
+        <button type="submit" class="btn success big" style="margin-top:1rem;">✅ Registrar préstamo y generar albarán</button>
       </form>
     </div>
   </div>
@@ -334,6 +398,7 @@
               <th onclick="ordenarHistorico('devuelto')">Devuelto <span class="sort-icon" id="sort-devuelto"></span></th>
               <th>Estado</th>
               <th>Incidencias</th>
+              <th>Albarán</th>
               <th></th>
             </tr>
           </thead>
@@ -425,7 +490,7 @@
   <div id="listados" class="tab">
     <div class="card">
       <h2>📄 Generar listado</h2>
-      <p style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;">Selecciona el tipo de listado. Se abrirá una ventana lista para imprimir o guardar como PDF.</p>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;">Selecciona el tipo de listado.</p>
       <div class="listado-opciones" id="listadoOpciones">
         <div class="listado-opcion" onclick="seleccionarListado('inventario',this)"><div class="op-icono">📦</div><div class="op-titulo">Inventario completo</div><div class="op-desc">Todos los artículos con existencias</div></div>
         <div class="listado-opcion" onclick="seleccionarListado('solicitante',this)"><div class="op-icono">🏛️</div><div class="op-titulo">Por solicitante</div><div class="op-desc">Agrupado por ayto./asociación</div></div>
@@ -471,6 +536,15 @@
     </div>
   </div>
 
+  <!-- PESTAÑA OCULTA PARA ALBARÁN (solo se muestra al imprimir) -->
+  <div id="albaranTab" class="tab albaran-tab">
+    <div id="albaranContenido" class="albaran-print"></div>
+    <div class="no-print" style="text-align:center; margin-top:20px;">
+      <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+      <button class="btn secondary" onclick="cerrarAlbaran()" style="margin-left:10px;">← Volver</button>
+    </div>
+  </div>
+
 </main>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -490,6 +564,8 @@ let db = null, firebaseActivo = false, listadoSeleccionado = null;
 let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
 let ordenHistorico = { campo: 'salida', dir: -1 };
 let html5QrCode = null;
+let firmaData = null; // base64 de la firma
+let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local','Modo local'); return; }
@@ -543,6 +619,7 @@ function init() {
   if (raw) { try { const d = JSON.parse(raw); if (esDatosValidos(d)) datos = d; else inicializarInventario(); } catch(e) { inicializarInventario(); } }
   else inicializarInventario();
   renderTodo();
+  initCanvasFirma();
   if (db) {
     db.ref('datos').once('value').then(function(snap) {
       const r = snap.val();
@@ -578,6 +655,7 @@ function showTab(id, btn) {
   renderTodo();
   if (id === 'qr') generarTodosQR();
   if (id === 'calendario') renderCalendario();
+  if (id === 'prestamo') { setTimeout(initCanvasFirma, 100); cargarAsociaciones(); }
 }
 
 function renderTodo() { renderDashboard(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
@@ -650,7 +728,9 @@ function renderDevoluciones() {
     }
     html += '<div class="devolucion-card' + (vencido ? ' vencido' : '') + '"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Prestado hace ' + dp + ' día' + (dp===1?'':'s') + (vencido ? ' · <strong style="color:var(--danger);">VENCIDO</strong>' : '') + '</div></div><span class="badge ' + (vencido ? 'vencido' : 'prestado') + '">' + (vencido ? 'VENCIDO' : 'PENDIENTE') + '</span></div><div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div><div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto||'-') + (p.telefono?' · '+p.telefono:'') + '</span></div><div class="info-item"><span class="info-label">Fecha salida</span><span class="info-valor">' + formatFecha(p.fechaSalida) + '</span></div>' + (p.fechaPrevista?'<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor '+cp+'">' + formatFecha(p.fechaPrevista) + '<br><small>' + ip + '</small></span></div>':'') + '</div>';
     if (p.notas) html += '<div class="notas-texto">📝 ' + p.notas + '</div>';
-    html += '<button class="btn success big" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button></div>';
+    html += '<button class="btn success big" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button>';
+    html += ' <button class="btn outline" onclick="generarAlbaran(' + p.id + ')" style="margin-top:.5rem;">📄 Ver albarán</button>';
+    html += '</div>';
   });
   c.innerHTML = html;
 }
@@ -691,9 +771,9 @@ function renderHistorico() {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     let badge = '<span class="badge prestado">EN CURSO</span>';
     if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
-    tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-') + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td>' + (!p.fechaDevolucion?'<button class="btn small success" onclick="abrirDevolucion('+p.id+')">Devolver</button>':'') + '<button class="btn small danger" onclick="eliminarPrestamo('+p.id+')">🗑️</button></td></tr>';
+    tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-') + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td>' + (p.firma ? '<button class="btn small" onclick="generarAlbaran('+p.id+')">📄</button>' : '-') + '</td><td>' + (!p.fechaDevolucion?'<button class="btn small success" onclick="abrirDevolucion('+p.id+')">Devolver</button>':'') + '<button class="btn small danger" onclick="eliminarPrestamo('+p.id+')">🗑️</button></td></tr>';
   });
-  if (lista.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);">Sin registros</td></tr>';
+  if (lista.length === 0) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);">Sin registros</td></tr>';
 }
 
 function ordenarHistorico(campo) {
@@ -769,63 +849,291 @@ function darDeBaja(id) {
 
 function renderEstadoFirebase() { const el = document.getElementById('estadoFirebaseInfo'); if (!el) return; el.innerHTML = firebaseActivo ? '<p style="color:var(--success);font-weight:600;">✅ Sincronización ACTIVA</p>' : '<p style="color:var(--warning);font-weight:600;">📴 Modo local</p>'; }
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Selecciona --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
+
+// ===== ASOCIACIONES =====
+function cargarAsociaciones() {
+  const sel = document.getElementById('p_asociacion');
+  if (!sel) return;
+  // Extraer asociaciones únicas de préstamos existentes
+  const asociaciones = {};
+  datos.prestamos.forEach(function(p) {
+    if (p.tipoSolicitante === 'asociacion' && p.solicitante) {
+      asociaciones[p.solicitante] = true;
+    }
+  });
+  const keys = Object.keys(asociaciones).sort();
+  sel.innerHTML = '<option value="">-- Selecciona asociación --</option>';
+  keys.forEach(function(k) { sel.innerHTML += '<option value="'+k+'">'+k+'</option>'; });
+  sel.innerHTML += '<option value="__nueva__">➕ Otra (escribir nueva)...</option>';
+}
+
+function cambioAsociacion() {
+  const sel = document.getElementById('p_asociacion');
+  const inputNueva = document.getElementById('p_asociacion_nueva');
+  if (sel.value === '__nueva__') {
+    inputNueva.classList.remove('campo-oculto');
+    inputNueva.value = '';
+    inputNueva.focus();
+  } else {
+    inputNueva.classList.add('campo-oculto');
+    inputNueva.value = '';
+  }
+}
+
 function cambiarTipoSolicitante() {
   const t = document.getElementById('p_tipo_solicitante').value;
-  const ca = document.getElementById('campo_ayuntamiento'), cl = document.getElementById('campo_nombre_libre'), ll = document.getElementById('label_nombre_libre'), il = document.getElementById('p_nombre_libre');
-  ca.classList.add('campo-oculto'); cl.classList.add('campo-oculto'); document.getElementById('p_ayuntamiento').value = ''; il.value = '';
-  if (t === 'ayuntamiento') ca.classList.remove('campo-oculto');
-  else if (t === 'asociacion') { ll.textContent = 'Nombre de la asociación'; il.placeholder = 'Ej: Asociación Cultural La Legua'; cl.classList.remove('campo-oculto'); }
+  const ca = document.getElementById('campo_ayuntamiento');
+  const cas = document.getElementById('campo_asociacion');
+  const cl = document.getElementById('campo_nombre_libre');
+  const ll = document.getElementById('label_nombre_libre');
+  const il = document.getElementById('p_nombre_libre');
+  ca.classList.add('campo-oculto'); cas.classList.add('campo-oculto'); cl.classList.add('campo-oculto');
+  document.getElementById('p_ayuntamiento').value = '';
+  document.getElementById('p_asociacion').value = '';
+  document.getElementById('p_asociacion_nueva').value = '';
+  il.value = '';
+  if (t === 'ayuntamiento') { ca.classList.remove('campo-oculto'); cargarAyuntamientos(); }
+  else if (t === 'asociacion') { cas.classList.remove('campo-oculto'); cargarAsociaciones(); }
   else if (t === 'otro') { ll.textContent = 'Nombre / Entidad'; il.placeholder = 'Ej: Colegio, empresa...'; cl.classList.remove('campo-oculto'); }
 }
-function obtenerSolicitante() { const t = document.getElementById('p_tipo_solicitante').value; if (t === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value; else if (t === 'asociacion' || t === 'otro') return document.getElementById('p_nombre_libre').value.trim(); return ''; }
 
+function obtenerSolicitante() {
+  const t = document.getElementById('p_tipo_solicitante').value;
+  if (t === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value;
+  else if (t === 'asociacion') {
+    const sel = document.getElementById('p_asociacion').value;
+    const nueva = document.getElementById('p_asociacion_nueva').value.trim();
+    if (sel === '__nueva__' && nueva) return nueva;
+    if (sel && sel !== '__nueva__') return sel;
+    return nueva || '';
+  }
+  else if (t === 'otro') return document.getElementById('p_nombre_libre').value.trim();
+  return '';
+}
+
+// ===== FIRMA DIGITAL =====
+function initCanvasFirma() {
+  canvasFirma = document.getElementById('canvasFirma');
+  if (!canvasFirma) return;
+  // Ajustar tamaño real del canvas
+  const rect = canvasFirma.getBoundingClientRect();
+  canvasFirma.width = rect.width * 2;
+  canvasFirma.height = rect.height * 2;
+  ctxFirma = canvasFirma.getContext('2d');
+  ctxFirma.scale(2, 2);
+  ctxFirma.strokeStyle = '#15407a';
+  ctxFirma.lineWidth = 2;
+  ctxFirma.lineCap = 'round';
+  ctxFirma.lineJoin = 'round';
+  
+  // Eventos ratón
+  canvasFirma.addEventListener('mousedown', firmaInicio);
+  canvasFirma.addEventListener('mousemove', firmaMov);
+  canvasFirma.addEventListener('mouseup', firmaFin);
+  canvasFirma.addEventListener('mouseout', firmaFin);
+  // Eventos táctiles
+  canvasFirma.addEventListener('touchstart', function(e) { e.preventDefault(); firmaInicio(e.touches[0]); }, {passive:false});
+  canvasFirma.addEventListener('touchmove', function(e) { e.preventDefault(); firmaMov(e.touches[0]); }, {passive:false});
+  canvasFirma.addEventListener('touchend', function(e) { e.preventDefault(); firmaFin(); }, {passive:false});
+}
+
+function obtenerPosFirma(e) {
+  const rect = canvasFirma.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function firmaInicio(e) {
+  firmando = true;
+  const pos = obtenerPosFirma(e);
+  ultimaX = pos.x; ultimaY = pos.y;
+  ctxFirma.beginPath();
+  ctxFirma.moveTo(ultimaX, ultimaY);
+}
+function firmaMov(e) {
+  if (!firmando) return;
+  const pos = obtenerPosFirma(e);
+  ctxFirma.lineTo(pos.x, pos.y);
+  ctxFirma.stroke();
+  ultimaX = pos.x; ultimaY = pos.y;
+}
+function firmaFin() {
+  if (firmando) {
+    firmando = false;
+    ctxFirma.closePath();
+    guardarFirma();
+  }
+}
+
+function guardarFirma() {
+  if (!canvasFirma) return;
+  // Comprobar si hay algo dibujado (no está en blanco)
+  const pixelData = ctxFirma.getImageData(0, 0, canvasFirma.width, canvasFirma.height).data;
+  let hayTrazo = false;
+  for (let i = 3; i < pixelData.length; i += 4) {
+    if (pixelData[i] > 0) { hayTrazo = true; break; }
+  }
+  if (hayTrazo) {
+    firmaData = canvasFirma.toDataURL('image/png');
+    const preview = document.getElementById('firmaPreview');
+    preview.src = firmaData;
+    preview.classList.remove('campo-oculto');
+  } else {
+    firmaData = null;
+    document.getElementById('firmaPreview').classList.add('campo-oculto');
+  }
+}
+
+function limpiarFirma() {
+  if (!ctxFirma || !canvasFirma) return;
+  const rect = canvasFirma.getBoundingClientRect();
+  ctxFirma.clearRect(0, 0, rect.width, rect.height);
+  firmaData = null;
+  document.getElementById('firmaPreview').classList.add('campo-oculto');
+}
+
+// ===== PRÉSTAMO CON ALBARÁN =====
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   e.preventDefault();
-  const uId = parseInt(document.getElementById('p_unidad').value), ts = document.getElementById('p_tipo_solicitante').value, sol = obtenerSolicitante(), con = document.getElementById('p_contacto').value.trim(), tel = document.getElementById('p_telefono').value.trim(), sal = document.getElementById('p_salida').value, pre = document.getElementById('p_prevista').value, not = document.getElementById('p_notas').value.trim();
-  if (!uId || !ts || !sol || !sal) { notificar('Completa los campos obligatorios.', 'aviso', 'Faltan datos'); return; }
+  const uId = parseInt(document.getElementById('p_unidad').value);
+  const ts = document.getElementById('p_tipo_solicitante').value;
+  const sol = obtenerSolicitante();
+  const con = document.getElementById('p_contacto').value.trim();
+  const dni = document.getElementById('p_dni').value.trim();
+  const tel = document.getElementById('p_telefono').value.trim();
+  const email = document.getElementById('p_email').value.trim();
+  const calidad = document.getElementById('p_calidad').value.trim();
+  const sal = document.getElementById('p_salida').value;
+  const pre = document.getElementById('p_prevista').value;
+  const prueba = document.getElementById('p_prueba').value.trim();
+  const localidad = document.getElementById('p_localidad').value.trim();
+  const not = document.getElementById('p_notas').value.trim();
+  
+  if (!uId || !ts || !sol || !con || !sal) { notificar('Completa los campos obligatorios (unidad, solicitante, contacto, fecha).', 'aviso', 'Faltan datos'); return; }
   if (tel && tel.replace(/\D/g,'').length < 9) { notificar('El teléfono debe tener al menos 9 dígitos.', 'aviso', 'Teléfono no válido'); return; }
   const u = datos.unidades.find(function(x) { return x.id === uId; });
   if (!u || u.estado !== 'almacen') { notificar('Unidad no disponible.', 'error', 'No disponible'); return; }
+  
   const id = datos.nextId.prestamo++;
-  datos.prestamos.push({ id: id, unidadId: uId, tipoSolicitante: ts, solicitante: sol, contacto: con, telefono: tel, fechaSalida: sal, fechaPrevista: pre || null, fechaDevolucion: null, estado: 'activo', estadoMaterial: null, incidencias: '', notas: not });
+  datos.prestamos.push({
+    id: id, unidadId: uId, tipoSolicitante: ts, solicitante: sol,
+    contacto: con, dni: dni, telefono: tel, email: email, calidad: calidad,
+    fechaSalida: sal, fechaPrevista: pre || null, fechaDevolucion: null,
+    estado: 'activo', estadoMaterial: null, incidencias: '',
+    notas: not, prueba: prueba, localidad: localidad,
+    firma: firmaData
+  });
   u.estado = 'prestado';
-  guardar(); renderTodo(); e.target.reset();
+  guardar(); renderTodo();
+  
+  // Limpiar formulario
+  e.target.reset();
   document.getElementById('campo_ayuntamiento').classList.add('campo-oculto');
+  document.getElementById('campo_asociacion').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
+  limpiarFirma();
+  
   notificar('Préstamo de <strong>' + u.identificador + '</strong> registrado.', 'exito', 'Préstamo registrado');
-  showTab('dashboard', document.querySelector('nav button'));
+  
+  // Generar albarán automáticamente
+  setTimeout(function() { generarAlbaran(id); }, 300);
 });
 
-function abrirDevolucion(pId) {
-  const p = datos.prestamos.find(function(x) { return x.id === pId; }); if (!p) return;
+// ===== ALBARÁN =====
+function generarAlbaran(prestamoId) {
+  const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
+  if (!p) { notificar('Préstamo no encontrado.', 'error', 'Error'); return; }
   const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-  document.getElementById('d_prestamoId').value = pId;
-  document.getElementById('devInfo').innerHTML = '<strong style="font-size:1.05rem;">' + u.identificador + '</strong><br><span style="color:var(--muted);">Prestado a:</span> ' + p.solicitante + '<br><span style="color:var(--muted);">Contacto:</span> ' + (p.contacto||'-') + (p.telefono?' ('+p.telefono+')':'') + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p.fechaSalida) + (p.fechaPrevista?'<br><span style="color:var(--muted);">Prevista:</span> '+formatFecha(p.fechaPrevista):'') + (p.notas?'<br><span style="color:var(--muted);">Notas:</span> '+p.notas:'');
-  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById('d_fecha').value = now.toISOString().slice(0,16);
-  document.getElementById('d_estado').value = 'correcto';
-  document.getElementById('d_incidencias').value = '';
-  document.getElementById('d_incidencias').style.display = 'none';
-  document.getElementById('d_incidencias_label').style.display = 'none';
-  document.getElementById('modalDevolucion').classList.add('show');
+  const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
+  
+  // Fecha formato imagen: "León, 4 de 09 de 2025"
+  const fechaSalida = new Date(p.fechaSalida);
+  const dia = fechaSalida.getDate();
+  const mes = ('0' + (fechaSalida.getMonth() + 1)).slice(-2);
+  const anio = fechaSalida.getFullYear();
+  const fechaFormateada = 'León, ' + dia + ' de ' + mes + ' de ' + anio;
+  
+  // Determinar qué material es (para marcar en la tabla del albarán)
+  const tipoMaterial = a ? a.tipo : '';
+  const nombreMaterial = u ? u.identificador : '';
+  
+  let html = '';
+  html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
+  html += '<h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
+  
+  // SECCIÓN ENTREGA
+  html += '<h3>ENTREGA</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:10px;">con D. N. I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea">' + (p.calidad || '') + '</span><strong style="margin-left:10px;">del</strong><span class="linea">' + p.solicitante + '</span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:10px;">Teléfono de contacto:</strong><span class="linea">' + (p.telefono || '') + '</span><strong style="margin-left:10px;">e-mail:</strong><span class="linea">' + (p.email || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>RETIRA</strong> el material que se detalla a continuación para la prueba <span class="linea">' + (p.prueba || '') + '</span></div>';
+  html += '<div class="campo-linea">a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p.localidad || '') + '</span></div>';
+  
+  // Tabla de material
+  html += '<table><thead><tr><th style="width:20%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
+  const tiposAlbaran = [
+    { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
+    { tipo: 'arco', nombre: 'ARCO HINCHABLE' },
+    { tipo: 'arco_muy_nuevo', nombre: 'ARCO HINCHABLE (nuevo)' },
+    { tipo: 'carpa_hinchable', nombre: 'CARPA HINCHABLE' },
+    { tipo: 'carpa_metalica', nombre: 'CARPA METÁLICA' },
+    { tipo: 'podio', nombre: 'PODIOS' },
+    { tipo: 'tatami', nombre: 'TATAMIS' },
+    { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING-PONG' }
+  ];
+  tiposAlbaran.forEach(function(t) {
+    const esEste = (tipoMaterial === t.tipo);
+    html += '<tr><td style="text-align:center;">' + (esEste ? '1' : '') + '</td><td>' + t.nombre + (esEste ? ' - ' + nombreMaterial : '') + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  
+  // Firmas
+  html += '<div class="firmas-row">';
+  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div></div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p.solicitante + '</div><div class="nombre">Firmado:</div>';
+  if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma">';
+  html += '</div>';
+  html += '</div>';
+  
+  html += '<div class="fecha-final">' + fechaFormateada + '</div>';
+  
+  // SECCIÓN DEVOLUCIÓN (vacía)
+  html += '<h3 style="margin-top:30px;">DEVOLUCIÓN</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:10px;">con D. N. I.:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea"></span><strong style="margin-left:10px;">del</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:10px;">Teléfono de contacto:</strong><span class="linea"></span><strong style="margin-left:10px;">e-mail:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>DEVUELVE</strong> el material que se detalla a continuación cedido para la prueba <span class="linea"></span>:</div>';
+  
+  html += '<table><thead><tr><th style="width:20%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
+  tiposAlbaran.forEach(function(t) {
+    html += '<tr><td></td><td>' + t.nombre + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  
+  html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong><br><br><br></div>';
+  html += '<div class="checkbox-item"><input type="checkbox" checked disabled> Viene todo completo y en buen estado</div>';
+  html += '<div class="checkbox-item"><input type="checkbox" disabled> Falta algo o está deteriorado (especificar)</div>';
+  
+  html += '<div class="firmas-row" style="margin-top:30px;">';
+  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div></div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">Firmado:</div></div>';
+  html += '</div>';
+  
+  html += '<div class="fecha-final">León, _____ de __________ de 20___</div>';
+  
+  // Mostrar albarán
+  document.getElementById('albaranContenido').innerHTML = html;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('albaranTab').classList.add('active');
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  
+  // Auto-imprimir tras un momento
+  setTimeout(function() { window.print(); }, 500);
 }
-document.getElementById('d_estado').addEventListener('change', function(e) { const s = e.target.value === 'averiado'; document.getElementById('d_incidencias').style.display = s ? 'block' : 'none'; document.getElementById('d_incidencias_label').style.display = s ? 'block' : 'none'; });
-document.getElementById('formDevolucion').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const id = parseInt(document.getElementById('d_prestamoId').value), p = datos.prestamos.find(function(x) { return x.id === id; }); if (!p) return;
-  p.fechaDevolucion = document.getElementById('d_fecha').value; p.estadoMaterial = document.getElementById('d_estado').value; p.incidencias = document.getElementById('d_incidencias').value.trim(); p.estado = 'devuelto';
-  const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-  if (p.estadoMaterial === 'averiado') { u.estado = 'averiado'; u.observaciones = p.incidencias; notificar('Devolución con incidencias.', 'aviso', 'Incidencia'); }
-  else { u.estado = 'almacen'; u.observaciones = ''; notificar('Devolución de <strong>' + u.identificador + '</strong> registrada.', 'exito', 'Devuelto'); }
-  guardar(); cerrarModal(); renderTodo();
-});
-function cerrarModal() { document.getElementById('modalDevolucion').classList.remove('show'); }
-function eliminarPrestamo(id) {
-  if (!confirm('¿Eliminar este préstamo?')) return;
-  const p = datos.prestamos.find(function(x) { return x.id === id; });
-  if (p && !p.fechaDevolucion) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); if (u) u.estado = 'almacen'; }
-  datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
-  guardar(); renderTodo(); notificar('Préstamo eliminado.', 'info', 'Eliminado');
+
+function cerrarAlbaran() {
+  document.getElementById('albaranTab').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+  document.querySelector('nav button').classList.add('active');
 }
 
 document.getElementById('formArticulo').addEventListener('submit', function(e) {
@@ -853,7 +1161,6 @@ function formatFechaCorta(iso) { if (!iso) return '-'; const d = new Date(iso); 
   document.addEventListener('mousemove', function(e) { if (p.style.display === 'block') { let x = e.clientX + 15, y = e.clientY + 15; if (x + 180 > window.innerWidth) x = e.clientX - 195; if (y + 180 > window.innerHeight) y = e.clientY - 195; p.style.left = x + 'px'; p.style.top = y + 'px'; } });
 })();
 
-// ===== LISTADOS =====
 function seleccionarListado(tipo, el) {
   listadoSeleccionado = tipo;
   document.querySelectorAll('.listado-opcion').forEach(function(e) { e.classList.remove('seleccionada'); });
@@ -893,23 +1200,19 @@ function genListadoInventario() {
 
 function genListadoSolicitante() {
   const agrupado = {};
-  datos.prestamos.forEach(function(p) {
-    const key = p.solicitante;
-    if (!agrupado[key]) agrupado[key] = [];
-    agrupado[key].push(p);
-  });
+  datos.prestamos.forEach(function(p) { const k = p.solicitante; if (!agrupado[k]) agrupado[k] = []; agrupado[k].push(p); });
   let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#e0e7ff;"><th style="text-align:left;">Solicitante</th><th>Tipo</th><th>Nº préstamos</th><th>En curso</th><th>Devueltos</th><th>Con incidencias</th></tr></thead><tbody>';
   const keys = Object.keys(agrupado).sort();
-  let totalP=0, totalC=0, totalD=0, totalI=0;
+  let tP=0,tC=0,tD=0,tI=0;
   keys.forEach(function(k) {
     const ps = agrupado[k];
     const enCurso = ps.filter(function(p) { return !p.fechaDevolucion; }).length;
     const devueltos = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'correcto'; }).length;
     const incidencias = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; }).length;
-    totalP += ps.length; totalC += enCurso; totalD += devueltos; totalI += incidencias;
+    tP += ps.length; tC += enCurso; tD += devueltos; tI += incidencias;
     h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>-</td><td style="text-align:center;">'+ps.length+'</td><td style="text-align:center;color:orange;">'+enCurso+'</td><td style="text-align:center;color:green;">'+devueltos+'</td><td style="text-align:center;color:red;">'+incidencias+'</td></tr>';
   });
-  h += '<tr style="background:#e0e7ff;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+totalP+'</td><td style="text-align:center;">'+totalC+'</td><td style="text-align:center;">'+totalD+'</td><td style="text-align:center;">'+totalI+'</td></tr></tbody></table>';
+  h += '<tr style="background:#e0e7ff;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>';
   return h;
 }
 
@@ -929,8 +1232,7 @@ function genListadoMaterial() {
   const keys = Object.keys(agrupado).sort();
   let tT=0,tC=0,tD=0,tI=0;
   keys.forEach(function(k) {
-    const d = agrupado[k];
-    tT+=d.total; tC+=d.enCurso; tD+=d.devueltos; tI+=d.incidencias;
+    const d = agrupado[k]; tT+=d.total; tC+=d.enCurso; tD+=d.devueltos; tI+=d.incidencias;
     h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>'+d.tipo+'</td><td style="text-align:center;">'+d.total+'</td><td style="text-align:center;color:orange;">'+d.enCurso+'</td><td style="text-align:center;color:green;">'+d.devueltos+'</td><td style="text-align:center;color:red;">'+d.incidencias+'</td></tr>';
   });
   h += '<tr style="background:#dbeafe;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tT+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>';
@@ -1012,7 +1314,6 @@ function abrirVentanaListado(titulo, contenido) {
   v.document.close();
 }
 
-// ===== QR =====
 function generarTodosQR() {
   const grid = document.getElementById('qrGrid'); if (!grid) return;
   grid.innerHTML = '';
@@ -1020,8 +1321,7 @@ function generarTodosQR() {
   datos.unidades.forEach(function(u) {
     const card = document.createElement('div');
     card.className = 'qr-card';
-    const qrDiv = document.createElement('div');
-    qrDiv.className = 'qr-img';
+    const qrDiv = document.createElement('div'); qrDiv.className = 'qr-img';
     const urlUnidad = urlBase + '?unidad=' + u.id;
     try { new QRCode(qrDiv, { text: urlUnidad, width: 140, height: 140, colorDark: '#15407a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch(e) { qrDiv.innerHTML = '<p style="color:red;">Error QR</p>'; }
     const estadoTexto = u.estado === 'almacen' ? '📍 Almacén' : u.estado === 'prestado' ? '👤 Prestado' : '🔧 Averiado';
@@ -1038,21 +1338,13 @@ function iniciarLectorQR() {
   html5QrCode = new Html5Qrcode("qr-reader");
   html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, function(decodedText) {
     detenerLectorQR();
-    if (decodedText.indexOf('unidad=') !== -1) {
-      const match = decodedText.match(/unidad=(\d+)/);
-      if (match) mostrarFichaUnidad(parseInt(match[1]));
-      else notificar('QR no válido.', 'error', 'Error');
-    } else notificar('QR no reconocido: ' + decodedText, 'aviso', 'QR desconocido');
-  }, function(err) { }).catch(function(err) { notificar('Error al iniciar cámara: ' + err, 'error', 'Error cámara'); });
+    if (decodedText.indexOf('unidad=') !== -1) { const m = decodedText.match(/unidad=(\d+)/); if (m) mostrarFichaUnidad(parseInt(m[1])); else notificar('QR no válido.', 'error', 'Error'); }
+    else notificar('QR no reconocido.', 'aviso', 'QR desconocido');
+  }, function() {}).catch(function(err) { notificar('Error cámara: ' + err, 'error', 'Error'); });
   document.getElementById('btnIniciarLector').style.display = 'none';
   document.getElementById('btnDetenerLector').style.display = 'inline-block';
 }
-
-function detenerLectorQR() {
-  if (html5QrCode) { html5QrCode.stop().then(function() { html5QrCode.clear(); html5QrCode = null; }).catch(function() {}); }
-  document.getElementById('btnIniciarLector').style.display = 'inline-block';
-  document.getElementById('btnDetenerLector').style.display = 'none';
-}
+function detenerLectorQR() { if (html5QrCode) { html5QrCode.stop().then(function() { html5QrCode.clear(); html5QrCode = null; }).catch(function() {}); } document.getElementById('btnIniciarLector').style.display = 'inline-block'; document.getElementById('btnDetenerLector').style.display = 'none'; }
 
 function mostrarFichaUnidad(uId) {
   const u = datos.unidades.find(function(x) { return x.id === uId; });
@@ -1075,6 +1367,7 @@ function mostrarFichaUnidad(uId) {
     if (prestamoActivo.fechaPrevista) html += '<p><strong>📅 Prevista:</strong> ' + formatFecha(prestamoActivo.fechaPrevista) + '</p>';
     if (prestamoActivo.notas) html += '<p><strong>📝 Notas:</strong> ' + prestamoActivo.notas + '</p>';
     html += '<button class="btn success" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\');abrirDevolucion(' + prestamoActivo.id + ');" style="margin-top:.5rem;">↩️ Registrar devolución</button>';
+    html += ' <button class="btn outline" onclick="document.getElementById(\'modalUnidad\').classList.remove(\'show\');generarAlbaran(' + prestamoActivo.id + ');" style="margin-top:.5rem;">📄 Albarán</button>';
     html += '</div>';
   } else if (u.estado === 'almacen') {
     html += '<div style="background:#f0fdf4;padding:.75rem;border-radius:6px;margin-top:.75rem;">';
@@ -1083,11 +1376,10 @@ function mostrarFichaUnidad(uId) {
     html += '</div>';
   }
   if (historial.length > 0) {
-    html += '<h4 style="margin-top:1rem;">📜 Historial de movimientos (' + historial.length + ')</h4>';
+    html += '<h4 style="margin-top:1rem;">📜 Historial (' + historial.length + ')</h4>';
     historial.forEach(function(p) {
       const et = p.fechaDevolucion ? (p.estadoMaterial==='correcto'?'✅ OK':'⚠️ Incidencia') : '🔄 En curso';
-      html += '<div class="historial-item"><strong>' + et + '</strong><br>';
-      html += '📅 Salida: ' + formatFecha(p.fechaSalida);
+      html += '<div class="historial-item"><strong>' + et + '</strong><br>📅 Salida: ' + formatFecha(p.fechaSalida);
       if (p.fechaDevolucion) html += ' → Devuelto: ' + formatFecha(p.fechaDevolucion);
       html += '<br>👤 ' + p.solicitante;
       if (p.incidencias) html += '<br>⚠️ ' + p.incidencias;
@@ -1100,7 +1392,6 @@ function mostrarFichaUnidad(uId) {
   document.getElementById('modalUnidad').classList.add('show');
 }
 
-// ===== CALENDARIO =====
 function cambiarMes(delta) { mesCalendario += delta; if (mesCalendario > 11) { mesCalendario = 0; anioCalendario++; } if (mesCalendario < 0) { mesCalendario = 11; anioCalendario--; } renderCalendario(); }
 function irAMesActual() { const h = new Date(); mesCalendario = h.getMonth(); anioCalendario = h.getFullYear(); renderCalendario(); }
 
@@ -1115,9 +1406,9 @@ function renderCalendario() {
   let html = '<thead><tr><th class="fila-articulo">Artículo</th>';
   for (let d = 1; d <= diasEnMes; d++) {
     const fecha = new Date(anioCalendario, mesCalendario, d);
-    const diaSemana = fecha.getDay();
-    const esFinSemana = diaSemana === 0 || diaSemana === 6;
-    html += '<th class="' + (esFinSemana ? 'fin-semana' : '') + '">' + d + '<br><small>' + nombresDia[diaSemana] + '</small></th>';
+    const ds = fecha.getDay();
+    const esFS = ds === 0 || ds === 6;
+    html += '<th class="' + (esFS ? 'fin-semana' : '') + '">' + d + '<br><small>' + nombresDia[ds] + '</small></th>';
   }
   html += '</tr></thead><tbody>';
   datos.articulos.forEach(function(a) {
@@ -1126,15 +1417,12 @@ function renderCalendario() {
     if (unidades.length === 0) return;
     html += '<tr><td class="fila-articulo" title="' + a.nombre + '">' + getIconoHTML(a.tipo) + ' ' + a.nombre + '</td>';
     for (let d = 1; d <= diasEnMes; d++) {
-      const fecha = new Date(anioCalendario, mesCalendario, d);
-      fecha.setHours(12, 0, 0, 0);
-      const diaSemana = fecha.getDay();
-      const esFinSemana = diaSemana === 0 || diaSemana === 6;
+      const fecha = new Date(anioCalendario, mesCalendario, d); fecha.setHours(12,0,0,0);
+      const ds = fecha.getDay(); const esFS = ds === 0 || ds === 6;
       let prestados = 0, averiados = 0, total = unidades.length;
       unidades.forEach(function(u) {
         let estadoDia = 'almacen';
-        const prestamosUnidad = datos.prestamos.filter(function(p) { return p.unidadId === u.id; });
-        prestamosUnidad.forEach(function(p) {
+        datos.prestamos.filter(function(p) { return p.unidadId === u.id; }).forEach(function(p) {
           const salida = new Date(p.fechaSalida);
           const devolucion = p.fechaDevolucion ? new Date(p.fechaDevolucion) : new Date();
           if (fecha >= salida && fecha <= devolucion) {
@@ -1147,7 +1435,7 @@ function renderCalendario() {
         else if (estadoDia === 'averiado') averiados++;
       });
       let clase = 'dia-vacio', contenido = '';
-      if (esFinSemana) clase = 'fin-semana';
+      if (esFS) clase = 'fin-semana';
       else if (averiados > 0) { clase = 'dia-averiado'; contenido = '🔧'+averiados; }
       else if (prestados > 0) { clase = 'dia-prestado'; contenido = '👤'+prestados; }
       else { clase = 'dia-almacen'; contenido = '📍'+(total-prestados-averiados); }
@@ -1159,7 +1447,6 @@ function renderCalendario() {
   tabla.innerHTML = html;
 }
 
-// ===== ATAJOS DE TECLADO =====
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   if (e.key === 'Escape') { document.querySelectorAll('.modal-bg.show').forEach(function(m) { m.classList.remove('show'); }); detenerLectorQR(); }
@@ -1172,11 +1459,10 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'l' || e.key === 'L') showTab('listados', document.querySelectorAll('nav button')[7]);
 });
 
-// ===== DETECTAR QR EN URL =====
 (function() {
   const params = new URLSearchParams(window.location.search);
   const uId = params.get('unidad');
-  if (uId) setTimeout(function() { const unidadId = parseInt(uId); if (!isNaN(unidadId)) mostrarFichaUnidad(unidadId); }, 500);
+  if (uId) setTimeout(function() { const uid = parseInt(uId); if (!isNaN(uid)) mostrarFichaUnidad(uid); }, 500);
 })();
 
 init();
