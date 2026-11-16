@@ -170,26 +170,26 @@
   .firma-canvas { width:100%; height:180px; display:block; cursor:crosshair; background:#fff; border-radius:4px; }
   .firma-botones { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
   .firma-preview { max-width:200px; border:1px solid var(--border); border-radius:4px; margin-top:0.5rem; }
-  .albaran-print { font-family: Arial, sans-serif; padding: 20px; color: #000; max-width: 800px; margin: 0 auto; }
-  .albaran-print h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; }
-  .albaran-print h2 { text-align: center; font-size: 12pt; margin-bottom: 20px; font-weight: normal; }
-  .albaran-print h3 { font-size: 12pt; margin: 15px 0 10px 0; text-decoration: underline; }
-  .albaran-print .campo-linea { display: flex; align-items: baseline; margin-bottom: 8px; font-size: 11pt; }
-  .albaran-print .campo-linea strong { margin-right: 5px; white-space: nowrap; }
-  .albaran-print .campo-linea .linea { flex: 1; border-bottom: 1px solid #000; min-height: 18px; padding: 0 5px; }
-  .albaran-print table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11pt; }
-  .albaran-print table th, .albaran-print table td { border: 1px solid #000; padding: 6px 8px; }
+  .albaran-print { font-family: Arial, sans-serif; padding: 15px 20px; color: #000; max-width: 800px; margin: 0 auto; font-size: 10pt; }
+  .albaran-print h1 { text-align: center; font-size: 13pt; margin-bottom: 3px; }
+  .albaran-print h2 { text-align: center; font-size: 11pt; margin-bottom: 10px; font-weight: normal; }
+  .albaran-print h3 { font-size: 11pt; margin: 6px 0 4px 0; text-decoration: underline; }
+  .albaran-print .campo-linea { display: flex; align-items: baseline; margin-bottom: 3px; font-size: 10pt; }
+  .albaran-print .campo-linea strong { margin-right: 4px; white-space: nowrap; font-size: 10pt; }
+  .albaran-print .campo-linea .linea { flex: 1; border-bottom: 1px solid #000; min-height: 16px; padding: 0 4px; }
+  .albaran-print table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 10pt; }
+  .albaran-print table th, .albaran-print table td { border: 1px solid #000; padding: 3px 6px; }
   .albaran-print table th { background: #f0f0f0; text-align: center; }
-  .albaran-print .firmas-row { display: flex; justify-content: space-between; margin-top: 30px; gap: 20px; }
+  .albaran-print .firmas-row { display: flex; justify-content: space-between; margin-top: 8px; gap: 15px; }
   .albaran-print .firma-box { flex: 1; text-align: center; }
-  .albaran-print .firma-box .titulo { font-weight: bold; margin-bottom: 5px; font-size: 10pt; }
-  .albaran-print .firma-box .nombre { font-size: 10pt; margin-bottom: 5px; }
-  .albaran-print .firma-box .firma-img { max-width: 200px; max-height: 80px; border-bottom: 1px solid #000; margin: 0 auto; }
-  .albaran-print .firma-linea { border-bottom: 1px solid #000; height: 60px; width: 200px; margin: 0 auto; }
-  .albaran-print .fecha-final { text-align: center; margin-top: 20px; font-size: 11pt; }
-  .albaran-print .incidencias-box { border: 1px solid #000; padding: 10px; margin: 10px 0; min-height: 80px; }
-  .albaran-print .checkbox-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 11pt; }
-  .albaran-print .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; }
+  .albaran-print .firma-box .titulo { font-weight: bold; margin-bottom: 2px; font-size: 9pt; }
+  .albaran-print .firma-box .nombre { font-size: 9pt; margin-bottom: 2px; }
+  .albaran-print .firma-box .firma-img { max-width: 140px; max-height: 50px; margin: 0 auto; }
+  .albaran-print .firma-linea { border-bottom: 1px solid #000; height: 40px; width: 140px; margin: 0 auto; }
+  .albaran-print .fecha-final { text-align: center; margin-top: 6px; font-size: 10pt; }
+  .albaran-print .incidencias-box { border: 1px solid #000; padding: 5px; margin: 4px 0; min-height: 40px; }
+  .albaran-print .checkbox-item { display: flex; align-items: center; gap: 6px; margin: 3px 0; font-size: 10pt; }
+  .albaran-print .checkbox-item input[type="checkbox"] { width: 14px; height: 14px; }
   @media print {
     body { background: white; padding: 0; }
     header, nav, main > .tab:not(.albaran-tab), #toast-container, #icono-preview, .no-print { display: none !important; }
@@ -591,7 +591,7 @@ function inicializarInventario() {
     { nombre: "Carpas metálicas", tipo: "carpa_metalica", cantidad: 4, descripcion: "Carpas metálicas en estuche negro, altas, con dos ruedas" },
     { nombre: "Podios", tipo: "podio", cantidad: 1, descripcion: "" },
     { nombre: "Pancartas", tipo: "pancarta", cantidad: 20, descripcion: "" },
-    { nombre: "Tatamis", tipo: "tatami", cantidad: 2, descripcion: "Alfombra/colchoneta para lucha leonesa" },
+    { nombre: "Tatami", tipo: "tatami", cantidad: 1, descripcion: "Alfombra/colchoneta para lucha leonesa" },
     { nombre: "Mesas de ping-pong", tipo: "mesa_pingpon", cantidad: 2, descripcion: "" },
   ];
   inv.forEach(function(a) {
@@ -757,7 +757,6 @@ function renderHistorico() {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     let badge = '<span class="badge prestado">EN CURSO</span>';
     if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
-    // Acciones: Devolver (si activo) + Eliminar siempre
     let acciones = '';
     if (!p.fechaDevolucion) acciones += '<button class="btn small success" onclick="abrirDevolucion(' + p.id + ')">↩️ Devolver</button> ';
     acciones += '<button class="btn small danger" onclick="eliminarPrestamo(' + p.id + ')">🗑️ Eliminar</button>';
@@ -1001,7 +1000,6 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   setTimeout(function() { generarAlbaran(id); }, 300);
 });
 
-// ===== ALBARÁN (funciona con o sin firma) =====
 function generarAlbaran(prestamoId) {
   const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
   if (!p) { notificar('Préstamo no encontrado.', 'error', 'Error'); return; }
@@ -1009,21 +1007,25 @@ function generarAlbaran(prestamoId) {
   const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
   const fechaSalida = new Date(p.fechaSalida);
   const dia = fechaSalida.getDate();
-  const mes = ('0' + (fechaSalida.getMonth() + 1)).slice(-2);
   const anio = fechaSalida.getFullYear();
-  const fechaFormateada = 'León, ' + dia + ' de ' + mes + ' de ' + anio;
+  const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const mesLetra = MESES_ES[fechaSalida.getMonth()];
+  const fechaFormateada = 'León, ' + dia + ' de ' + mesLetra + ' de ' + anio;
   const tipoMaterial = a ? a.tipo : '';
   const nombreMaterial = u ? u.identificador : '';
+  const firmaArturo = 'img/firma_arturo.png';
+  
   let html = '';
-  html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
-  html += '<h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
-  html += '<h3>ENTREGA</h3>';
-  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:10px;">con D. N. I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
-  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea">' + (p.calidad || '') + '</span><strong style="margin-left:10px;">del</strong><span class="linea">' + p.solicitante + '</span></div>';
-  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:10px;">Teléfono de contacto:</strong><span class="linea">' + (p.telefono || '') + '</span><strong style="margin-left:10px;">e-mail:</strong><span class="linea">' + (p.email || '') + '</span></div>';
-  html += '<div class="campo-linea"><strong>RETIRA</strong> el material que se detalla a continuación para la prueba <span class="linea">' + (p.prueba || '') + '</span></div>';
-  html += '<div class="campo-linea">a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p.localidad || '') + '</span></div>';
-  html += '<table><thead><tr><th style="width:20%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
+  html += '<h1 style="font-size:13pt;margin-bottom:3px;">CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
+  html += '<h2 style="font-size:11pt;margin-bottom:12px;">MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
+  
+  html += '<h3 style="margin:8px 0 5px 0;">ENTREGA</h3>';
+  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:8px;">D.N.I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
+  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>en calidad de</strong><span class="linea">' + (p.calidad || '') + '</span><strong style="margin-left:8px;">del</strong><span class="linea">' + p.solicitante + '</span></div>';
+  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:8px;">Teléfono:</strong><span class="linea">' + (p.telefono || '') + '</span><strong style="margin-left:8px;">e-mail:</strong><span class="linea">' + (p.email || '') + '</span></div>';
+  html += '<div class="campo-linea" style="margin-bottom:4px;"><strong>RETIRA</strong> el material para la prueba <span class="linea">' + (p.prueba || '') + '</span> a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p.localidad || '') + '</span></div>';
+  
+  html += '<table style="margin:6px 0;"><thead><tr><th style="width:15%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
   const tiposAlbaran = [
     { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
     { tipo: 'arco', nombre: 'ARCO HINCHABLE' },
@@ -1031,7 +1033,7 @@ function generarAlbaran(prestamoId) {
     { tipo: 'carpa_hinchable', nombre: 'CARPA HINCHABLE' },
     { tipo: 'carpa_metalica', nombre: 'CARPA METÁLICA' },
     { tipo: 'podio', nombre: 'PODIOS' },
-    { tipo: 'tatami', nombre: 'TATAMIS' },
+    { tipo: 'tatami', nombre: 'TATAMI' },
     { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING-PONG' }
   ];
   tiposAlbaran.forEach(function(t) {
@@ -1039,30 +1041,36 @@ function generarAlbaran(prestamoId) {
     html += '<tr><td style="text-align:center;">' + (esEste ? '1' : '') + '</td><td>' + t.nombre + (esEste ? ' - ' + nombreMaterial : '') + '</td></tr>';
   });
   html += '</tbody></table>';
-  html += '<div class="firmas-row">';
-  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><div class="firma-linea"></div></div>';
-  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p.solicitante + '</div><div class="nombre">Firmado:</div>';
-  if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma">';
-  else html += '<div class="firma-linea"></div>';
-  html += '</div>';
-  html += '</div>';
-  html += '<div class="fecha-final">' + fechaFormateada + '</div>';
-  html += '<h3 style="margin-top:30px;">DEVOLUCIÓN</h3>';
-  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:10px;">con D. N. I.:</strong><span class="linea"></span></div>';
-  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea"></span><strong style="margin-left:10px;">del</strong><span class="linea"></span></div>';
-  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:10px;">Teléfono de contacto:</strong><span class="linea"></span><strong style="margin-left:10px;">e-mail:</strong><span class="linea"></span></div>';
-  html += '<div class="campo-linea"><strong>DEVUELVE</strong> el material que se detalla a continuación cedido para la prueba <span class="linea"></span>:</div>';
-  html += '<table><thead><tr><th style="width:20%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
+  
+  html += '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:15px;">';
+  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">El encargado de edificio</div><div style="font-size:9pt;">Arturo Fernández Carbajo</div><div style="font-size:9pt;">Firmado:</div><img src="' + firmaArturo + '" style="max-width:140px;max-height:50px;margin:0 auto;"></div>';
+  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">Entidad</div><div style="font-size:9pt;">' + p.solicitante + '</div><div style="font-size:9pt;">Firmado:</div>';
+  if (p.firma) html += '<img src="' + p.firma + '" style="max-width:140px;max-height:50px;margin:0 auto;">';
+  else html += '<div style="border-bottom:1px solid #000;height:40px;width:140px;margin:0 auto;"></div>';
+  html += '</div></div>';
+  html += '<div class="fecha-final" style="margin-top:6px;">' + fechaFormateada + '</div>';
+  
+  html += '<div style="border-top:1px dashed #999;margin:10px 0;"></div>';
+  
+  html += '<h3 style="margin:5px 0;">DEVOLUCIÓN</h3>';
+  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:8px;">D.N.I.:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>en calidad de</strong><span class="linea"></span><strong style="margin-left:8px;">del</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:8px;">Teléfono:</strong><span class="linea"></span><strong style="margin-left:8px;">e-mail:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea" style="margin-bottom:3px;"><strong>DEVUELVE</strong> el material cedido para la prueba <span class="linea"></span>:</div>';
+  
+  html += '<table style="margin:4px 0;"><thead><tr><th style="width:15%;">UNIDADES</th><th>MATERIAL</th></tr></thead><tbody>';
   tiposAlbaran.forEach(function(t) { html += '<tr><td></td><td>' + t.nombre + '</td></tr>'; });
   html += '</tbody></table>';
-  html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong><br><br><br></div>';
-  html += '<div class="checkbox-item"><input type="checkbox" checked disabled> Viene todo completo y en buen estado</div>';
-  html += '<div class="checkbox-item"><input type="checkbox" disabled> Falta algo o está deteriorado (especificar)</div>';
-  html += '<div class="firmas-row" style="margin-top:30px;">';
-  html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><div class="firma-linea"></div></div>';
-  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">Firmado:</div><div class="firma-linea"></div></div>';
+  
+  html += '<div style="border:1px solid #000;padding:5px;margin:4px 0;min-height:40px;font-size:10pt;"><strong>INCIDENCIA/S:</strong></div>';
+  html += '<div style="display:flex;gap:15px;font-size:10pt;margin:4px 0;"><div style="display:flex;align-items:center;gap:4px;"><input type="checkbox" checked disabled style="width:14px;height:14px;"> Viene todo completo y en buen estado</div><div style="display:flex;align-items:center;gap:4px;"><input type="checkbox" disabled style="width:14px;height:14px;"> Falta algo o está deteriorado</div></div>';
+  
+  html += '<div style="display:flex;justify-content:space-between;margin-top:8px;gap:15px;">';
+  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">El encargado de edificio</div><div style="font-size:9pt;">Arturo Fernández Carbajo</div><div style="font-size:9pt;">Firmado:</div><img src="' + firmaArturo + '" style="max-width:140px;max-height:50px;margin:0 auto;"></div>';
+  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:9pt;">Entidad</div><div style="font-size:9pt;">Firmado:</div><div style="border-bottom:1px solid #000;height:40px;width:140px;margin:0 auto;"></div></div>';
   html += '</div>';
-  html += '<div class="fecha-final">León, _____ de __________ de 20___</div>';
+  html += '<div class="fecha-final" style="margin-top:6px;">León, _____ de _______________ de 20___</div>';
+  
   document.getElementById('albaranContenido').innerHTML = html;
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('albaranTab').classList.add('active');
@@ -1113,7 +1121,6 @@ document.getElementById('formDevolucion').addEventListener('submit', function(e)
 });
 function cerrarModal() { document.getElementById('modalDevolucion').classList.remove('show'); }
 
-// ===== ELIMINAR PRÉSTAMO (arreglado con confirmación clara) =====
 function eliminarPrestamo(id) {
   const p = datos.prestamos.find(function(x) { return x.id === id; });
   if (!p) { notificar('Préstamo no encontrado.', 'error', 'Error'); return; }
@@ -1126,12 +1133,8 @@ function eliminarPrestamo(id) {
   }
   msg += '\n\n¿Continuar?';
   if (!confirm(msg)) return;
-  if (!p.fechaDevolucion) {
-    if (u) u.estado = 'almacen';
-    notificar('Préstamo eliminado y unidad devuelta al almacén.', 'info', 'Eliminado');
-  } else {
-    notificar('Préstamo eliminado del histórico.', 'info', 'Eliminado');
-  }
+  if (!p.fechaDevolucion) { if (u) u.estado = 'almacen'; notificar('Préstamo eliminado y unidad devuelta al almacén.', 'info', 'Eliminado'); }
+  else { notificar('Préstamo eliminado del histórico.', 'info', 'Eliminado'); }
   datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
   guardar(); renderTodo();
 }
