@@ -45,80 +45,31 @@
     align-items: center;
     gap: 0.35rem;
   }
-  .estado-sync .punto {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #fff;
-  }
+  .estado-sync .punto { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
   .estado-sync.sync .punto { background: #4ade80; }
   .estado-sync.local .punto { background: #fbbf24; }
   .estado-sync.sinc .punto { background: #60a5fa; animation: parp 1s infinite; }
   .estado-sync.error .punto { background: #f87171; }
   @keyframes parp { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-  nav {
-    display: flex;
-    background: white;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-  }
+  nav { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; }
   nav button {
-    flex: 1;
-    min-width: 100px;
-    padding: 0.9rem 0.5rem;
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: var(--muted);
-    font-weight: 500;
+    flex: 1; min-width: 100px; padding: 0.9rem 0.5rem; background: none; border: none;
+    border-bottom: 3px solid transparent; cursor: pointer; font-size: 0.9rem;
+    color: var(--muted); font-weight: 500;
   }
-  nav button.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-  }
+  nav button.active { color: var(--primary); border-bottom-color: var(--primary); }
   main { padding: 1rem; max-width: 1100px; margin: 0 auto; }
   .tab { display: none; }
   .tab.active { display: block; }
-  .card {
-    background: var(--card);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .card h2 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    color: var(--primary-dark);
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 0.75rem;
-  }
+  .card { background: var(--card); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .card h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--primary-dark); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
 
-  .grupo-articulo {
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    background: white;
-  }
+  .grupo-articulo { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: white; }
   .grupo-btn {
-    width: 100%;
-    text-align: left;
-    padding: 0.85rem 1rem;
-    background: #f9fafb;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text);
-    transition: background 0.2s;
-    gap: 0.5rem;
+    width: 100%; text-align: left; padding: 0.85rem 1rem; background: #f9fafb; border: none;
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.95rem; font-weight: 600; color: var(--text); transition: background 0.2s; gap: 0.5rem;
   }
   .grupo-btn:hover { background: #f0f2f5; }
   .grupo-btn .flecha { transition: transform 0.2s; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
@@ -128,11 +79,7 @@
   .grupo-btn.estado-averiado { border-left: 5px solid var(--danger); }
   .grupo-contenido { display: none; background: white; border-top: 1px solid var(--border); padding: 0.5rem; }
   .grupo-contenido.abierto { display: block; }
-  .unidad-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem;
-    font-size: 0.88rem; gap: 0.5rem;
-  }
+  .unidad-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; border-radius: 6px; margin-bottom: 0.35rem; font-size: 0.88rem; gap: 0.5rem; }
   .unidad-row:last-child { margin-bottom: 0; }
   .unidad-row.almacen { background: #f0fdf4; }
   .unidad-row.prestado { background: #fffbeb; }
@@ -141,18 +88,11 @@
   .contador { font-size: 0.8rem; color: var(--muted); font-weight: 400; margin-left: 0.5rem; }
 
   label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text); font-weight: 500; }
-  input, select, textarea {
-    width: 100%; padding: 0.55rem; border: 1px solid var(--border);
-    border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit;
-  }
+  input, select, textarea { width: 100%; padding: 0.55rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit; }
   textarea { resize: vertical; min-height: 60px; }
-  button.btn {
-    background: var(--primary); color: white; border: none;
-    padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer;
-    font-size: 0.9rem; font-weight: 500;
-  }
+  button.btn { background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
   button.btn:hover { background: var(--primary-dark); }
-  button.btn.small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+  button.btn.small { padding: 0.3rem 0.5rem; font-size: 0.75rem; }
   button.btn.success { background: var(--success); }
   button.btn.danger { background: var(--danger); }
   button.btn.warning { background: var(--warning); }
@@ -171,20 +111,13 @@
   .badge.ok { background: #d4edda; color: var(--success); }
   .badge.prestado { background: #fff3cd; color: #856404; }
   .badge.danio { background: #f8d7da; color: var(--danger); }
-  .modal-bg {
-    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5); z-index: 100; align-items: center;
-    justify-content: center; padding: 1rem;
-  }
+  .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
   .modal-bg.show { display: flex; }
   .modal { background: white; border-radius: 8px; padding: 1.25rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal h3 { margin-bottom: 1rem; color: var(--primary-dark); }
   .campo-oculto { display: none; }
 
-  .devolucion-card {
-    border: 1px solid var(--border); border-left: 5px solid var(--warning);
-    border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; background: white;
-  }
+  .devolucion-card { border: 1px solid var(--border); border-left: 5px solid var(--warning); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; background: white; }
   .devolucion-card .cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
   .devolucion-card .articulo { font-size: 1.05rem; font-weight: 600; color: var(--primary-dark); }
   .devolucion-card .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem 1rem; font-size: 0.88rem; margin-bottom: 0.75rem; }
@@ -194,57 +127,33 @@
   .devolucion-card .prevista-vencida { color: var(--danger); font-weight: 600; }
 
   .inv-tabla-wrap { overflow-x: auto; }
-  .inv-tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .inv-tabla { width: 100%; border-collapse: collapse; font-size: 0.88rem; table-layout: fixed; }
   .inv-tabla th {
-    background: #f9fafb; padding: 0.6rem; text-align: center;
+    background: #f9fafb; padding: 0.6rem 0.4rem; text-align: center;
     border-bottom: 2px solid var(--border); font-weight: 600;
     font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
     white-space: nowrap;
   }
-  .inv-tabla td {
-    padding: 0.6rem; border-bottom: 1px solid var(--border); vertical-align: middle;
-    text-align: center;
-  }
+  .inv-tabla td { padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); vertical-align: middle; text-align: center; }
   .inv-tabla tr:hover { background: #f9fafb; }
-  .inv-tabla .nombre-celda { font-weight: 600; color: var(--primary-dark); white-space: nowrap; text-align: left; }
-  .inv-tabla .tipo-celda { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-  .inv-tabla .descripcion-celda { font-size: 0.82rem; color: var(--muted); text-align: left; }
-  .inv-tabla .stats-celda { 
-    display: flex; 
-    gap: 0.3rem; 
-    flex-wrap: nowrap;
-    white-space: nowrap;
-    align-items: center;
-    justify-content: center;
-  }
-  .inv-tabla .stat { 
-    padding: 2px 5px; 
-    border-radius: 4px; 
-    font-weight: 500;
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
+  .inv-tabla th:nth-child(1), .inv-tabla td:nth-child(1) { width: 22%; text-align: left; }
+  .inv-tabla th:nth-child(2), .inv-tabla td:nth-child(2) { width: 12%; }
+  .inv-tabla th:nth-child(3), .inv-tabla td:nth-child(3) { width: 22%; }
+  .inv-tabla th:nth-child(4), .inv-tabla td:nth-child(4) { width: 26%; text-align: left; }
+  .inv-tabla th:nth-child(5), .inv-tabla td:nth-child(5) { width: 18%; }
+  .inv-tabla .nombre-celda { font-weight: 600; color: var(--primary-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inv-tabla .tipo-celda { font-size: 0.78rem; color: var(--muted); }
+  .inv-tabla .descripcion-celda { font-size: 0.82rem; color: var(--muted); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inv-tabla .stats-celda { display: flex; gap: 0.25rem; flex-wrap: nowrap; white-space: nowrap; align-items: center; justify-content: center; }
+  .inv-tabla .stat { padding: 2px 4px; border-radius: 4px; font-weight: 500; font-size: 0.72rem; white-space: nowrap; }
   .inv-tabla .stat.ok { background: #d4edda; color: var(--success); }
   .inv-tabla .stat.prest { background: #fff3cd; color: #856404; }
   .inv-tabla .stat.av { background: #f8d7da; color: var(--danger); }
   .inv-tabla .stat.total { background: #e0e7ff; color: var(--primary-dark); }
-  .inv-tabla .acciones-celda { display: flex; gap: 0.35rem; flex-wrap: nowrap; justify-content: center; }
+  .inv-tabla .acciones-celda { display: flex; gap: 0.3rem; flex-wrap: nowrap; justify-content: center; }
 
-  .icono-articulo {
-    display: inline-block;
-    width: 28px;
-    height: 28px;
-    vertical-align: middle;
-    margin-right: 6px;
-    object-fit: contain;
-    border-radius: 4px;
-  }
-  .icono-articulo.emoji {
-    font-size: 1.3rem;
-    width: auto;
-    height: auto;
-    background: none;
-  }
+  .icono-articulo { display: inline-block; width: 28px; height: 28px; vertical-align: middle; margin-right: 6px; object-fit: contain; border-radius: 4px; }
+  .icono-articulo.emoji { font-size: 1.3rem; width: auto; height: auto; background: none; }
 
   #toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; max-width: 360px; width: calc(100% - 2rem); pointer-events: none; }
   .toast { pointer-events: auto; background: white; border-radius: 8px; padding: 0.85rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: flex-start; gap: 0.75rem; animation: toastIn 0.3s ease-out; border-left: 4px solid var(--primary); font-size: 0.9rem; }
@@ -272,9 +181,16 @@
     #toast-container { top: auto; bottom: 1rem; right: 0.5rem; left: 0.5rem; max-width: none; }
     .devolucion-card .info-grid { grid-template-columns: 1fr; }
     .estado-sync { top: 0.5rem; right: 0.5rem; font-size: 0.65rem; }
-    .inv-tabla { font-size: 0.78rem; }
+    .inv-tabla { font-size: 0.72rem; table-layout: auto; }
+    .inv-tabla th:nth-child(1), .inv-tabla td:nth-child(1) { width: auto; }
+    .inv-tabla th:nth-child(2), .inv-tabla td:nth-child(2) { width: auto; }
+    .inv-tabla th:nth-child(3), .inv-tabla td:nth-child(3) { width: auto; }
+    .inv-tabla th:nth-child(4), .inv-tabla td:nth-child(4) { width: auto; }
+    .inv-tabla th:nth-child(5), .inv-tabla td:nth-child(5) { width: auto; }
     .inv-tabla th, .inv-tabla td { padding: 0.4rem; }
+    .inv-tabla .descripcion-celda { max-width: 100px; }
     .icono-articulo { width: 22px; height: 22px; margin-right: 4px; }
+    button.btn.small { padding: 0.25rem 0.4rem; font-size: 0.7rem; }
   }
 </style>
 </head>
@@ -301,7 +217,6 @@
 
 <main>
 
-  <!-- DASHBOARD -->
   <div id="dashboard" class="tab active">
     <div class="card">
       <h2>Estado del material</h2>
@@ -309,14 +224,12 @@
     </div>
   </div>
 
-  <!-- NUEVO PRÉSTAMO -->
   <div id="prestamo" class="tab">
     <div class="card">
       <h2>Registrar préstamo</h2>
       <form id="formPrestamo">
         <label>Unidad / Artículo</label>
         <select id="p_unidad" required></select>
-
         <label>Tipo de solicitante</label>
         <select id="p_tipo_solicitante" required onchange="cambiarTipoSolicitante()">
           <option value="">-- Selecciona --</option>
@@ -324,45 +237,27 @@
           <option value="asociacion">Asociación</option>
           <option value="otro">Otro</option>
         </select>
-
         <div id="campo_ayuntamiento" class="campo-oculto">
           <label>Ayuntamiento</label>
           <select id="p_ayuntamiento"></select>
         </div>
-
         <div id="campo_nombre_libre" class="campo-oculto">
           <label id="label_nombre_libre">Nombre</label>
           <input type="text" id="p_nombre_libre" placeholder="">
         </div>
-
         <div class="row">
-          <div>
-            <label>Persona de contacto</label>
-            <input type="text" id="p_contacto" placeholder="Nombre y apellidos">
-          </div>
-          <div>
-            <label>Teléfono</label>
-            <input type="tel" id="p_telefono" placeholder="600 000 000">
-          </div>
+          <div><label>Persona de contacto</label><input type="text" id="p_contacto" placeholder="Nombre y apellidos"></div>
+          <div><label>Teléfono</label><input type="tel" id="p_telefono" placeholder="600 000 000"></div>
         </div>
-
         <div class="row">
-          <div>
-            <label>Fecha y hora de salida</label>
-            <input type="datetime-local" id="p_salida" required>
-          </div>
-          <div>
-            <label>Fecha prevista de devolución</label>
-            <input type="datetime-local" id="p_prevista">
-          </div>
+          <div><label>Fecha y hora de salida</label><input type="datetime-local" id="p_salida" required></div>
+          <div><label>Fecha prevista de devolución</label><input type="datetime-local" id="p_prevista"></div>
         </div>
-
         <button type="submit" class="btn">Registrar préstamo</button>
       </form>
     </div>
   </div>
 
-  <!-- DEVOLUCIONES -->
   <div id="devoluciones" class="tab">
     <div class="card">
       <h2>Préstamos pendientes de devolución</h2>
@@ -370,7 +265,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE DEVOLUCIÓN -->
   <div id="modalDevolucion" class="modal-bg">
     <div class="modal">
       <h3>Registrar devolución</h3>
@@ -394,7 +288,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE EDICIÓN DE ARTÍCULO -->
   <div id="modalEditar" class="modal-bg">
     <div class="modal">
       <h3>✏️ Editar artículo</h3>
@@ -403,17 +296,13 @@
         <input type="hidden" id="e_id">
         <label>Nombre del artículo *</label>
         <input type="text" id="e_nombre" required placeholder="Ej: Balones de fútbol">
-
         <label>Tipo</label>
         <input type="text" id="e_tipo" placeholder="Ej: pelota, cono, red...">
-
         <label>Cantidad de unidades *</label>
         <input type="number" id="e_cantidad" min="1" required>
         <div id="e_cantidad_ayuda" style="font-size:0.78rem; color:var(--muted); margin-top:-0.5rem; margin-bottom:0.75rem;"></div>
-
         <label>Descripción / Observaciones</label>
         <textarea id="e_descripcion" placeholder="Detalles, marca, modelo..."></textarea>
-
         <div class="row">
           <button type="submit" class="btn success">💾 Guardar cambios</button>
           <button type="button" class="btn secondary" onclick="cerrarModalEditar()">Cancelar</button>
@@ -422,17 +311,13 @@
     </div>
   </div>
 
-  <!-- HISTÓRICO -->
   <div id="historico" class="tab">
     <div class="card">
       <h2>Histórico de préstamos</h2>
       <div style="overflow-x:auto;">
         <table id="tablaHistorico">
           <thead>
-            <tr>
-              <th>Artículo</th><th>Solicitante</th><th>Contacto</th>
-              <th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th></th>
-            </tr>
+            <tr><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th></th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -440,39 +325,20 @@
     </div>
   </div>
 
-  <!-- INVENTARIO -->
   <div id="inventario" class="tab">
-
-    <!-- ALTA DE ARTÍCULOS -->
     <div class="card">
       <h2>🆕 Dar de alta nuevo artículo</h2>
       <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.75rem;">Añade un nuevo tipo de material al inventario.</p>
-      
-      <button class="btn outline big" onclick="toggleFormAlta()" id="btnToggleAlta">
-        ➕ Dar de alta un artículo
-      </button>
-      
+      <button class="btn outline big" onclick="toggleFormAlta()" id="btnToggleAlta">➕ Dar de alta un artículo</button>
       <div id="formAltaContainer" class="campo-oculto" style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
         <form id="formArticulo">
           <div class="row">
-            <div style="flex:2;">
-              <label>Nombre del artículo *</label>
-              <input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol, Conos, Redes...">
-            </div>
-            <div>
-              <label>Tipo</label>
-              <input type="text" id="a_tipo" placeholder="Ej: pelota, cono, red...">
-            </div>
+            <div style="flex:2;"><label>Nombre del artículo *</label><input type="text" id="a_nombre" required placeholder="Ej: Balones de fútbol, Conos, Redes..."></div>
+            <div><label>Tipo</label><input type="text" id="a_tipo" placeholder="Ej: pelota, cono, red..."></div>
           </div>
           <div class="row">
-            <div>
-              <label>Cantidad de unidades *</label>
-              <input type="number" id="a_cantidad" min="1" value="1" required>
-            </div>
-            <div style="flex:2;">
-              <label>Descripción / Observaciones</label>
-              <input type="text" id="a_descripcion" placeholder="Detalles, marca, modelo...">
-            </div>
+            <div><label>Cantidad de unidades *</label><input type="number" id="a_cantidad" min="1" value="1" required></div>
+            <div style="flex:2;"><label>Descripción / Observaciones</label><input type="text" id="a_descripcion" placeholder="Detalles, marca, modelo..."></div>
           </div>
           <div class="row">
             <button type="submit" class="btn success">✅ Confirmar alta</button>
@@ -482,20 +348,13 @@
       </div>
     </div>
 
-    <!-- EXISTENCIAS -->
     <div class="card">
       <h2>📋 Existencias actuales</h2>
       <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.75rem;">Material registrado en el inventario. Puedes editar cualquier artículo o darlo de baja.</p>
       <div class="inv-tabla-wrap">
         <table class="inv-tabla" id="tablaInventario">
           <thead>
-            <tr>
-              <th>Artículo</th>
-              <th>Tipo</th>
-              <th>Existencias</th>
-              <th>Descripción</th>
-              <th>Acciones</th>
-            </tr>
+            <tr><th>Artículo</th><th>Tipo</th><th>Existencias</th><th>Descripción</th><th>Acciones</th></tr>
           </thead>
           <tbody id="tbodyInventario"></tbody>
         </table>
@@ -506,10 +365,8 @@
         <div style="font-size:0.9rem; margin-top:0.25rem;">Usa el formulario de arriba para dar de alta el primero.</div>
       </div>
     </div>
-
   </div>
 
-  <!-- AJUSTES -->
   <div id="ajustes" class="tab">
     <div class="card">
       <h2>🌐 Sincronización en la nube</h2>
@@ -534,12 +391,11 @@
 
 </main>
 
-<!-- Firebase (SDK compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-// ===================== CONFIGURACIÓN FIREBASE =====================
+// ===================== FIREBASE =====================
 const firebaseConfig = {
   apiKey: "AIzaSyAXMxcl7SCIkxLcg4smfMljksCd-WNDiOE",
   authDomain: "material-deportes.firebaseapp.com",
@@ -553,38 +409,23 @@ let db = null;
 let firebaseActivo = false;
 
 function initFirebase() {
-  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") {
-    setEstado('local', 'Modo local');
-    return;
-  }
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local', 'Modo local'); return; }
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
     firebaseActivo = true;
     setEstado('sinc', 'Sincronizando…');
-  } catch (e) {
-    console.error('Error Firebase:', e);
-    setEstado('local', 'Modo local');
-  }
+  } catch (e) { console.error('Error Firebase:', e); setEstado('local', 'Modo local'); }
 }
 
 function setEstado(tipo, texto) {
   const el = document.getElementById('estadoSync');
-  if (el) {
-    el.className = 'estado-sync ' + tipo;
-    document.getElementById('estadoSyncTexto').textContent = texto;
-  }
+  if (el) { el.className = 'estado-sync ' + tipo; document.getElementById('estadoSyncTexto').textContent = texto; }
 }
 
 // ===================== DATOS =====================
 const STORAGE_KEY = 'dipuleon_prestamos_v1';
-
-let datos = {
-  articulos: [],
-  unidades: [],
-  prestamos: [],
-  nextId: { articulo: 1, unidad: 1, prestamo: 1 }
-};
+let datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
 
 const AYUNTAMIENTOS_LEON = [
   "Acebedo","Algadefe","Alija del Infantado","Almanza","Antigua, La","Ardón","Arganza","Astorga","Balboa","Bañeza, La",
@@ -610,37 +451,44 @@ const AYUNTAMIENTOS_LEON = [
   "Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"
 ];
 
-// ===================== ICONOS: FOTOS PROPIAS =====================
+// ===================== ICONOS (FOTOS + EMOJIS) =====================
 const ICONOS_IMAGEN = {
   'arco': 'arco',
+  'arco_muy_nuevo': 'arco_muy_nuevo',
   'carpa_hinchable': 'carpa_hinchable',
   'carpa_metalica': 'carpa_metalica',
   'podio': 'podio',
   'pancarta': 'pancarta',
+  'mesa_pingpon': 'mesa_pingpon',
+  'tatami': 'tatami',
   'balon': 'balon',
   'red': 'red',
   'cono': 'cono'
 };
 
 const ICONOS_EMOJI = {
-  'arco': '⚽', 'carpa_hinchable': '🎪', 'carpa_metalica': '⛺',
-  'podio': '🏆', 'pancarta': '🪧', 'balon': '⚽', 'red': '🥅', 'cono': '🔶', 'default': '📦'
+  'arco': '🏁',
+  'arco_muy_nuevo': '🏁',
+  'carpa_hinchable': '🎪',
+  'carpa_metalica': '⛺',
+  'podio': '🏆',
+  'pancarta': '🪧',
+  'mesa_pingpon': '🏓',
+  'tatami': '🥋',
+  'balon': '⚽',
+  'red': '🥅',
+  'cono': '🔶',
+  'default': '📦'
 };
 
 function getIconoHTML(tipo) {
   const nombreImagen = ICONOS_IMAGEN[tipo];
   if (nombreImagen) {
-    return `<img src="./img/${nombreImagen}.png" 
-              alt="${tipo}" 
-              class="icono-articulo" 
-              onerror="this.outerHTML='<span class=\\'icono-articulo emoji\\'>${ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default}</span>'">`;
+    return `<img src="./img/${nombreImagen}.png" alt="${tipo}" class="icono-articulo" onerror="this.outerHTML='<span class=\\'icono-articulo emoji\\'>${ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default}</span>'">`;
   }
   return `<span class="icono-articulo emoji">${ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default}</span>`;
 }
-
-function getIconoTexto(tipo) {
-  return ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default;
-}
+function getIconoTexto(tipo) { return ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default; }
 
 function esDatosValidos(d) {
   return d && Array.isArray(d.articulos) && Array.isArray(d.unidades) && Array.isArray(d.prestamos) && d.articulos.length > 0;
@@ -657,12 +505,14 @@ function guardar() {
 
 function inicializarInventario() {
   const inventarioInicial = [
-    { nombre: "Arcos hinchables nuevos", tipo: "arco", cantidad: 3, descripcion: "Arcos hinchables. Saco azul claro" },
-    { nombre: "Arcos hinchables muy nuevos", tipo: "arco", cantidad: 3, descripcion: "Arcos hinchables más nuevos en caja" },
+    { nombre: "Arcos hinchables", tipo: "arco", cantidad: 3, descripcion: "Arcos hinchables de meta/salida para carreras (más viejos). Saco azul claro" },
+    { nombre: "Arcos hinchables nuevos", tipo: "arco_muy_nuevo", cantidad: 3, descripcion: "Arcos hinchables de meta/salida para carreras (más nuevos y manejables). En caja" },
     { nombre: "Carpas hinchables", tipo: "carpa_hinchable", cantidad: 2, descripcion: "Carpas en saco/bolsa de tela, cuadradas, con ruedas" },
-    { nombre: "Carpas metálicas", tipo: "carpa_metalica", cantidad: 4, descripcion: "Carpas metálicas en estuche noegro altas con dos ruedas" },
+    { nombre: "Carpas metálicas", tipo: "carpa_metalica", cantidad: 4, descripcion: "Carpas metálicas en estuche negro, altas, con dos ruedas" },
     { nombre: "Podios", tipo: "podio", cantidad: 1, descripcion: "" },
     { nombre: "Pancartas", tipo: "pancarta", cantidad: 20, descripcion: "" },
+    { nombre: "Tatamis", tipo: "tatami", cantidad: 2, descripcion: "Alfombra/colchoneta para lucha leonesa" },
+    { nombre: "Mesas de ping-pong", tipo: "mesa_pingpon", cantidad: 2, descripcion: "" },
   ];
   inventarioInicial.forEach(a => {
     const idA = datos.nextId.articulo++;
@@ -677,25 +527,14 @@ function inicializarInventario() {
 // ===================== ARRANQUE =====================
 function init() {
   initFirebase();
-  
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
     try {
       const localData = JSON.parse(raw);
-      if (esDatosValidos(localData)) {
-        datos = localData;
-      } else {
-        inicializarInventario();
-      }
-    } catch (e) {
-      inicializarInventario();
-    }
-  } else {
-    inicializarInventario();
-  }
-  
+      if (esDatosValidos(localData)) { datos = localData; } else { inicializarInventario(); }
+    } catch (e) { inicializarInventario(); }
+  } else { inicializarInventario(); }
   renderTodo();
-  
   if (db) {
     db.ref('datos').once('value').then(snap => {
       const remoto = snap.val();
@@ -707,21 +546,11 @@ function init() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
           setEstado('sync', 'Sincronizado (desde nube)');
           renderTodo();
-        } else {
-          setEstado('sync', 'Sincronizado');
-        }
+        } else { setEstado('sync', 'Sincronizado'); }
       } else {
-        db.ref('datos').set(datos).then(() => {
-          setEstado('sync', 'Sincronizado (subido a nube)');
-        }).catch(() => {
-          setEstado('error', 'Error al subir');
-        });
+        db.ref('datos').set(datos).then(() => setEstado('sync', 'Sincronizado (subido a nube)')).catch(() => setEstado('error', 'Error al subir'));
       }
-    }).catch(err => {
-      console.error('Error Firebase:', err);
-      setEstado('error', 'Sin conexión');
-    });
-    
+    }).catch(err => { console.error('Error Firebase:', err); setEstado('error', 'Sin conexión'); });
     db.ref('datos').on('value', snap => {
       const remoto = snap.val();
       if (remoto && esDatosValidos(remoto)) {
@@ -736,7 +565,6 @@ function init() {
       }
     });
   }
-  
   renderEstadoFirebase();
 }
 
@@ -927,24 +755,14 @@ function renderHistorico() {
   if (ordenados.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted);">Sin registros</td></tr>';
 }
 
-// ===================== INVENTARIO =====================
 function renderInventario() {
   const tbody = document.getElementById('tbodyInventario');
   const tabla = document.getElementById('tablaInventario');
   const vacio = document.getElementById('inventarioVacio');
   if (!tbody) return;
-  
   tbody.innerHTML = '';
-  
-  if (datos.articulos.length === 0) {
-    tabla.style.display = 'none';
-    vacio.style.display = 'block';
-    return;
-  }
-  
-  tabla.style.display = 'table';
-  vacio.style.display = 'none';
-  
+  if (datos.articulos.length === 0) { tabla.style.display = 'none'; vacio.style.display = 'block'; return; }
+  tabla.style.display = 'table'; vacio.style.display = 'none';
   datos.articulos.forEach(a => {
     if (!a.activo) return;
     const unidades = datos.unidades.filter(u => u.articuloId === a.id);
@@ -952,14 +770,13 @@ function renderInventario() {
     const prestados = unidades.filter(u => u.estado === 'prestado').length;
     const averiados = unidades.filter(u => u.estado === 'averiado').length;
     const total = unidades.length;
-    
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="nombre-celda">${getIconoHTML(a.tipo)} ${a.nombre}</td>
+      <td class="nombre-celda" title="${a.nombre}">${getIconoHTML(a.tipo)} ${a.nombre}</td>
       <td class="tipo-celda">${a.tipo || '-'}</td>
       <td>
         <div class="stats-celda">
-          <span class="stat total">Total: ${total}</span>
+          <span class="stat total">T:${total}</span>
           <span class="stat ok">📍${disponibles}</span>
           <span class="stat prest">👤${prestados}</span>
           <span class="stat av">🔧${averiados}</span>
@@ -968,8 +785,8 @@ function renderInventario() {
       <td class="descripcion-celda" title="${a.descripcion || ''}">${a.descripcion || '-'}</td>
       <td>
         <div class="acciones-celda">
-          <button class="btn small warning" onclick="abrirModalEditar(${a.id})" title="Editar artículo">✏️ Editar</button>
-          <button class="btn small danger" onclick="darDeBaja(${a.id})" title="Dar de baja este artículo">🗑️ Baja</button>
+          <button class="btn small warning" onclick="abrirModalEditar(${a.id})" title="Editar">✏️</button>
+          <button class="btn small danger" onclick="darDeBaja(${a.id})" title="Dar de baja">🗑️</button>
         </div>
       </td>
     `;
@@ -977,7 +794,6 @@ function renderInventario() {
   });
 }
 
-// ===================== ALTA PLEGABLE =====================
 function toggleFormAlta() {
   const cont = document.getElementById('formAltaContainer');
   const btn = document.getElementById('btnToggleAlta');
@@ -985,81 +801,49 @@ function toggleFormAlta() {
   btn.textContent = cont.classList.contains('campo-oculto') ? '➕ Dar de alta un artículo' : '➖ Ocultar formulario';
 }
 
-// ===================== EDICIÓN DE ARTÍCULO =====================
 function abrirModalEditar(id) {
   const articulo = datos.articulos.find(a => a.id === id);
   if (!articulo) return;
-  
   const unidades = datos.unidades.filter(u => u.articuloId === id);
   const prestados = unidades.filter(u => u.estado === 'prestado').length;
   const total = unidades.length;
-  
   document.getElementById('e_id').value = id;
   document.getElementById('e_nombre').value = articulo.nombre;
   document.getElementById('e_tipo').value = articulo.tipo || '';
   document.getElementById('e_cantidad').value = total;
   document.getElementById('e_cantidad').min = prestados;
   document.getElementById('e_descripcion').value = articulo.descripcion || '';
-  
   let ayudaTexto = `Tienes ${total} unidad(es) en total.`;
-  if (prestados > 0) {
-    ayudaTexto += ` ⚠️ No puedes bajar de ${prestados} porque hay ${prestados} prestada(s).`;
-  }
+  if (prestados > 0) ayudaTexto += ` ⚠️ No puedes bajar de ${prestados} porque hay ${prestados} prestada(s).`;
   document.getElementById('e_cantidad_ayuda').textContent = ayudaTexto;
-  
-  document.getElementById('editInfo').innerHTML = `
-    Editando: <strong>${getIconoTexto(articulo.tipo)} ${articulo.nombre}</strong>
-  `;
-  
+  document.getElementById('editInfo').innerHTML = `Editando: <strong>${getIconoTexto(articulo.tipo)} ${articulo.nombre}</strong>`;
   document.getElementById('modalEditar').classList.add('show');
 }
-
-function cerrarModalEditar() {
-  document.getElementById('modalEditar').classList.remove('show');
-}
+function cerrarModalEditar() { document.getElementById('modalEditar').classList.remove('show'); }
 
 document.getElementById('formEditar').addEventListener('submit', e => {
   e.preventDefault();
   const id = parseInt(document.getElementById('e_id').value);
   const articulo = datos.articulos.find(a => a.id === id);
   if (!articulo) return;
-  
   const nombreNuevo = document.getElementById('e_nombre').value.trim();
   const tipoNuevo = document.getElementById('e_tipo').value.trim();
   const cantidadNueva = parseInt(document.getElementById('e_cantidad').value);
   const descripcionNueva = document.getElementById('e_descripcion').value.trim();
-  
-  if (!nombreNuevo || !cantidadNueva || cantidadNueva < 1) {
-    notificar('Introduce al menos el nombre y una cantidad válida.', 'aviso', 'Faltan datos');
-    return;
-  }
-  
+  if (!nombreNuevo || !cantidadNueva || cantidadNueva < 1) { notificar('Introduce al menos el nombre y una cantidad válida.', 'aviso', 'Faltan datos'); return; }
   const unidades = datos.unidades.filter(u => u.articuloId === id);
   const prestados = unidades.filter(u => u.estado === 'prestado').length;
-  
-  if (cantidadNueva < prestados) {
-    notificar(`No puedes reducir la cantidad por debajo de ${prestados} porque hay unidades prestadas.`, 'error', 'Cantidad no válida');
-    return;
-  }
-  
+  if (cantidadNueva < prestados) { notificar(`No puedes reducir la cantidad por debajo de ${prestados} porque hay unidades prestadas.`, 'error', 'Cantidad no válida'); return; }
   articulo.nombre = nombreNuevo;
   articulo.tipo = tipoNuevo;
   articulo.cantidad = cantidadNueva;
   articulo.descripcion = descripcionNueva;
-  
   const cantidadAnterior = unidades.length;
-  
   if (cantidadNueva > cantidadAnterior) {
     const aAñadir = cantidadNueva - cantidadAnterior;
     for (let i = 0; i < aAñadir; i++) {
       const idU = datos.nextId.unidad++;
-      datos.unidades.push({
-        id: idU,
-        articuloId: id,
-        identificador: `${nombreNuevo} #${cantidadAnterior + i + 1}`,
-        estado: 'almacen',
-        observaciones: ''
-      });
+      datos.unidades.push({ id: idU, articuloId: id, identificador: `${nombreNuevo} #${cantidadAnterior + i + 1}`, estado: 'almacen', observaciones: '' });
     }
     notificar(`Se han añadido <strong>${aAñadir}</strong> unidad(es) a "${nombreNuevo}".`, 'exito', 'Unidades añadidas');
   } else if (cantidadNueva < cantidadAnterior) {
@@ -1073,35 +857,27 @@ document.getElementById('formEditar').addEventListener('submit', e => {
     datos.unidades = datos.unidades.filter(u => !idsBorrar.includes(u.id));
     notificar(`Se han eliminado <strong>${aEliminar}</strong> unidad(es) de "${nombreNuevo}".`, 'aviso', 'Unidades eliminadas');
   }
-  
-  datos.unidades.filter(u => u.articuloId === id).forEach((u, idx) => {
-    u.identificador = `${nombreNuevo} #${idx + 1}`;
-  });
-  
-  guardar();
-  cerrarModalEditar();
-  renderTodo();
+  datos.unidades.filter(u => u.articuloId === id).forEach((u, idx) => { u.identificador = `${nombreNuevo} #${idx + 1}`; });
+  guardar(); cerrarModalEditar(); renderTodo();
   notificar(`Artículo "${nombreNuevo}" actualizado correctamente.`, 'exito', 'Artículo editado');
 });
 
 function darDeBaja(id) {
   const articulo = datos.articulos.find(a => a.id === id);
   if (!articulo) return;
-  
   const unidades = datos.unidades.filter(u => u.articuloId === id);
   const prestados = unidades.filter(u => u.estado === 'prestado').length;
-  
   if (prestados > 0) {
     notificar(`No se puede dar de baja "${articulo.nombre}" porque tiene ${prestados} unidad(es) prestada(s). Devuélvelas primero.`, 'error', 'No se puede dar de baja');
     return;
   }
-  
-  if (!confirm(`¿Seguro que quieres dar de baja "${articulo.nombre}" (${unidades.length} unidad(es))?\n\nEsta acción no se puede deshacer.`)) return;
-  
+  // Primera confirmación
+  if (!confirm(`⚠️ PRIMERA CONFIRMACIÓN\n\n¿Seguro que quieres dar de baja "${articulo.nombre}"?\n\nSe eliminarán ${unidades.length} unidad(es) del inventario.\n\nEsta acción NO se puede deshacer.`)) return;
+  // Segunda confirmación
+  if (!confirm(`🔴 SEGUNDA CONFIRMACIÓN (DEFINITIVA)\n\nVas a eliminar PERMANENTEMENTE:\n• Artículo: ${articulo.nombre}\n• Unidades: ${unidades.length}\n\n¿Estás completamente seguro?`)) return;
   datos.articulos = datos.articulos.filter(a => a.id !== id);
   datos.unidades = datos.unidades.filter(u => u.articuloId !== id);
-  guardar();
-  renderTodo();
+  guardar(); renderTodo();
   notificar(`"${articulo.nombre}" dado de baja correctamente.`, 'exito', 'Artículo dado de baja');
 }
 
@@ -1115,7 +891,6 @@ function renderEstadoFirebase() {
   }
 }
 
-// ===================== AYUNTAMIENTOS =====================
 function cargarAyuntamientos() {
   const sel = document.getElementById('p_ayuntamiento');
   if (!sel) return;
@@ -1142,7 +917,6 @@ function obtenerSolicitante() {
   return '';
 }
 
-// ===================== PRÉSTAMOS =====================
 document.getElementById('formPrestamo').addEventListener('submit', e => {
   e.preventDefault();
   const unidadId = parseInt(document.getElementById('p_unidad').value);
@@ -1165,7 +939,6 @@ document.getElementById('formPrestamo').addEventListener('submit', e => {
   showTab('dashboard', document.querySelector('nav button'));
 });
 
-// ===================== DEVOLUCIÓN =====================
 function abrirDevolucion(prestamoId) {
   const p = datos.prestamos.find(x => x.id === prestamoId);
   if (!p) return;
@@ -1219,7 +992,6 @@ function eliminarPrestamo(id) {
   guardar(); renderTodo(); notificar('Préstamo eliminado del registro.', 'info', 'Préstamo eliminado');
 }
 
-// ===================== ALTA DE ARTÍCULO =====================
 document.getElementById('formArticulo').addEventListener('submit', e => {
   e.preventDefault();
   const nombre = document.getElementById('a_nombre').value.trim();
@@ -1233,12 +1005,10 @@ document.getElementById('formArticulo').addEventListener('submit', e => {
     const idU = datos.nextId.unidad++;
     datos.unidades.push({ id: idU, articuloId: idA, identificador: `${nombre} #${i}`, estado: 'almacen', observaciones: '' });
   }
-  guardar(); renderTodo(); e.target.reset();
-  toggleFormAlta();
+  guardar(); renderTodo(); e.target.reset(); toggleFormAlta();
   notificar(`Se han dado de alta <strong>${cantidad}</strong> unidad(es) de "${nombre}".`, 'exito', 'Artículo dado de alta');
 });
 
-// ===================== EXPORT / IMPORT =====================
 function exportarDatos() {
   const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1271,14 +1041,12 @@ function resetearDatos() {
   notificar('Datos borrados y restaurado el inventario inicial.', 'aviso', 'Datos borrados');
 }
 
-// ===================== UTILS =====================
 function formatFecha(iso) {
   if (!iso) return '-';
   const d = new Date(iso);
   return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
-// ===================== INIT =====================
 init();
 </script>
 
