@@ -78,8 +78,6 @@
   .modal-bg.show { display:flex; }
   .modal { background:#fff; border-radius:8px; padding:1.25rem; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; }
   .modal h3 { margin-bottom:1rem; color:var(--primary-dark); }
-  #modalQRRapido .modal { max-height: 95vh; }
-  #qr-reader-rapido video { border-radius: 8px; }
   .campo-oculto { display:none; }
   .devolucion-card { border:1px solid var(--border); border-left:5px solid var(--warning); border-radius:8px; padding:1rem; margin-bottom:.75rem; background:#fff; }
   .devolucion-card.vencido { border-left-color:var(--danger); background:#fef2f2; }
@@ -579,6 +577,8 @@ let firmaData = null;
 let firmaDevolucionData = null;
 let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
 let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev = 0;
+let lectorRapido = null;
+let escaneandoQR = false;
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local','Modo local'); return; }
@@ -1079,9 +1079,7 @@ function obtenerDNIfull() {
   return numero;
 }
 
-// ===== ESCANEAR QR DESDE SELECTOR DE UNIDAD (CORREGIDO) =====
-let escaneandoQR = false;
-
+// ===== ESCANEAR QR DESDE SELECTOR DE UNIDAD (v3 robusta) =====
 document.getElementById('p_unidad').addEventListener('change', function(e) {
   if (e.target.value === '' && !escaneandoQR) {
     escaneandoQR = true;
@@ -1090,96 +1088,147 @@ document.getElementById('p_unidad').addEventListener('change', function(e) {
 });
 
 function abrirModalCamaraQR(selectElement) {
-  // Cerrar cualquier lector previo
-  if (html5QrCode) { try { html5QrCode.stop(); } catch(e) {} html5QrCode = null; }
+  // 1. Verificar HTTPS
+  if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    notificar('La cámara solo funciona en HTTPS. Usa GitHub Pages (https://...).', 'error', 'Sin HTTPS');
+    escaneandoQR = false;
+    return;
+  }
   
-  // Crear modal
+  // 2. Verificar soporte de cámara
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    notificar('Tu navegador no soporta acceso a la cámara.', 'error', 'Sin cámara');
+    escaneandoQR = false;
+    return;
+  }
+  
+  // 3. Cerrar lector previo si existe
+  if (lectorRapido) {
+    try { lectorRapido.stop().then(function(){ lectorRapido.clear(); }).catch(function(){}); } catch(e){}
+    lectorRapido = null;
+  }
+  if (html5QrCode) {
+    try { html5QrCode.stop().then(function(){ html5QrCode.clear(); }).catch(function(){}); } catch(e){}
+    html5QrCode = null;
+  }
+  
+  // 4. Crear modal
   const modalQR = document.createElement('div');
   modalQR.className = 'modal-bg show';
   modalQR.id = 'modalQRRapido';
+  modalQR.style.zIndex = '9998';
   modalQR.innerHTML = '<div class="modal" style="max-width:500px;">' +
     '<h3>📷 Escanear código QR</h3>' +
-    '<p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">Apunta la cámara al código QR de la unidad.</p>' +
-    '<div id="qr-reader-rapido" style="width:100%;max-width:400px;margin:0 auto;min-height:200px;background:#000;border-radius:8px;"></div>' +
+    '<p style="font-size:0.9rem;color:var(--muted);margin-bottom:0.5rem;">Apunta la cámara al código QR de la unidad.</p>' +
+    '<p id="qr-status" style="font-size:0.85rem;color:var(--primary);margin-bottom:0.5rem;">⏳ Iniciando cámara...</p>' +
+    '<div id="qr-reader-rapido" style="width:100%;max-width:400px;margin:0 auto;min-height:250px;background:#111;border-radius:8px;position:relative;"></div>' +
     '<div style="margin-top:1rem;text-align:center;">' +
     '<button class="btn danger" id="btnCancelarQR">❌ Cancelar</button>' +
     '</div></div>';
   document.body.appendChild(modalQR);
   
-  // Botón cancelar
+  // 5. Botón cancelar
   document.getElementById('btnCancelarQR').addEventListener('click', function() {
     cerrarModalQR();
   });
   
-  // Esperar a que el DOM esté listo e iniciar cámara
+  // 6. Esperar a que el DOM renderice el contenedor
   setTimeout(function() {
+    const contenedor = document.getElementById('qr-reader-rapido');
+    const statusEl = document.getElementById('qr-status');
+    
+    if (!contenedor) {
+      if (statusEl) statusEl.textContent = '❌ Error: contenedor no encontrado';
+      cerrarModalQR();
+      return;
+    }
+    
+    const rect = contenedor.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      if (statusEl) statusEl.textContent = '❌ Error: contenedor sin dimensiones (' + rect.width + 'x' + rect.height + ')';
+      cerrarModalQR();
+      return;
+    }
+    
     try {
-      const lector = new Html5Qrcode("qr-reader-rapido");
-      lector.start(
-        { facingMode: "environment" },
+      lectorRapido = new Html5Qrcode("qr-reader-rapido", { verbose: false });
+      
+      if (statusEl) statusEl.textContent = '📹 Cámara iniciada...';
+      
+      lectorRapido.start(
+        { facingMode: { exact: "environment" } },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         function(decodedText) {
-          // QR detectado
-          lector.stop().then(function() {
-            try { lector.clear(); } catch(e) {}
-          }).catch(function() {});
-          
-          const match = decodedText.match(/unidad=(\d+)/);
-          if (match) {
-            const uId = parseInt(match[1]);
-            const unidad = datos.unidades.find(function(u) { return u.id === uId; });
-            if (unidad && unidad.estado === 'almacen') {
-              selectElement.value = uId;
-              notificar('Unidad seleccionada: <strong>' + unidad.identificador + '</strong>', 'exito', 'QR escaneado');
-            } else {
-              notificar('Esa unidad no está disponible (prestada o averiada).', 'error', 'No disponible');
-              selectElement.value = '';
-            }
-          } else {
-            notificar('QR no reconocido.', 'error', 'QR desconocido');
-            selectElement.value = '';
-          }
-          cerrarModalQR();
+          if (statusEl) statusEl.textContent = '✅ QR detectado: ' + decodedText;
+          setTimeout(function() {
+            procesarQR(decodedText, selectElement);
+          }, 300);
         },
-        function(errorMessage) {
-          // Error de escaneo (normal, se ignora)
-        }
-      ).catch(function(err) {
-        notificar('No se pudo iniciar la cámara: ' + err, 'error', 'Error cámara');
-        cerrarModalQR();
+        function(errorMessage) {}
+      ).then(function() {
+        if (statusEl) statusEl.textContent = '📹 Cámara activa. Apunta al QR.';
+      }).catch(function(err) {
+        console.warn('Fallo cámara trasera, intentando frontal:', err);
+        if (statusEl) statusEl.textContent = '📹 Intentando otra cámara...';
+        
+        lectorRapido.stop().then(function() {
+          lectorRapido.start(
+            { facingMode: "user" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            function(decodedText) {
+              procesarQR(decodedText, selectElement);
+            },
+            function() {}
+          ).then(function() {
+            if (statusEl) statusEl.textContent = '📹 Cámara frontal activa.';
+          }).catch(function(err2) {
+            if (statusEl) statusEl.textContent = '❌ No se pudo acceder a la cámara: ' + err2;
+            console.error('Error cámara:', err2);
+          });
+        }).catch(function() {});
       });
-      
-      // Guardar referencia para poder detenerlo al cancelar
-      modalQR._lector = lector;
     } catch(e) {
-      notificar('Error: ' + e.message, 'error', 'Error');
-      cerrarModalQR();
+      if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
+      console.error('Error creando lector:', e);
     }
-  }, 500);
+  }, 600);
+}
+
+function procesarQR(decodedText, selectElement) {
+  const match = decodedText.match(/unidad=(\d+)/);
+  if (match) {
+    const uId = parseInt(match[1]);
+    const unidad = datos.unidades.find(function(u) { return u.id === uId; });
+    if (unidad && unidad.estado === 'almacen') {
+      selectElement.value = uId;
+      notificar('Unidad seleccionada: <strong>' + unidad.identificador + '</strong>', 'exito', 'QR escaneado');
+    } else {
+      notificar('Esa unidad no está disponible.', 'error', 'No disponible');
+      selectElement.value = '';
+    }
+  } else {
+    notificar('QR no reconocido.', 'error', 'QR desconocido');
+    selectElement.value = '';
+  }
+  cerrarModalQR();
 }
 
 function cerrarModalQR() {
   const modal = document.getElementById('modalQRRapido');
   if (modal) {
-    // Detener lector si existe
-    if (modal._lector) {
+    if (lectorRapido) {
       try {
-        modal._lector.stop().then(function() {
-          try { modal._lector.clear(); } catch(e) {}
+        lectorRapido.stop().then(function() {
+          try { lectorRapido.clear(); } catch(e) {}
         }).catch(function() {});
       } catch(e) {}
+      lectorRapido = null;
     }
     modal.remove();
   }
   const sel = document.getElementById('p_unidad');
-  if (sel && sel.value === '__escaneando__') sel.value = '';
+  if (sel && (sel.value === '__escaneando__' || sel.value === '')) sel.value = '';
   escaneandoQR = false;
-}
-function cerrarModalQR() {
-  const modal = document.getElementById('modalQRRapido');
-  if (modal) modal.remove();
-  const sel = document.getElementById('p_unidad');
-  if (sel && sel.value === '__escaneando__') sel.value = '';
 }
 
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
