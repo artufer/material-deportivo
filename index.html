@@ -706,8 +706,8 @@ function renderDashboard() {
       }
       htmlU += '<div class="unidad-row ' + u.estado + '"><div><strong>' + u.identificador + '</strong><div class="meta">' + meta + '</div></div>' + badge + '</div>';
     });
-    const contadorTexto = prest > 0 || av > 0 ? ' <span style="color:var(--warning);">(' + prest + ' prest.</span>' + (av > 0 ? '<span style="color:var(--danger);"> · ' + av + ' av.)</span>' : ')') : '';
-    grid.innerHTML += '<div class="grupo-articulo"><button class="grupo-btn ' + ec + '" onclick="toggleGrupo(\'' + idG + '\', this)"><span>' + getIconoHTML(a.tipo) + ' ' + a.nombre + ' <span class="contador">(' + disp + ' disp.' + contadorTexto + '</span></span><span class="flecha">▼</span></button><div class="grupo-contenido" id="' + idG + '">' + htmlU + '</div></div>';
+    const contadorTexto = prest > 0 || av > 0 ? ' · <span style="color:var(--warning);">' + prest + ' prest.</span>' + (av > 0 ? '<span style="color:var(--danger);"> · ' + av + ' av.</span>' : '') : '';
+    grid.innerHTML += '<div class="grupo-articulo"><button class="grupo-btn ' + ec + '" onclick="toggleGrupo(\'' + idG + '\', this)"><span>' + getIconoHTML(a.tipo) + ' ' + a.nombre + ' <span class="contador">(' + disp + ' disp.' + contadorTexto + ')</span></span><span class="flecha">▼</span></button><div class="grupo-contenido" id="' + idG + '">' + htmlU + '</div></div>';
   });
 }
 
