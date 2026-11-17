@@ -6,6 +6,12 @@
 <title>Control Préstamos - Diputación de León</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  (function() {
+    emailjs.init({ publicKey: "TU_PUBLIC_KEY_EMAILJS" });
+  })();
+</script>
 <style>
   :root { --primary:#1e5aa8; --primary-dark:#15407a; --success:#2e7d32; --warning:#ed6c02; --danger:#d32f2f; --bg:#f4f6f9; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -173,6 +179,9 @@
   .unidades-lista { background:#f0f9ff; padding:0.75rem; border-radius:6px; border-left:4px solid var(--primary); margin-top:0.5rem; }
   .unidades-lista ul { margin:0.5rem 0 0 1.5rem; font-size:0.85rem; }
   .unidades-lista li { margin:0.25rem 0; }
+  .seleccionar-todas-bar { background:#f9fafb; padding:0.6rem 0.75rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .seleccionar-todas-bar label { display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; font-size:0.9rem; margin:0; }
+  .seleccionar-todas-bar input[type="checkbox"] { width:18px; height:18px; cursor:pointer; margin:0; }
   .albaran-print { font-family: Arial, sans-serif; padding: 8px 15px; color: #000; max-width: 800px; margin: 0 auto; font-size: 9pt; line-height: 1.2; }
   .albaran-print h1 { text-align: center; font-size: 11pt; margin-bottom: 2px; }
   .albaran-print h2 { text-align: center; font-size: 9pt; margin-bottom: 6px; font-weight: normal; }
@@ -491,6 +500,12 @@
 
   <div id="ajustes" class="tab">
     <div class="card"><h2>🌐 Sincronización en la nube</h2><div id="estadoFirebaseInfo"></div></div>
+    <div class="card">
+      <h2>📧 Email de albaranes (EmailJS)</h2>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;">Al registrar préstamos o devoluciones se envía un email automático con los datos del albarán.</p>
+      <div id="estadoEmailInfo"></div>
+      <button class="btn outline" onclick="probarEmail()">🧪 Enviar email de prueba</button>
+    </div>
     <div class="alert warn">⚠️ Si la sincronización está <strong>activa</strong>, los datos se comparten entre todos los dispositivos.</div>
     <div class="card"><h2>Copia de seguridad</h2><div class="row"><button class="btn" onclick="exportarDatos()">📥 Exportar datos (JSON)</button><button class="btn secondary" onclick="document.getElementById('fileImport').click()">📤 Importar datos</button><input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importarDatos(event)"></div></div>
     <div class="card"><h2>Zona peligrosa</h2><button class="btn danger" onclick="resetearDatos()">🗑️ Borrar todos los datos</button></div>
@@ -516,6 +531,13 @@ const firebaseConfig = {
   messagingSenderId: "508599988372",
   appId: "1:508599988372:web:c96c0dbae6be456a264481"
 };
+
+// ===== CONFIGURACIÓN EMAILJS =====
+const EMAILJS_SERVICE = 'service_oyu236o';
+const EMAILJS_TEMPLATE = 'TU_TEMPLATE_ID_AQUI';  // ← Sustituye por el ID real de tu plantilla
+const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY_AQUI'; // ← Sustituye por tu Public Key
+// ================================
+
 let db = null, firebaseActivo = false, listadoSeleccionado = null;
 let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
 let ordenHistorico = { campo: 'salida', dir: -1 };
@@ -525,6 +547,11 @@ let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
 let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev = 0;
 let canvasFirmaDevMult, ctxFirmaDevMult, firmandoDevMult = false;
 let unidadesPrestamo = [];
+
+// Inicializar EmailJS con la Public Key
+if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI') {
+  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { console.error('Error init EmailJS:', e); }
+}
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local','Modo local'); return; }
@@ -615,6 +642,7 @@ function showTab(id, btn) {
   if (id === 'qr') generarTodosQR();
   if (id === 'calendario') renderCalendario();
   if (id === 'prestamo') { setTimeout(initCanvasFirma, 100); cargarAsociaciones(); }
+  if (id === 'ajustes') renderEstadoEmail();
 }
 
 function renderTodo() { renderDashboard(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
@@ -682,10 +710,7 @@ function agregarUnidad() {
   if (!uId) { notificar('Selecciona una unidad primero.', 'aviso', 'Sin unidad'); return; }
   const u = datos.unidades.find(function(x) { return x.id === uId; });
   if (!u || u.estado !== 'almacen') { notificar('Unidad no disponible.', 'error', 'No disponible'); return; }
-  if (unidadesPrestamo.find(function(x) { return x.id === uId; })) {
-    notificar('Esa unidad ya está añadida.', 'aviso', 'Duplicada');
-    return;
-  }
+  if (unidadesPrestamo.find(function(x) { return x.id === uId; })) { notificar('Esa unidad ya está añadida.', 'aviso', 'Duplicada'); return; }
   unidadesPrestamo.push(u);
   sel.value = '';
   renderUnidadesSeleccionadas();
@@ -710,10 +735,7 @@ function renderUnidadesSeleccionadas() {
   cont.innerHTML = html;
 }
 
-function renderDevoluciones() {
-  renderSelectorSolicitantes();
-  renderVencidos();
-}
+function renderDevoluciones() { renderSelectorSolicitantes(); renderVencidos(); }
 
 function renderSelectorSolicitantes() {
   const sel = document.getElementById('dev_solicitante');
@@ -749,10 +771,9 @@ function cambiarSolicitanteDevolucion() {
   html += '<strong>' + solicitante + '</strong> tiene <strong>' + prestamosActivos.length + ' unidad(es)</strong> pendiente(s) de devolución.';
   html += '</div>';
   html += '<div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">';
-  html += '<div style="background:#f9fafb; padding:0.5rem 0.75rem; font-weight:600; font-size:0.85rem; border-bottom:1px solid var(--border);">';
-  html += '<label style="display:flex; align-items:center; gap:0.5rem; margin:0; cursor:pointer;">';
-  html += '<input type="checkbox" id="dev_seleccionar_todos" onchange="toggleSeleccionTodos(this)"> Seleccionar todas';
-  html += '</label></div>';
+  html += '<div class="seleccionar-todas-bar">';
+  html += '<label><input type="checkbox" id="dev_seleccionar_todos" onchange="toggleSeleccionTodos(this)"> Seleccionar todas</label>';
+  html += '</div>';
   prestamosActivos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     if (!u) return;
@@ -875,21 +896,9 @@ function obtenerPosFirmaDevMult(e) {
   return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
-function firmaDevMultInicio(e) {
-  firmandoDevMult = true;
-  const pos = obtenerPosFirmaDevMult(e);
-  ctxFirmaDevMult.beginPath();
-  ctxFirmaDevMult.moveTo(pos.x, pos.y);
-}
-function firmaDevMultMov(e) {
-  if (!firmandoDevMult) return;
-  const pos = obtenerPosFirmaDevMult(e);
-  ctxFirmaDevMult.lineTo(pos.x, pos.y);
-  ctxFirmaDevMult.stroke();
-}
-function firmaDevMultFin() {
-  if (firmandoDevMult) { firmandoDevMult = false; ctxFirmaDevMult.closePath(); guardarFirmaDevMult(); }
-}
+function firmaDevMultInicio(e) { firmandoDevMult = true; const pos = obtenerPosFirmaDevMult(e); ctxFirmaDevMult.beginPath(); ctxFirmaDevMult.moveTo(pos.x, pos.y); }
+function firmaDevMultMov(e) { if (!firmandoDevMult) return; const pos = obtenerPosFirmaDevMult(e); ctxFirmaDevMult.lineTo(pos.x, pos.y); ctxFirmaDevMult.stroke(); }
+function firmaDevMultFin() { if (firmandoDevMult) { firmandoDevMult = false; ctxFirmaDevMult.closePath(); guardarFirmaDevMult(); } }
 
 function guardarFirmaDevMult() {
   if (!canvasFirmaDevMult) return;
@@ -940,7 +949,15 @@ function procesarDevolucionMultiple(prestamoIds, solicitante) {
   renderTodo();
   const msg = '<strong>' + prestamoIds.length + ' unidad(es)</strong> de <strong>' + solicitante + '</strong> devuelta(s).' + (averiados > 0 ? ' <span style="color:var(--danger);">(' + averiados + ' con incidencias)</span>' : '');
   notificar(msg, averiados > 0 ? 'aviso' : 'exito', 'Devolución registrada');
+  
+  // Generar albarán de devolución
   setTimeout(function() { generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma); }, 300);
+  
+  // Enviar email de devolución
+  const fechaDev = new Date(fecha);
+  const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaFormateada = 'León, ' + fechaDev.getDate() + ' de ' + MESES_ES[fechaDev.getMonth()] + ' de ' + fechaDev.getFullYear();
+  enviarEmailAlbaran(prestamoIds, solicitante, 'DEVOLUCIÓN', fechaFormateada);
 }
 
 function generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma) {
@@ -1147,6 +1164,56 @@ function darDeBaja(id) {
 }
 
 function renderEstadoFirebase() { const el = document.getElementById('estadoFirebaseInfo'); if (!el) return; el.innerHTML = firebaseActivo ? '<p style="color:var(--success);font-weight:600;">✅ Sincronización ACTIVA</p>' : '<p style="color:var(--warning);font-weight:600;">📴 Modo local</p>'; }
+
+function renderEstadoEmail() {
+  const el = document.getElementById('estadoEmailInfo');
+  if (!el) return;
+  const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
+  el.innerHTML = configurado
+    ? '<p style="color:var(--success);font-weight:600;">✅ EmailJS configurado. Los albaranes se enviarán a arturo.fernandez@dipuleon.es</p>'
+    : '<p style="color:var(--danger);font-weight:600;">⚠️ EmailJS NO configurado. Edita EMAILJS_TEMPLATE y EMAILJS_PUBLIC_KEY en el código.</p>';
+}
+
+function probarEmail() {
+  const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
+  if (!configurado) { notificar('Configura primero EMAILJS_TEMPLATE y EMAILJS_PUBLIC_KEY en el código.', 'aviso', 'Sin configurar'); return; }
+  notificar('Enviando email de prueba...', 'info', 'Prueba');
+  const templateParams = {
+    solicitante: 'TEST - Prueba de configuración',
+    tipo: 'PRUEBA',
+    fecha: 'León, ' + new Date().getDate() + ' de prueba',
+    unidades: 'Arcos hinchables #1 (prueba)',
+    name: 'Control de Préstamos - Diputación de León',
+    email: ''
+  };
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+    .then(function() { notificar('Email de prueba enviado correctamente.', 'exito', 'Enviado'); })
+    .catch(function(err) { notificar('Error: ' + JSON.stringify(err), 'error', 'Error'); });
+}
+
+function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
+  const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
+  if (!configurado) { console.log('⚠️ EmailJS no configurado. Email no enviado.'); return; }
+  const prestamos = prestamoIds.map(function(id) { return datos.prestamos.find(function(x) { return x.id === id; }); }).filter(function(p) { return p; });
+  const unidadesTexto = prestamos.map(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    return u ? u.identificador : '?';
+  }).join(', ');
+  const emailSolicitante = prestamos[0].email || '';
+  const templateParams = {
+    solicitante: solicitante,
+    tipo: tipo,
+    fecha: fechaFormateada,
+    unidades: unidadesTexto,
+    to_email: 'arturo.fernandez@dipuleon.es',
+    name: 'Control de Préstamos - Diputación de León',
+    email: emailSolicitante
+  };
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+    .then(function() { console.log('✅ Email enviado: ' + tipo + ' - ' + solicitante); })
+    .catch(function(err) { console.error('❌ Error enviando email:', err); });
+}
+
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Selecciona --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 
 function cargarAsociaciones() {
@@ -1288,10 +1355,7 @@ function calcularLetraDNI() {
     letraInput.value = '';
     errorDiv.style.display = 'block';
     errorDiv.textContent = '⚠️ Faltan ' + (8 - valor.length) + ' número' + (8 - valor.length !== 1 ? 's' : '');
-  } else {
-    letraInput.value = '';
-    errorDiv.style.display = 'none';
-  }
+  } else { letraInput.value = ''; errorDiv.style.display = 'none'; }
 }
 
 function validarNIF() {
@@ -1299,14 +1363,11 @@ function validarNIF() {
   const errorDiv = document.getElementById('nif_error');
   let valor = input.value.replace(/[^0-9]/g, '');
   input.value = valor;
-  if (valor.length === 5) {
-    errorDiv.style.display = 'none';
-  } else if (valor.length > 0 && valor.length < 5) {
+  if (valor.length === 5) { errorDiv.style.display = 'none'; }
+  else if (valor.length > 0 && valor.length < 5) {
     errorDiv.style.display = 'block';
     errorDiv.textContent = '⚠️ Faltan ' + (5 - valor.length) + ' número' + (5 - valor.length !== 1 ? 's' : '');
-  } else {
-    errorDiv.style.display = 'none';
-  }
+  } else { errorDiv.style.display = 'none'; }
 }
 
 function obtenerDNIfull() {
@@ -1314,9 +1375,7 @@ function obtenerDNIfull() {
   if (tipo === 'dni') {
     let numero = document.getElementById('p_dni_numero').value.trim();
     const letra = document.getElementById('p_dni_letra').value.trim();
-    while (numero.length < 8 && numero.length > 0) {
-      numero = '0' + numero;
-    }
+    while (numero.length < 8 && numero.length > 0) { numero = '0' + numero; }
     if (numero.length === 8 && letra) return numero + letra;
     return numero;
   } else {
@@ -1329,11 +1388,9 @@ function obtenerDNIfull() {
 
 function abrirModalCamaraQR(selectElement) {
   if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    notificar('La cámara solo funciona en HTTPS. Usa la URL de GitHub Pages.', 'error', 'Sin HTTPS'); return;
+    notificar('La cámara solo funciona en HTTPS.', 'error', 'Sin HTTPS'); return;
   }
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    notificar('Tu navegador no soporta la cámara.', 'error', 'Sin soporte cámara'); return;
-  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { notificar('Tu navegador no soporta la cámara.', 'error', 'Sin soporte cámara'); return; }
   detenerLectorRapido();
   const modalQR = document.createElement('div');
   modalQR.className = 'modal-bg show';
@@ -1344,7 +1401,7 @@ function abrirModalCamaraQR(selectElement) {
     '<p id="qr-status" style="font-size:0.85rem;color:var(--primary);margin-bottom:0.5rem;font-weight:600;">🔍 Buscando cámaras disponibles...</p>' +
     '<div id="qr-reader-rapido" style="width:100%;max-width:400px;margin:0 auto;min-height:250px;background:#111;border-radius:8px;"></div>' +
     '<div id="qr-sin-camara" style="display:none;margin-top:1rem;padding:1rem;background:#fef3c7;border-radius:6px;font-size:0.85rem;color:#92400e;">' +
-    '<strong>⚠️ No se detectó ninguna cámara en este dispositivo.</strong><br>Puedes seleccionar la unidad manualmente en el desplegable, o abrir esta web desde un móvil con cámara.</div>' +
+    '<strong>⚠️ No se detectó ninguna cámara.</strong><br>Selecciona la unidad manualmente o usa un móvil con cámara.</div>' +
     '<div style="margin-top:1rem;text-align:center;"><button class="btn danger" id="btnCancelarQR">❌ Cerrar</button></div></div>';
   document.body.appendChild(modalQR);
   document.getElementById('btnCancelarQR').addEventListener('click', function() { cerrarModalQR(); });
@@ -1364,10 +1421,8 @@ function abrirModalCamaraQR(selectElement) {
       lectorRapido = new Html5Qrcode("qr-reader-rapido", { verbose: false });
       lectorRapidoIniciado = false;
       lectorRapido.start(camElegida.id, { fps: 10, qrbox: { width: 250, height: 250 } },
-        function(decodedText) {
-          if (statusEl) statusEl.textContent = '✅ QR detectado';
-          setTimeout(function() { procesarQR(decodedText, selectElement); }, 300);
-        }, function() {}
+        function(decodedText) { if (statusEl) statusEl.textContent = '✅ QR detectado'; setTimeout(function() { procesarQR(decodedText, selectElement); }, 300); },
+        function() {}
       ).then(function() { lectorRapidoIniciado = true; if (statusEl) statusEl.textContent = '📹 Cámara activa. Apunta al QR.'; })
       .catch(function(err) { if (statusEl) statusEl.textContent = '❌ Error: ' + err; const sinCamara = document.getElementById('qr-sin-camara'); if (sinCamara) sinCamara.style.display = 'block'; });
     }).catch(function(err) {
@@ -1446,7 +1501,15 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   cambiarTipoDocumento();
   limpiarFirma();
   notificar('<strong>' + prestamoIds.length + ' unidad(es)</strong> registrada(s).', 'exito', 'Préstamo registrado');
+  
+  // Generar albarán
   setTimeout(function() { generarAlbaranMultiple(prestamoIds); }, 300);
+  
+  // Enviar email de entrega
+  const fechaSalida = new Date(sal);
+  const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaFormateada = 'León, ' + fechaSalida.getDate() + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + fechaSalida.getFullYear();
+  enviarEmailAlbaran(prestamoIds, sol, 'ENTREGA', fechaFormateada);
 });
 
 function generarAlbaran(prestamoId) { generarAlbaranMultiple([prestamoId]); }
