@@ -279,12 +279,36 @@
         <div class="row">
           <div><label>Persona de contacto *</label><input type="text" id="p_contacto" placeholder="Nombre y apellidos" required></div>
           <div>
-            <label>D.N.I. / N.I.F.</label>
-            <div style="display:flex; gap:0.5rem; align-items:flex-end;">
-              <div style="flex:1;"><input type="text" id="p_dni_numero" placeholder="12345678" maxlength="8" oninput="calcularLetraDNI()" style="margin-bottom:0;"></div>
-              <div style="width:45px;"><input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);"></div>
+            <label>Tipo de documento</label>
+            <div style="display:flex; gap:1rem; margin-bottom:0.5rem;">
+              <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.9rem;">
+                <input type="radio" name="tipo_doc" value="dni" checked onchange="cambiarTipoDocumento()"> <strong>DNI</strong>
+              </label>
+              <label style="display:flex; align-items:center; gap:0.3rem; cursor:pointer; font-size:0.9rem;">
+                <input type="radio" name="tipo_doc" value="nif" onchange="cambiarTipoDocumento()"> <strong>NIF</strong>
+              </label>
+            </div>
+            <div id="campo_dni" style="display:flex; gap:0.5rem; align-items:flex-end;">
+              <div style="flex:1;">
+                <input type="text" id="p_dni_numero" placeholder="12345678" maxlength="8" inputmode="numeric" pattern="[0-9]*" oninput="calcularLetraDNI()" style="margin-bottom:0;">
+              </div>
+              <div style="width:45px;">
+                <input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
+              </div>
             </div>
             <div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduce 8 números</div>
+            <div id="campo_nif" class="campo-oculto" style="display:flex; gap:0.3rem; align-items:flex-end;">
+              <div style="width:50px;">
+                <input type="text" value="24" readonly title="Código de León" style="margin-bottom:0; text-align:center; font-weight:bold; background:#f0f9ff; border-color:var(--primary);">
+              </div>
+              <div style="flex:1;">
+                <input type="text" id="p_nif_numero" placeholder="12345" maxlength="5" inputmode="numeric" pattern="[0-9]*" oninput="validarNIF()" style="margin-bottom:0;">
+              </div>
+              <div style="width:45px;">
+                <input type="text" id="p_nif_letra" placeholder="A" maxlength="1" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
+              </div>
+            </div>
+            <div id="nif_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduce 5 números</div>
           </div>
         </div>
         <div class="row">
@@ -1238,6 +1262,18 @@ function guardarFirmaDev() {
 }
 function limpiarFirmaDev() { if (!ctxFirmaDev || !canvasFirmaDev) return; const rect = canvasFirmaDev.getBoundingClientRect(); ctxFirmaDev.clearRect(0, 0, rect.width, rect.height); firmaDevolucionData = null; document.getElementById('firmaDevPreview').classList.add('campo-oculto'); }
 
+function cambiarTipoDocumento() {
+  const tipo = document.querySelector('input[name="tipo_doc"]:checked').value;
+  document.getElementById('campo_dni').style.display = tipo === 'dni' ? 'flex' : 'none';
+  document.getElementById('campo_nif').style.display = tipo === 'nif' ? 'flex' : 'none';
+  document.getElementById('dni_error').style.display = 'none';
+  document.getElementById('nif_error').style.display = 'none';
+  document.getElementById('p_dni_numero').value = '';
+  document.getElementById('p_dni_letra').value = '';
+  document.getElementById('p_nif_numero').value = '';
+  document.getElementById('p_nif_letra').value = '';
+}
+
 function calcularLetraDNI() {
   const input = document.getElementById('p_dni_numero');
   const letraInput = document.getElementById('p_dni_letra');
@@ -1248,13 +1284,47 @@ function calcularLetraDNI() {
     const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
     letraInput.value = letras.charAt(parseInt(valor) % 23);
     errorDiv.style.display = 'none';
-  } else { letraInput.value = ''; errorDiv.style.display = (valor.length > 0 && valor.length < 8) ? 'block' : 'none'; }
+  } else if (valor.length > 0 && valor.length < 8) {
+    letraInput.value = '';
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = '⚠️ Faltan ' + (8 - valor.length) + ' número' + (8 - valor.length !== 1 ? 's' : '');
+  } else {
+    letraInput.value = '';
+    errorDiv.style.display = 'none';
+  }
 }
+
+function validarNIF() {
+  const input = document.getElementById('p_nif_numero');
+  const errorDiv = document.getElementById('nif_error');
+  let valor = input.value.replace(/[^0-9]/g, '');
+  input.value = valor;
+  if (valor.length === 5) {
+    errorDiv.style.display = 'none';
+  } else if (valor.length > 0 && valor.length < 5) {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = '⚠️ Faltan ' + (5 - valor.length) + ' número' + (5 - valor.length !== 1 ? 's' : '');
+  } else {
+    errorDiv.style.display = 'none';
+  }
+}
+
 function obtenerDNIfull() {
-  const numero = document.getElementById('p_dni_numero').value.trim();
-  const letra = document.getElementById('p_dni_letra').value.trim();
-  if (numero.length === 8 && letra) return numero + letra;
-  return numero;
+  const tipo = document.querySelector('input[name="tipo_doc"]:checked').value;
+  if (tipo === 'dni') {
+    let numero = document.getElementById('p_dni_numero').value.trim();
+    const letra = document.getElementById('p_dni_letra').value.trim();
+    while (numero.length < 8 && numero.length > 0) {
+      numero = '0' + numero;
+    }
+    if (numero.length === 8 && letra) return numero + letra;
+    return numero;
+  } else {
+    const numero = document.getElementById('p_nif_numero').value.trim();
+    const letra = document.getElementById('p_nif_letra').value.trim().toUpperCase();
+    if (numero.length === 5 && letra) return '24' + numero + letra;
+    return '24' + numero;
+  }
 }
 
 function abrirModalCamaraQR(selectElement) {
@@ -1370,6 +1440,10 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   document.getElementById('campo_asociacion').classList.add('campo-oculto');
   document.getElementById('campo_nombre_libre').classList.add('campo-oculto');
   document.getElementById('dni_error').style.display = 'none';
+  document.getElementById('nif_error').style.display = 'none';
+  const radioDni = document.querySelector('input[name="tipo_doc"][value="dni"]');
+  if (radioDni) radioDni.checked = true;
+  cambiarTipoDocumento();
   limpiarFirma();
   notificar('<strong>' + prestamoIds.length + ' unidad(es)</strong> registrada(s).', 'exito', 'Préstamo registrado');
   setTimeout(function() { generarAlbaranMultiple(prestamoIds); }, 300);
@@ -1545,7 +1619,43 @@ function abrirVentanaListado(titulo, contenido) { const ahora = new Date(); cons
 
 function generarTodosQR() { const grid = document.getElementById('qrGrid'); if (!grid) return; grid.innerHTML = ''; const urlBase = window.location.href.split('?')[0]; datos.unidades.forEach(function(u) { const card = document.createElement('div'); card.className = 'qr-card'; const qrDiv = document.createElement('div'); qrDiv.className = 'qr-img'; const urlUnidad = urlBase + '?unidad=' + u.id; try { new QRCode(qrDiv, { text: urlUnidad, width: 140, height: 140, colorDark: '#15407a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch(e) { qrDiv.innerHTML = '<p style="color:red;">Error QR</p>'; } const estadoTexto = u.estado === 'almacen' ? '📍 Almacén' : u.estado === 'prestado' ? '👤 Prestado' : '🔧 Averiado'; const estadoColor = u.estado === 'almacen' ? 'green' : u.estado === 'prestado' ? 'orange' : 'red'; card.innerHTML = '<div class="qr-nombre">' + u.identificador + '</div><div class="qr-estado" style="color:' + estadoColor + ';">' + estadoTexto + '</div>'; card.insertBefore(qrDiv, card.firstChild); grid.appendChild(card); }); if (datos.unidades.length === 0) grid.innerHTML = '<div class="vacio"><div class="icono">📦</div><div>No hay unidades</div></div>'; }
 
-function imprimirQR() { const tarjetas = document.querySelectorAll('#qrGrid .qr-card'); if (tarjetas.length === 0) { notificar('Primero genera los QR.', 'aviso', 'Sin QR'); return; } let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiquetas QR - Diputación de León</title><style>body { font-family: Arial, sans-serif; padding: 10mm; margin: 0; } h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; color: #15407a; } h2 { text-align: center; font-size: 11pt; margin-bottom: 15px; font-weight: normal; color: #6b7280; } .qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; } .qr-card { border: 1px solid #ccc; border-radius: 6px; padding: 8px; text-align: center; page-break-inside: avoid; break-inside: avoid; } .qr-card img { width: 120px; height: 120px; } .qr-nombre { font-weight: bold; font-size: 9pt; margin-top: 5px; color: #1f2937; } .qr-estado { font-size: 8pt; margin-top: 3px; } @media print { body { padding: 5mm; } .no-print { display: none; } } @page { size: A4; margin: 8mm; }</style></head><body>'; html += '<h1>🏛️ Control de Préstamos - Diputación de León</h1><h2>Etiquetas QR de unidades - Generadas el ' + new Date().toLocaleString('es-ES') + '</h2><div class="qr-grid">'; tarjetas.forEach(function(card) { const qrImg = card.querySelector('.qr-img img'); const nombre = card.querySelector('.qr-nombre').textContent; const estadoEl = card.querySelector('.qr-estado'); const estadoTexto = estadoEl ? estadoEl.textContent : ''; html += '<div class="qr-card">'; if (qrImg && qrImg.src) html += '<img src="' + qrImg.src + '" alt="QR ' + nombre + '">'; html += '<div class="qr-nombre">' + nombre + '</div><div class="qr-estado">' + estadoTexto + '</div></div>'; }); html += '</div><div class="no-print" style="text-align:center; margin-top:20px;"><button onclick="window.print()" style="padding:10px 20px; font-size:12pt; background:#1e5aa8; color:white; border:none; border-radius:6px; cursor:pointer;">🖨️ Imprimir</button> <button onclick="window.close()" style="padding:10px 20px; font-size:12pt; background:#6b7280; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar</button></div></body></html>'; const ventana = window.open('', '_blank', 'width=900,height=700'); if (!ventana) { notificar('Permite ventanas emergentes.', 'error', 'Bloqueada'); return; } ventana.document.write(html); ventana.document.close(); setTimeout(function() { ventana.print(); }, 500); }
+function imprimirQR() {
+  const tarjetas = document.querySelectorAll('#qrGrid .qr-card');
+  if (tarjetas.length === 0) { notificar('Primero genera los QR.', 'aviso', 'Sin QR'); return; }
+  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiquetas QR - Diputación de León</title>';
+  html += '<style>';
+  html += 'body { font-family: Arial, sans-serif; padding: 10mm; margin: 0; }';
+  html += 'h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; color: #15407a; }';
+  html += 'h2 { text-align: center; font-size: 11pt; margin-bottom: 15px; font-weight: normal; color: #6b7280; }';
+  html += '.qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }';
+  html += '.qr-card { border: 1px solid #ccc; border-radius: 6px; padding: 8px; text-align: center; page-break-inside: avoid; break-inside: avoid; }';
+  html += '.qr-card img { width: 120px; height: 120px; }';
+  html += '.qr-nombre { font-weight: bold; font-size: 9pt; margin-top: 5px; color: #1f2937; }';
+  html += '@media print { body { padding: 5mm; } .no-print { display: none; } }';
+  html += '@page { size: A4; margin: 8mm; }';
+  html += '</style></head><body>';
+  html += '<h1>🏛️ Control de Préstamos - Diputación de León</h1>';
+  html += '<h2>Etiquetas QR de unidades</h2>';
+  html += '<div class="qr-grid">';
+  tarjetas.forEach(function(card) {
+    const qrImg = card.querySelector('.qr-img img');
+    const nombre = card.querySelector('.qr-nombre').textContent;
+    html += '<div class="qr-card">';
+    if (qrImg && qrImg.src) html += '<img src="' + qrImg.src + '" alt="QR ' + nombre + '">';
+    html += '<div class="qr-nombre">' + nombre + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div class="no-print" style="text-align:center; margin-top:20px;">';
+  html += '<button onclick="window.print()" style="padding:10px 20px; font-size:12pt; background:#1e5aa8; color:white; border:none; border-radius:6px; cursor:pointer;">🖨️ Imprimir</button> ';
+  html += '<button onclick="window.close()" style="padding:10px 20px; font-size:12pt; background:#6b7280; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar</button>';
+  html += '</div></body></html>';
+  const ventana = window.open('', '_blank', 'width=900,height=700');
+  if (!ventana) { notificar('Permite ventanas emergentes.', 'error', 'Bloqueada'); return; }
+  ventana.document.write(html);
+  ventana.document.close();
+  setTimeout(function() { ventana.print(); }, 500);
+}
 
 function iniciarLectorQR() {
   if (html5QrCode) { detenerLectorQR(); return; }
