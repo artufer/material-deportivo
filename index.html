@@ -309,7 +309,24 @@
     </div>
   </div>
 
-  <div id="devoluciones" class="tab"><div class="card"><h2>Préstamos pendientes de devolución</h2><div id="listaDevoluciones"></div></div></div>
+  <div id="devoluciones" class="tab">
+    <div class="card">
+      <h2>↩️ Registrar devolución</h2>
+      <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">Selecciona el solicitante y marca las unidades que devuelve.</p>
+      <label>Solicitante con material pendiente</label>
+      <select id="dev_solicitante" onchange="cambiarSolicitanteDevolucion()">
+        <option value="">-- Selecciona solicitante --</option>
+      </select>
+      <div id="devListaUnidades" style="margin-top:1rem;"></div>
+      <div id="devAcciones" style="display:none; margin-top:1rem;">
+        <div class="row"><button class="btn success big" onclick="abrirModalDevolucionMultiple()">↩️ Registrar devolución de seleccionadas</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>⏳ Préstamos vencidos</h2>
+      <div id="listaVencidos"></div>
+    </div>
+  </div>
 
   <div id="modalDevolucion" class="modal-bg">
     <div class="modal">
@@ -479,9 +496,10 @@ let db = null, firebaseActivo = false, listadoSeleccionado = null;
 let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
 let ordenHistorico = { campo: 'salida', dir: -1 };
 let html5QrCode = null, lectorRapido = null, lectorRapidoIniciado = false;
-let firmaData = null, firmaDevolucionData = null;
+let firmaData = null, firmaDevolucionData = null, firmaDevolucionMultData = null;
 let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
 let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev = 0;
+let canvasFirmaDevMult, ctxFirmaDevMult, firmandoDevMult = false;
 let unidadesPrestamo = [];
 
 function initFirebase() {
@@ -669,27 +687,324 @@ function renderUnidadesSeleccionadas() {
 }
 
 function renderDevoluciones() {
-  const c = document.getElementById('listaDevoluciones');
-  if (!c) return;
-  const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; });
-  if (activos.length === 0) { c.innerHTML = '<div class="vacio"><div class="icono">🎉</div><div><strong>¡Todo al día!</strong></div></div>'; return; }
-  const ahora = new Date(); let html = '';
-  activos.forEach(function(p) {
+  renderSelectorSolicitantes();
+  renderVencidos();
+}
+
+function renderSelectorSolicitantes() {
+  const sel = document.getElementById('dev_solicitante');
+  if (!sel) return;
+  const solicitantes = {};
+  datos.prestamos.forEach(function(p) {
+    if (!p.fechaDevolucion) {
+      if (!solicitantes[p.solicitante]) solicitantes[p.solicitante] = [];
+      solicitantes[p.solicitante].push(p);
+    }
+  });
+  const keys = Object.keys(solicitantes).sort();
+  sel.innerHTML = '<option value="">-- Selecciona solicitante (' + keys.length + ') --</option>';
+  keys.forEach(function(k) {
+    const count = solicitantes[k].length;
+    sel.innerHTML += '<option value="' + encodeURIComponent(k) + '">' + k + ' (' + count + ' ud. pendiente' + (count > 1 ? 's' : '') + ')</option>';
+  });
+}
+
+function cambiarSolicitanteDevolucion() {
+  const sel = document.getElementById('dev_solicitante');
+  const cont = document.getElementById('devListaUnidades');
+  const acciones = document.getElementById('devAcciones');
+  if (!sel.value) { cont.innerHTML = ''; acciones.style.display = 'none'; return; }
+  const solicitante = decodeURIComponent(sel.value);
+  const prestamosActivos = datos.prestamos.filter(function(p) { return p.solicitante === solicitante && !p.fechaDevolucion; });
+  if (prestamosActivos.length === 0) {
+    cont.innerHTML = '<div class="vacio"><div class="icono">✅</div><div>No hay material pendiente de este solicitante</div></div>';
+    acciones.style.display = 'none';
+    return;
+  }
+  let html = '<div style="background:#fffbeb; padding:0.75rem; border-radius:6px; border-left:4px solid var(--warning); margin-bottom:0.75rem;">';
+  html += '<strong>' + solicitante + '</strong> tiene <strong>' + prestamosActivos.length + ' unidad(es)</strong> pendiente(s) de devolución.';
+  html += '</div>';
+  html += '<div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">';
+  html += '<div style="background:#f9fafb; padding:0.5rem 0.75rem; font-weight:600; font-size:0.85rem; border-bottom:1px solid var(--border);">';
+  html += '<label style="display:flex; align-items:center; gap:0.5rem; margin:0; cursor:pointer;">';
+  html += '<input type="checkbox" id="dev_seleccionar_todos" onchange="toggleSeleccionTodos(this)"> Seleccionar todas';
+  html += '</label></div>';
+  prestamosActivos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
     if (!u) return;
-    const dp = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000);
-    let ip = '', cp = '', vencido = false;
+    const dp = Math.floor((new Date() - new Date(p.fechaSalida)) / 86400000);
+    const vencido = p.fechaPrevista && new Date() > new Date(p.fechaPrevista);
+    html += '<div style="padding:0.6rem 0.75rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; ' + (vencido ? 'background:#fef2f2;' : '') + '">';
+    html += '<input type="checkbox" class="dev-check" data-prestamo-id="' + p.id + '" style="width:18px; height:18px; cursor:pointer;">';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-weight:600; font-size:0.9rem;">' + u.identificador + '</div>';
+    html += '<div style="font-size:0.8rem; color:var(--muted);">Prestado hace ' + dp + ' día' + (dp !== 1 ? 's' : '');
     if (p.fechaPrevista) {
-      const fp = new Date(p.fechaPrevista), dr = Math.ceil((fp - ahora) / 86400000);
-      if (ahora > fp) { const d = Math.abs(dr); ip = '⚠️ Vencida hace ' + d + ' día' + (d===1?'':'s'); cp = 'prevista-vencida'; vencido = true; }
-      else ip = 'Faltan ' + dr + ' día' + (dr===1?'':'s');
+      const fp = new Date(p.fechaPrevista);
+      const dr = Math.ceil((fp - new Date()) / 86400000);
+      if (vencido) html += ' · <strong style="color:var(--danger);">VENCIDO hace ' + Math.abs(dr) + ' día' + (Math.abs(dr) !== 1 ? 's' : '') + '</strong>';
+      else html += ' · Devolución prevista: ' + formatFecha(p.fechaPrevista);
     }
-    html += '<div class="devolucion-card' + (vencido ? ' vencido' : '') + '"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Prestado hace ' + dp + ' día' + (dp===1?'':'s') + (vencido ? ' · <strong style="color:var(--danger);">VENCIDO</strong>' : '') + '</div></div><span class="badge ' + (vencido ? 'vencido' : 'prestado') + '">' + (vencido ? 'VENCIDO' : 'PENDIENTE') + '</span></div><div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div><div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto||'-') + (p.telefono?' · '+p.telefono:'') + '</span></div><div class="info-item"><span class="info-label">Fecha salida</span><span class="info-valor">' + formatFecha(p.fechaSalida) + '</span></div>' + (p.fechaPrevista?'<div class="info-item"><span class="info-label">Devolución prevista</span><span class="info-valor '+cp+'">' + formatFecha(p.fechaPrevista) + '<br><small>' + ip + '</small></span></div>':'') + '</div>';
-    if (p.notas) html += '<div class="notas-texto">📝 ' + p.notas + '</div>';
-    html += '<div class="row"><button class="btn success" onclick="abrirDevolucion(' + p.id + ')">↩️ Registrar devolución</button>';
-    html += '<button class="btn outline" onclick="generarAlbaran(' + p.id + ')">📄 Ver albarán</button></div></div>';
+    html += '</div></div></div>';
   });
-  c.innerHTML = html;
+  html += '</div>';
+  cont.innerHTML = html;
+  acciones.style.display = 'block';
+}
+
+function toggleSeleccionTodos(checkbox) {
+  const checks = document.querySelectorAll('.dev-check');
+  checks.forEach(function(c) { c.checked = checkbox.checked; });
+}
+
+function abrirModalDevolucionMultiple() {
+  const checks = document.querySelectorAll('.dev-check:checked');
+  if (checks.length === 0) { notificar('Selecciona al menos una unidad para devolver.', 'aviso', 'Sin selección'); return; }
+  const prestamoIds = [];
+  checks.forEach(function(c) { prestamoIds.push(parseInt(c.dataset.prestamoId)); });
+  const sel = document.getElementById('dev_solicitante');
+  const solicitante = decodeURIComponent(sel.value);
+  const unidades = prestamoIds.map(function(id) {
+    const p = datos.prestamos.find(function(x) { return x.id === id; });
+    const u = p ? datos.unidades.find(function(x) { return x.id === p.unidadId; }) : null;
+    return u ? u.identificador : '?';
+  });
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg show';
+  modal.id = 'modalDevolucionMultiple';
+  modal.innerHTML = '<div class="modal" style="max-width:600px;">' +
+    '<h3>↩️ Registrar devolución</h3>' +
+    '<div style="background:#f0f9ff; padding:0.75rem; border-radius:6px; margin-bottom:1rem;">' +
+    '<strong>Solicitante:</strong> ' + solicitante + '<br>' +
+    '<strong>Unidades a devolver:</strong> ' + prestamoIds.length + '<br>' +
+    '<ul style="margin:0.5rem 0 0 1.5rem; font-size:0.85rem;">' + unidades.map(function(u) { return '<li>' + u + '</li>'; }).join('') + '</ul>' +
+    '</div>' +
+    '<form id="formDevolucionMultiple">' +
+    '<label>Fecha y hora de devolución</label>' +
+    '<input type="datetime-local" id="dm_fecha" required>' +
+    '<label>Estado del material</label>' +
+    '<select id="dm_estado" required onchange="toggleIncidenciasMultiple()">' +
+    '<option value="correcto">✅ Todo correcto</option>' +
+    '<option value="averiado">⚠️ Algo estropeado</option>' +
+    '</select>' +
+    '<label id="dm_incidencias_label" style="display:none;">Descripción de los daños</label>' +
+    '<textarea id="dm_incidencias" placeholder="Describe qué se ha estropeado..." style="display:none;"></textarea>' +
+    '<h4 style="margin:0.75rem 0 0.4rem 0; color:var(--primary-dark); font-size:0.95rem;">✍️ Firma de quien devuelve</h4>' +
+    '<p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.4rem;">Firma con el dedo (móvil) o el ratón (PC).</p>' +
+    '<div class="firma-canvas-wrap" style="margin-bottom:0.5rem;"><canvas id="canvasFirmaDevMult" class="firma-canvas" style="height:140px;"></canvas></div>' +
+    '<div class="firma-botones" style="margin-bottom:0.5rem;"><button type="button" class="btn secondary" onclick="limpiarFirmaDevMult()">🗑️ Limpiar firma</button></div>' +
+    '<img id="firmaDevMultPreview" class="firma-preview campo-oculto" alt="Firma devolución">' +
+    '<div class="row" style="margin-top:1rem;">' +
+    '<button type="submit" class="btn success">✅ Guardar devolución</button>' +
+    '<button type="button" class="btn secondary" onclick="cerrarModalDevolucionMultiple()">Cancelar</button>' +
+    '</div></form></div>';
+  document.body.appendChild(modal);
+  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('dm_fecha').value = now.toISOString().slice(0,16);
+  setTimeout(function() { initCanvasFirmaDevMult(); }, 200);
+  modal.dataset.prestamoIds = JSON.stringify(prestamoIds);
+  modal.dataset.solicitante = solicitante;
+  document.getElementById('formDevolucionMultiple').addEventListener('submit', function(e) {
+    e.preventDefault();
+    procesarDevolucionMultiple(prestamoIds, solicitante);
+  });
+}
+
+function toggleIncidenciasMultiple() {
+  const estado = document.getElementById('dm_estado').value;
+  const show = estado === 'averiado';
+  document.getElementById('dm_incidencias').style.display = show ? 'block' : 'none';
+  document.getElementById('dm_incidencias_label').style.display = show ? 'block' : 'none';
+}
+
+function cerrarModalDevolucionMultiple() {
+  const modal = document.getElementById('modalDevolucionMultiple');
+  if (modal) modal.remove();
+}
+
+function initCanvasFirmaDevMult() {
+  canvasFirmaDevMult = document.getElementById('canvasFirmaDevMult');
+  if (!canvasFirmaDevMult || !canvasFirmaDevMult.getContext) return;
+  const rect = canvasFirmaDevMult.getBoundingClientRect();
+  if (rect.width === 0) return;
+  canvasFirmaDevMult.width = rect.width * 2;
+  canvasFirmaDevMult.height = rect.height * 2;
+  ctxFirmaDevMult = canvasFirmaDevMult.getContext('2d');
+  ctxFirmaDevMult.scale(2, 2);
+  ctxFirmaDevMult.strokeStyle = '#15407a';
+  ctxFirmaDevMult.lineWidth = 2;
+  ctxFirmaDevMult.lineCap = 'round';
+  ctxFirmaDevMult.lineJoin = 'round';
+  if (canvasFirmaDevMult.dataset.inicializado) return;
+  canvasFirmaDevMult.dataset.inicializado = '1';
+  canvasFirmaDevMult.addEventListener('mousedown', firmaDevMultInicio);
+  canvasFirmaDevMult.addEventListener('mousemove', firmaDevMultMov);
+  canvasFirmaDevMult.addEventListener('mouseup', firmaDevMultFin);
+  canvasFirmaDevMult.addEventListener('mouseout', firmaDevMultFin);
+  canvasFirmaDevMult.addEventListener('touchstart', function(e) { e.preventDefault(); firmaDevMultInicio(e.touches[0]); }, {passive:false});
+  canvasFirmaDevMult.addEventListener('touchmove', function(e) { e.preventDefault(); firmaDevMultMov(e.touches[0]); }, {passive:false});
+  canvasFirmaDevMult.addEventListener('touchend', function(e) { e.preventDefault(); firmaDevMultFin(); }, {passive:false});
+}
+
+function obtenerPosFirmaDevMult(e) {
+  const rect = canvasFirmaDevMult.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function firmaDevMultInicio(e) {
+  firmandoDevMult = true;
+  const pos = obtenerPosFirmaDevMult(e);
+  ctxFirmaDevMult.beginPath();
+  ctxFirmaDevMult.moveTo(pos.x, pos.y);
+}
+function firmaDevMultMov(e) {
+  if (!firmandoDevMult) return;
+  const pos = obtenerPosFirmaDevMult(e);
+  ctxFirmaDevMult.lineTo(pos.x, pos.y);
+  ctxFirmaDevMult.stroke();
+}
+function firmaDevMultFin() {
+  if (firmandoDevMult) { firmandoDevMult = false; ctxFirmaDevMult.closePath(); guardarFirmaDevMult(); }
+}
+
+function guardarFirmaDevMult() {
+  if (!canvasFirmaDevMult) return;
+  const pixelData = ctxFirmaDevMult.getImageData(0, 0, canvasFirmaDevMult.width, canvasFirmaDevMult.height).data;
+  let hayTrazo = false;
+  for (let i = 3; i < pixelData.length; i += 4) { if (pixelData[i] > 0) { hayTrazo = true; break; } }
+  if (hayTrazo) {
+    firmaDevolucionMultData = canvasFirmaDevMult.toDataURL('image/png');
+    const preview = document.getElementById('firmaDevMultPreview');
+    preview.src = firmaDevolucionMultData;
+    preview.classList.remove('campo-oculto');
+  } else {
+    firmaDevolucionMultData = null;
+    document.getElementById('firmaDevMultPreview').classList.add('campo-oculto');
+  }
+}
+
+function limpiarFirmaDevMult() {
+  if (!ctxFirmaDevMult || !canvasFirmaDevMult) return;
+  const rect = canvasFirmaDevMult.getBoundingClientRect();
+  ctxFirmaDevMult.clearRect(0, 0, rect.width, rect.height);
+  firmaDevolucionMultData = null;
+  document.getElementById('firmaDevMultPreview').classList.add('campo-oculto');
+}
+
+function procesarDevolucionMultiple(prestamoIds, solicitante) {
+  const fecha = document.getElementById('dm_fecha').value;
+  const estado = document.getElementById('dm_estado').value;
+  const incidencias = document.getElementById('dm_incidencias').value.trim();
+  const firma = firmaDevolucionMultData || null;
+  let averiados = 0;
+  prestamoIds.forEach(function(id) {
+    const p = datos.prestamos.find(function(x) { return x.id === id; });
+    if (!p) return;
+    p.fechaDevolucion = fecha;
+    p.estadoMaterial = estado;
+    p.incidencias = incidencias;
+    p.estado = 'devuelto';
+    p.firmaDevolucion = firma;
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    if (u) {
+      if (estado === 'averiado') { u.estado = 'averiado'; u.observaciones = incidencias; averiados++; }
+      else { u.estado = 'almacen'; u.observaciones = ''; }
+    }
+  });
+  guardar();
+  cerrarModalDevolucionMultiple();
+  renderTodo();
+  const msg = '<strong>' + prestamoIds.length + ' unidad(es)</strong> de <strong>' + solicitante + '</strong> devuelta(s).' + (averiados > 0 ? ' <span style="color:var(--danger);">(' + averiados + ' con incidencias)</span>' : '');
+  notificar(msg, averiados > 0 ? 'aviso' : 'exito', 'Devolución registrada');
+  setTimeout(function() { generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma); }, 300);
+}
+
+function generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma) {
+  const prestamos = prestamoIds.map(function(id) { return datos.prestamos.find(function(x) { return x.id === id; }); }).filter(function(p) { return p; });
+  if (prestamos.length === 0) return;
+  const fechaDev = new Date(fecha);
+  const dia = fechaDev.getDate(); const anio = fechaDev.getFullYear();
+  const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaFormateada = 'León, ' + dia + ' de ' + MESES_ES[fechaDev.getMonth()] + ' de ' + anio;
+  const firmaArturo = 'img/firma_arturo.png';
+  const conteo = {};
+  prestamos.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
+    if (a) {
+      if (!conteo[a.tipo]) conteo[a.tipo] = { cantidad: 0, nombres: [], incidencias: [] };
+      conteo[a.tipo].cantidad++;
+      conteo[a.tipo].nombres.push(u.identificador);
+      if (p.incidencias) conteo[a.tipo].incidencias.push(u.identificador + ': ' + p.incidencias);
+    }
+  });
+  const tiposAlbaran = [
+    { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
+    { tipo: 'arco', nombre: 'ARCO HINCHABLE' },
+    { tipo: 'arco_muy_nuevo', nombre: 'ARCO HINCHABLE (nuevo)' },
+    { tipo: 'carpa_hinchable', nombre: 'CARPA HINCHABLE' },
+    { tipo: 'carpa_metalica', nombre: 'CARPA METÁLICA' },
+    { tipo: 'podio', nombre: 'PODIOS' },
+    { tipo: 'tatami', nombre: 'TATAMI' },
+    { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING-PONG' }
+  ];
+  let html = '';
+  html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1><h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
+  html += '<div class="albaran-seccion"><h3>REFERENCIA DE ENTREGA</h3>';
+  html += '<div class="campo-linea"><strong>Solicitante:</strong><span class="linea">' + solicitante + '</span></div>';
+  html += '<div class="campo-linea"><strong>Nº unidades entregadas:</strong><span class="linea">' + prestamos.length + '</span></div>';
+  html += '<table><thead><tr><th style="width:10%;">UDS.</th><th style="width:40%;">ARTÍCULO</th><th style="width:50%;">MATERIAL</th></tr></thead><tbody>';
+  tiposAlbaran.forEach(function(t) { if (conteo[t.tipo]) html += '<tr><td style="text-align:center;">' + conteo[t.tipo].cantidad + '</td><td>' + conteo[t.tipo].nombres.join(', ') + '</td><td>' + t.nombre + '</td></tr>'; });
+  html += '</tbody></table></div>';
+  html += '<div style="border-top:1px dashed #999;margin:6px 0;"></div>';
+  html += '<div class="albaran-seccion"><h3>DEVOLUCIÓN</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea">' + (prestamos[0].contacto || '') + '</span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea">' + (prestamos[0].dni || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea">' + (prestamos[0].calidad || '') + '</span><strong style="margin-left:6px;">del</strong><span class="linea">' + solicitante + '</span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:6px;">Teléfono:</strong><span class="linea">' + (prestamos[0].telefono || '') + '</span><strong style="margin-left:6px;">e-mail:</strong><span class="linea">' + (prestamos[0].email || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>DEVUELVE</strong> el material cedido para la prueba <span class="linea">' + (prestamos[0].prueba || '') + '</span> en la localidad de <span class="linea">' + (prestamos[0].localidad || '') + '</span></div>';
+  html += '<table><thead><tr><th style="width:10%;">UDS.</th><th style="width:40%;">ARTÍCULO</th><th style="width:50%;">MATERIAL</th></tr></thead><tbody>';
+  tiposAlbaran.forEach(function(t) { if (conteo[t.tipo]) html += '<tr><td style="text-align:center;">' + conteo[t.tipo].cantidad + '</td><td>' + conteo[t.tipo].nombres.join(', ') + '</td><td>' + t.nombre + '</td></tr>'; });
+  html += '</tbody></table>';
+  const todasIncidencias = [];
+  Object.keys(conteo).forEach(function(tipo) { if (conteo[tipo].incidencias.length > 0) todasIncidencias.push(conteo[tipo].incidencias.join('; ')); });
+  const estadoGlobal = estado === 'averiado' ? 'averiado' : 'correcto';
+  html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong><br>';
+  if (estadoGlobal === 'correcto') html += 'Viene todo completo y en buen estado.';
+  else html += 'Falta algo o está deteriorado: ' + (todasIncidencias.join('. ') || 'Ver observaciones individuales.');
+  html += '</div>';
+  html += '<div class="firmas-row"><div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><img src="' + firmaArturo + '" class="firma-img" alt="Firma"></div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad (quien devuelve)</div><div class="nombre">' + solicitante + '</div><div class="nombre">Firmado:</div>';
+  if (firma) html += '<img src="' + firma + '" class="firma-img" alt="Firma devolución">'; else html += '<div class="firma-linea"></div>';
+  html += '</div></div><div class="fecha-final">' + fechaFormateada + '</div></div>';
+  document.getElementById('albaranContenido').innerHTML = html;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('albaranTab').classList.add('active');
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  setTimeout(function() { window.print(); }, 500);
+}
+
+function renderVencidos() {
+  const cont = document.getElementById('listaVencidos');
+  if (!cont) return;
+  const ahora = new Date();
+  const vencidos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion && p.fechaPrevista && ahora > new Date(p.fechaPrevista); });
+  if (vencidos.length === 0) {
+    cont.innerHTML = '<div class="vacio"><div class="icono">🎉</div><div><strong>¡Sin vencidos!</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">Todos los préstamos están al día.</div></div>';
+    return;
+  }
+  let html = '';
+  vencidos.forEach(function(p) {
+    const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+    if (!u) return;
+    const fp = new Date(p.fechaPrevista);
+    const diasVencido = Math.floor((ahora - fp) / 86400000);
+    html += '<div class="devolucion-card vencido"><div class="cabecera"><div><div class="articulo">' + u.identificador + '</div><div style="font-size:0.8rem; color:var(--danger); margin-top:2px;">⚠️ Vencido hace ' + diasVencido + ' día' + (diasVencido !== 1 ? 's' : '') + '</div></div><span class="badge vencido">VENCIDO</span></div>';
+    html += '<div class="info-grid"><div class="info-item"><span class="info-label">Solicitante</span><span class="info-valor">' + p.solicitante + '</span></div>';
+    html += '<div class="info-item"><span class="info-label">Contacto</span><span class="info-valor">' + (p.contacto||'-') + (p.telefono?' · '+p.telefono:'') + '</span></div>';
+    html += '<div class="info-item"><span class="info-label">Prevista</span><span class="info-valor prevista-vencida">' + formatFecha(p.fechaPrevista) + '</span></div></div>';
+    html += '<button class="btn outline" onclick="generarAlbaran(' + p.id + ')" style="margin-top:0.5rem;">📄 Ver albarán original</button></div>';
+  });
+  cont.innerHTML = html;
 }
 
 function renderHistorico() {
@@ -942,7 +1257,6 @@ function obtenerDNIfull() {
   return numero;
 }
 
-// ===== ESCANEAR QR CON BOTÓN =====
 function abrirModalCamaraQR(selectElement) {
   if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     notificar('La cámara solo funciona en HTTPS. Usa la URL de GitHub Pages.', 'error', 'Sin HTTPS'); return;
@@ -1011,8 +1325,6 @@ function cerrarModalQR() { detenerLectorRapido(); const modal = document.getElem
 
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   e.preventDefault();
-  
-  // Si no hay unidades en la lista, usar la del select
   if (unidadesPrestamo.length === 0) {
     const uId = parseInt(document.getElementById('p_unidad').value);
     if (uId) {
@@ -1020,12 +1332,7 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
       if (u && u.estado === 'almacen') unidadesPrestamo.push(u);
     }
   }
-  
-  if (unidadesPrestamo.length === 0) {
-    notificar('Selecciona al menos una unidad.', 'aviso', 'Sin unidades');
-    return;
-  }
-  
+  if (unidadesPrestamo.length === 0) { notificar('Selecciona al menos una unidad.', 'aviso', 'Sin unidades'); return; }
   const ts = document.getElementById('p_tipo_solicitante').value;
   const sol = obtenerSolicitante();
   const con = document.getElementById('p_contacto').value.trim();
@@ -1038,10 +1345,8 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   const prueba = document.getElementById('p_prueba').value.trim();
   const localidad = document.getElementById('p_localidad').value.trim();
   const not = document.getElementById('p_notas').value.trim();
-  
   if (!ts || !sol || !con || !sal) { notificar('Completa los campos obligatorios (solicitante, contacto, fecha).', 'aviso', 'Faltan datos'); return; }
   if (tel && tel.replace(/\D/g,'').length < 9) { notificar('El teléfono debe tener al menos 9 dígitos.', 'aviso', 'Teléfono no válido'); return; }
-  
   const prestamoIds = [];
   unidadesPrestamo.forEach(function(u) {
     if (u.estado !== 'almacen') return;
@@ -1057,7 +1362,6 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
     u.estado = 'prestado';
     prestamoIds.push(id);
   });
-  
   guardar(); renderTodo();
   e.target.reset();
   unidadesPrestamo = [];
@@ -1071,14 +1375,11 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   setTimeout(function() { generarAlbaranMultiple(prestamoIds); }, 300);
 });
 
-function generarAlbaran(prestamoId) {
-  generarAlbaranMultiple([prestamoId]);
-}
+function generarAlbaran(prestamoId) { generarAlbaranMultiple([prestamoId]); }
 
 function generarAlbaranMultiple(prestamoIds) {
   const prestamos = prestamoIds.map(function(id) { return datos.prestamos.find(function(x) { return x.id === id; }); }).filter(function(p) { return p; });
   if (prestamos.length === 0) return;
-  
   const p0 = prestamos[0];
   const fechaSalida = new Date(p0.fechaSalida);
   const dia = fechaSalida.getDate(); const anio = fechaSalida.getFullYear();
@@ -1086,7 +1387,6 @@ function generarAlbaranMultiple(prestamoIds) {
   const fechaFormateada = 'León, ' + dia + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + anio;
   const firmaArturo = 'img/firma_arturo.png';
   const estaDevuelto = !!p0.fechaDevolucion;
-  
   let html = '';
   html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1><h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
   html += '<div class="albaran-seccion"><h3>ENTREGA</h3>';
@@ -1094,7 +1394,6 @@ function generarAlbaranMultiple(prestamoIds) {
   html += '<div class="campo-linea"><strong>en calidad de</strong><span class="linea">' + (p0.calidad || '') + '</span><strong style="margin-left:6px;">del</strong><span class="linea">' + p0.solicitante + '</span></div>';
   html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:6px;">Teléfono:</strong><span class="linea">' + (p0.telefono || '') + '</span><strong style="margin-left:6px;">e-mail:</strong><span class="linea">' + (p0.email || '') + '</span></div>';
   html += '<div class="campo-linea"><strong>RETIRA</strong> el material para la prueba <span class="linea">' + (p0.prueba || '') + '</span> a celebrar el día <span class="linea"></span> en la localidad de <span class="linea">' + (p0.localidad || '') + '</span></div>';
-  
   html += '<table><thead><tr><th style="width:10%;">UNIDADES</th><th style="width:40%;">ARTÍCULO</th><th style="width:50%;">MATERIAL</th></tr></thead><tbody>';
   const tiposAlbaran = [
     { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
@@ -1106,7 +1405,6 @@ function generarAlbaranMultiple(prestamoIds) {
     { tipo: 'tatami', nombre: 'TATAMI' },
     { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING-PONG' }
   ];
-  
   const conteo = {};
   prestamos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
@@ -1117,20 +1415,12 @@ function generarAlbaranMultiple(prestamoIds) {
       conteo[a.tipo].nombres.push(u.identificador);
     }
   });
-  
-  tiposAlbaran.forEach(function(t) {
-    if (conteo[t.tipo]) {
-      html += '<tr><td style="text-align:center;">' + conteo[t.tipo].cantidad + '</td><td>' + conteo[t.tipo].nombres.join(', ') + '</td><td>' + t.nombre + '</td></tr>';
-    }
-  });
+  tiposAlbaran.forEach(function(t) { if (conteo[t.tipo]) html += '<tr><td style="text-align:center;">' + conteo[t.tipo].cantidad + '</td><td>' + conteo[t.tipo].nombres.join(', ') + '</td><td>' + t.nombre + '</td></tr>'; });
   html += '</tbody></table>';
-  
   html += '<div class="firmas-row"><div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><img src="' + firmaArturo + '" class="firma-img" alt="Firma"></div>';
   html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p0.solicitante + '</div><div class="nombre">Firmado:</div>';
-  if (p0.firma) html += '<img src="' + p0.firma + '" class="firma-img" alt="Firma solicitante">';
-  else html += '<div class="firma-linea"></div>';
+  if (p0.firma) html += '<img src="' + p0.firma + '" class="firma-img" alt="Firma solicitante">'; else html += '<div class="firma-linea"></div>';
   html += '</div></div><div class="fecha-final">' + fechaFormateada + '</div></div>';
-  
   html += '<div style="border-top:1px dashed #999;margin:6px 0;"></div>';
   html += '<div class="albaran-seccion"><h3>DEVOLUCIÓN</h3>';
   html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea"></span></div>';
@@ -1148,7 +1438,6 @@ function generarAlbaranMultiple(prestamoIds) {
   if (estaDevuelto) { if (p0.firmaDevolucion) html += '<img src="' + p0.firmaDevolucion + '" class="firma-img" alt="Firma devolución">'; else if (p0.firma) html += '<img src="' + p0.firma + '" class="firma-img" alt="Firma original">'; else html += '<div class="firma-linea"></div>'; }
   else html += '<div class="firma-linea"></div>';
   html += '</div></div><div class="fecha-final">León, _____ de _______________ de 20___</div></div>';
-  
   document.getElementById('albaranContenido').innerHTML = html;
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('albaranTab').classList.add('active');
