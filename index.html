@@ -78,6 +78,8 @@
   .modal-bg.show { display:flex; }
   .modal { background:#fff; border-radius:8px; padding:1.25rem; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; }
   .modal h3 { margin-bottom:1rem; color:var(--primary-dark); }
+  #modalQRRapido .modal { max-height: 95vh; }
+  #qr-reader-rapido video { border-radius: 8px; }
   .campo-oculto { display:none; }
   .devolucion-card { border:1px solid var(--border); border-left:5px solid var(--warning); border-radius:8px; padding:1rem; margin-bottom:.75rem; background:#fff; }
   .devolucion-card.vencido { border-left-color:var(--danger); background:#fef2f2; }
@@ -280,12 +282,8 @@
           <div>
             <label>D.N.I. / N.I.F.</label>
             <div style="display:flex; gap:0.5rem; align-items:flex-end;">
-              <div style="flex:1;">
-                <input type="text" id="p_dni_numero" placeholder="12345678" maxlength="8" oninput="calcularLetraDNI()" style="margin-bottom:0;">
-              </div>
-              <div style="width:45px;">
-                <input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
-              </div>
+              <div style="flex:1;"><input type="text" id="p_dni_numero" placeholder="12345678" maxlength="8" oninput="calcularLetraDNI()" style="margin-bottom:0;"></div>
+              <div style="width:45px;"><input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);"></div>
             </div>
             <div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduce 8 números</div>
           </div>
@@ -342,6 +340,15 @@
         </select>
         <label id="d_incidencias_label" style="display:none;">Descripción de los daños</label>
         <textarea id="d_incidencias" placeholder="Describe qué se ha estropeado..." style="display:none;"></textarea>
+        <h4 style="margin:0.75rem 0 0.4rem 0; color:var(--primary-dark); font-size:0.95rem;">✍️ Firma de quien devuelve</h4>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.4rem;">Firma con el dedo (móvil) o el ratón (PC).</p>
+        <div class="firma-canvas-wrap" style="margin-bottom:0.5rem;">
+          <canvas id="canvasFirmaDev" class="firma-canvas" style="height:140px;"></canvas>
+        </div>
+        <div class="firma-botones" style="margin-bottom:0.5rem;">
+          <button type="button" class="btn secondary" onclick="limpiarFirmaDev()">🗑️ Limpiar firma</button>
+        </div>
+        <img id="firmaDevPreview" class="firma-preview campo-oculto" alt="Firma devolución">
         <div class="row">
           <button type="submit" class="btn success">Guardar devolución</button>
           <button type="button" class="btn secondary" onclick="cerrarModal()">Cancelar</button>
@@ -454,8 +461,8 @@
       <h2>📱 Códigos QR de unidades</h2>
       <p style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;">Genera e imprime etiquetas QR para pegar en cada unidad física.</p>
       <div class="row" style="margin-bottom:1rem;">
-        <button class="btn" onclick="generarTodosQR()">🖨️ Generar QR de todas las unidades</button>
-        <button class="btn secondary" onclick="window.print()">🖨️ Imprimir QR</button>
+        <button class="btn" onclick="generarTodosQR()">🔄 Generar QR de todas las unidades</button>
+        <button class="btn success" onclick="imprimirQR()">🖨️ Imprimir QR</button>
       </div>
       <div id="qrGrid" class="qr-grid"></div>
     </div>
@@ -569,7 +576,9 @@ let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYe
 let ordenHistorico = { campo: 'salida', dir: -1 };
 let html5QrCode = null;
 let firmaData = null;
+let firmaDevolucionData = null;
 let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
+let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev = 0;
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local','Modo local'); return; }
@@ -703,7 +712,7 @@ function renderSelectUnidades() {
   const sel = document.getElementById('p_unidad');
   if (!sel) return;
   const va = sel.value;
-  sel.innerHTML = '<option value="">-- Selecciona --</option>';
+  sel.innerHTML = '<option value="">📷 Escanear código QR</option>';
   datos.unidades.forEach(function(u) { if (u.estado === 'almacen') sel.innerHTML += '<option value="' + u.id + '">' + u.identificador + '</option>'; });
   if (va && datos.unidades.find(function(u) { return u.id === parseInt(va) && u.estado === 'almacen'; })) sel.value = va;
   const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -974,7 +983,77 @@ function limpiarFirma() {
   document.getElementById('firmaPreview').classList.add('campo-oculto');
 }
 
-// ===== CÁLCULO AUTOMÁTICO DE LETRA DNI =====
+function initCanvasFirmaDev() {
+  canvasFirmaDev = document.getElementById('canvasFirmaDev');
+  if (!canvasFirmaDev || !canvasFirmaDev.getContext) return;
+  const rect = canvasFirmaDev.getBoundingClientRect();
+  if (rect.width === 0) return;
+  canvasFirmaDev.width = rect.width * 2;
+  canvasFirmaDev.height = rect.height * 2;
+  ctxFirmaDev = canvasFirmaDev.getContext('2d');
+  ctxFirmaDev.scale(2, 2);
+  ctxFirmaDev.strokeStyle = '#15407a';
+  ctxFirmaDev.lineWidth = 2;
+  ctxFirmaDev.lineCap = 'round';
+  ctxFirmaDev.lineJoin = 'round';
+  if (canvasFirmaDev.dataset.inicializado) return;
+  canvasFirmaDev.dataset.inicializado = '1';
+  canvasFirmaDev.addEventListener('mousedown', firmaDevInicio);
+  canvasFirmaDev.addEventListener('mousemove', firmaDevMov);
+  canvasFirmaDev.addEventListener('mouseup', firmaDevFin);
+  canvasFirmaDev.addEventListener('mouseout', firmaDevFin);
+  canvasFirmaDev.addEventListener('touchstart', function(e) { e.preventDefault(); firmaDevInicio(e.touches[0]); }, {passive:false});
+  canvasFirmaDev.addEventListener('touchmove', function(e) { e.preventDefault(); firmaDevMov(e.touches[0]); }, {passive:false});
+  canvasFirmaDev.addEventListener('touchend', function(e) { e.preventDefault(); firmaDevFin(); }, {passive:false});
+}
+
+function obtenerPosFirmaDev(e) {
+  const rect = canvasFirmaDev.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function firmaDevInicio(e) {
+  firmandoDev = true;
+  const pos = obtenerPosFirmaDev(e);
+  ultimaXDev = pos.x; ultimaYDev = pos.y;
+  ctxFirmaDev.beginPath();
+  ctxFirmaDev.moveTo(ultimaXDev, ultimaYDev);
+}
+function firmaDevMov(e) {
+  if (!firmandoDev) return;
+  const pos = obtenerPosFirmaDev(e);
+  ctxFirmaDev.lineTo(pos.x, pos.y);
+  ctxFirmaDev.stroke();
+  ultimaXDev = pos.x; ultimaYDev = pos.y;
+}
+function firmaDevFin() {
+  if (firmandoDev) { firmandoDev = false; ctxFirmaDev.closePath(); guardarFirmaDev(); }
+}
+
+function guardarFirmaDev() {
+  if (!canvasFirmaDev) return;
+  const pixelData = ctxFirmaDev.getImageData(0, 0, canvasFirmaDev.width, canvasFirmaDev.height).data;
+  let hayTrazo = false;
+  for (let i = 3; i < pixelData.length; i += 4) { if (pixelData[i] > 0) { hayTrazo = true; break; } }
+  if (hayTrazo) {
+    firmaDevolucionData = canvasFirmaDev.toDataURL('image/png');
+    const preview = document.getElementById('firmaDevPreview');
+    preview.src = firmaDevolucionData;
+    preview.classList.remove('campo-oculto');
+  } else {
+    firmaDevolucionData = null;
+    document.getElementById('firmaDevPreview').classList.add('campo-oculto');
+  }
+}
+
+function limpiarFirmaDev() {
+  if (!ctxFirmaDev || !canvasFirmaDev) return;
+  const rect = canvasFirmaDev.getBoundingClientRect();
+  ctxFirmaDev.clearRect(0, 0, rect.width, rect.height);
+  firmaDevolucionData = null;
+  document.getElementById('firmaDevPreview').classList.add('campo-oculto');
+}
+
 function calcularLetraDNI() {
   const input = document.getElementById('p_dni_numero');
   const letraInput = document.getElementById('p_dni_letra');
@@ -998,6 +1077,109 @@ function obtenerDNIfull() {
   const letra = document.getElementById('p_dni_letra').value.trim();
   if (numero.length === 8 && letra) return numero + letra;
   return numero;
+}
+
+// ===== ESCANEAR QR DESDE SELECTOR DE UNIDAD (CORREGIDO) =====
+let escaneandoQR = false;
+
+document.getElementById('p_unidad').addEventListener('change', function(e) {
+  if (e.target.value === '' && !escaneandoQR) {
+    escaneandoQR = true;
+    abrirModalCamaraQR(e.target);
+  }
+});
+
+function abrirModalCamaraQR(selectElement) {
+  // Cerrar cualquier lector previo
+  if (html5QrCode) { try { html5QrCode.stop(); } catch(e) {} html5QrCode = null; }
+  
+  // Crear modal
+  const modalQR = document.createElement('div');
+  modalQR.className = 'modal-bg show';
+  modalQR.id = 'modalQRRapido';
+  modalQR.innerHTML = '<div class="modal" style="max-width:500px;">' +
+    '<h3>📷 Escanear código QR</h3>' +
+    '<p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">Apunta la cámara al código QR de la unidad.</p>' +
+    '<div id="qr-reader-rapido" style="width:100%;max-width:400px;margin:0 auto;min-height:200px;background:#000;border-radius:8px;"></div>' +
+    '<div style="margin-top:1rem;text-align:center;">' +
+    '<button class="btn danger" id="btnCancelarQR">❌ Cancelar</button>' +
+    '</div></div>';
+  document.body.appendChild(modalQR);
+  
+  // Botón cancelar
+  document.getElementById('btnCancelarQR').addEventListener('click', function() {
+    cerrarModalQR();
+  });
+  
+  // Esperar a que el DOM esté listo e iniciar cámara
+  setTimeout(function() {
+    try {
+      const lector = new Html5Qrcode("qr-reader-rapido");
+      lector.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        function(decodedText) {
+          // QR detectado
+          lector.stop().then(function() {
+            try { lector.clear(); } catch(e) {}
+          }).catch(function() {});
+          
+          const match = decodedText.match(/unidad=(\d+)/);
+          if (match) {
+            const uId = parseInt(match[1]);
+            const unidad = datos.unidades.find(function(u) { return u.id === uId; });
+            if (unidad && unidad.estado === 'almacen') {
+              selectElement.value = uId;
+              notificar('Unidad seleccionada: <strong>' + unidad.identificador + '</strong>', 'exito', 'QR escaneado');
+            } else {
+              notificar('Esa unidad no está disponible (prestada o averiada).', 'error', 'No disponible');
+              selectElement.value = '';
+            }
+          } else {
+            notificar('QR no reconocido.', 'error', 'QR desconocido');
+            selectElement.value = '';
+          }
+          cerrarModalQR();
+        },
+        function(errorMessage) {
+          // Error de escaneo (normal, se ignora)
+        }
+      ).catch(function(err) {
+        notificar('No se pudo iniciar la cámara: ' + err, 'error', 'Error cámara');
+        cerrarModalQR();
+      });
+      
+      // Guardar referencia para poder detenerlo al cancelar
+      modalQR._lector = lector;
+    } catch(e) {
+      notificar('Error: ' + e.message, 'error', 'Error');
+      cerrarModalQR();
+    }
+  }, 500);
+}
+
+function cerrarModalQR() {
+  const modal = document.getElementById('modalQRRapido');
+  if (modal) {
+    // Detener lector si existe
+    if (modal._lector) {
+      try {
+        modal._lector.stop().then(function() {
+          try { modal._lector.clear(); } catch(e) {}
+        }).catch(function() {});
+      } catch(e) {}
+    }
+    modal.remove();
+  }
+  const sel = document.getElementById('p_unidad');
+  if (sel && sel.value === '__escaneando__') sel.value = '';
+  escaneandoQR = false;
+}
+function cerrarModalQR() {
+  const modal = document.getElementById('modalQRRapido');
+  if (modal) modal.remove();
+  const sel = document.getElementById('p_unidad');
+  if (sel && sel.value === '__escaneando__') sel.value = '';
 }
 
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
@@ -1026,7 +1208,7 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
     fechaSalida: sal, fechaPrevista: pre || null, fechaDevolucion: null,
     estado: 'activo', estadoMaterial: null, incidencias: '',
     notas: not, prueba: prueba, localidad: localidad,
-    firma: firmaData
+    firma: firmaData, firmaDevolucion: null
   });
   u.estado = 'prestado';
   guardar(); renderTodo();
@@ -1060,7 +1242,6 @@ function generarAlbaran(prestamoId) {
   html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
   html += '<h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
   
-  // ENTREGA
   html += '<div class="albaran-seccion">';
   html += '<h3>ENTREGA</h3>';
   html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea">' + (p.contacto || '') + '</span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea">' + (p.dni || '') + '</span></div>';
@@ -1085,7 +1266,6 @@ function generarAlbaran(prestamoId) {
   });
   html += '</tbody></table>';
   
-  // Firmas ENTREGA: SOLO firma de Arturo
   html += '<div class="firmas-row">';
   html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><img src="' + firmaArturo + '" class="firma-img" alt="Firma"></div>';
   html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p.solicitante + '</div><div class="nombre">Firmado:</div>';
@@ -1095,10 +1275,8 @@ function generarAlbaran(prestamoId) {
   html += '<div class="fecha-final">' + fechaFormateada + '</div>';
   html += '</div>';
   
-  // Separador
   html += '<div style="border-top:1px dashed #999;margin:6px 0;"></div>';
   
-  // DEVOLUCIÓN
   html += '<div class="albaran-seccion">';
   html += '<h3>DEVOLUCIÓN</h3>';
   html += '<div class="campo-linea"><strong>D. / Dª.</strong><span class="linea"></span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea"></span></div>';
@@ -1113,15 +1291,15 @@ function generarAlbaran(prestamoId) {
   html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong></div>';
   html += '<div style="display:flex;gap:12px;font-size:9pt;margin:3px 0;"><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox" checked disabled style="width:12px;height:12px;"> Viene todo completo y en buen estado</div><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox" disabled style="width:12px;height:12px;"> Falta algo o está deteriorado</div></div>';
   
-  // Firmas DEVOLUCIÓN: AMBAS (encargado + entidad) si está devuelto
   html += '<div class="firmas-row">';
   html += '<div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div>';
   if (estaDevuelto) html += '<img src="' + firmaArturo + '" class="firma-img" alt="Firma">';
   else html += '<div class="firma-linea"></div>';
   html += '</div>';
-  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">Firmado:</div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad (quien devuelve)</div><div class="nombre">Firmado:</div>';
   if (estaDevuelto) {
-    if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma">';
+    if (p.firmaDevolucion) html += '<img src="' + p.firmaDevolucion + '" class="firma-img" alt="Firma devolución">';
+    else if (p.firma) html += '<img src="' + p.firma + '" class="firma-img" alt="Firma original">';
     else html += '<div class="firma-linea"></div>';
   } else {
     html += '<div class="firma-linea"></div>';
@@ -1166,13 +1344,20 @@ function abrirDevolucion(pId) {
   document.getElementById('d_incidencias').value = '';
   document.getElementById('d_incidencias').style.display = 'none';
   document.getElementById('d_incidencias_label').style.display = 'none';
+  firmaDevolucionData = null;
+  document.getElementById('firmaDevPreview').classList.add('campo-oculto');
   document.getElementById('modalDevolucion').classList.add('show');
+  setTimeout(function() {
+    if (canvasFirmaDev) canvasFirmaDev.dataset.inicializado = '';
+    initCanvasFirmaDev();
+  }, 200);
 }
 document.getElementById('d_estado').addEventListener('change', function(e) { const s = e.target.value === 'averiado'; document.getElementById('d_incidencias').style.display = s ? 'block' : 'none'; document.getElementById('d_incidencias_label').style.display = s ? 'block' : 'none'; });
 document.getElementById('formDevolucion').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById('d_prestamoId').value), p = datos.prestamos.find(function(x) { return x.id === id; }); if (!p) return;
   p.fechaDevolucion = document.getElementById('d_fecha').value; p.estadoMaterial = document.getElementById('d_estado').value; p.incidencias = document.getElementById('d_incidencias').value.trim(); p.estado = 'devuelto';
+  p.firmaDevolucion = firmaDevolucionData || null;
   const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
   if (p.estadoMaterial === 'averiado') { u.estado = 'averiado'; u.observaciones = p.incidencias; notificar('Devolución con incidencias.', 'aviso', 'Incidencia'); }
   else { u.estado = 'almacen'; u.observaciones = ''; notificar('Devolución de <strong>' + u.identificador + '</strong> registrada.', 'exito', 'Devuelto'); }
@@ -1382,6 +1567,52 @@ function generarTodosQR() {
     grid.appendChild(card);
   });
   if (datos.unidades.length === 0) grid.innerHTML = '<div class="vacio"><div class="icono">📦</div><div>No hay unidades</div></div>';
+}
+
+function imprimirQR() {
+  const tarjetas = document.querySelectorAll('#qrGrid .qr-card');
+  if (tarjetas.length === 0) { notificar('Primero genera los QR.', 'aviso', 'Sin QR'); return; }
+  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiquetas QR - Diputación de León</title>';
+  html += '<style>';
+  html += 'body { font-family: Arial, sans-serif; padding: 10mm; margin: 0; }';
+  html += 'h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; color: #15407a; }';
+  html += 'h2 { text-align: center; font-size: 11pt; margin-bottom: 15px; font-weight: normal; color: #6b7280; }';
+  html += '.qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }';
+  html += '.qr-card { border: 1px solid #ccc; border-radius: 6px; padding: 8px; text-align: center; page-break-inside: avoid; break-inside: avoid; }';
+  html += '.qr-card img { width: 120px; height: 120px; }';
+  html += '.qr-nombre { font-weight: bold; font-size: 9pt; margin-top: 5px; color: #1f2937; }';
+  html += '.qr-estado { font-size: 8pt; margin-top: 3px; }';
+  html += '.qr-estado.almacen { color: #2e7d32; }';
+  html += '.qr-estado.prestado { color: #ed6c02; }';
+  html += '.qr-estado.avariado { color: #d32f2f; }';
+  html += '@media print { body { padding: 5mm; } .no-print { display: none; } }';
+  html += '@page { size: A4; margin: 8mm; }';
+  html += '</style></head><body>';
+  html += '<h1>🏛️ Control de Préstamos - Diputación de León</h1>';
+  html += '<h2>Etiquetas QR de unidades - Generadas el ' + new Date().toLocaleString('es-ES') + '</h2>';
+  html += '<div class="qr-grid">';
+  tarjetas.forEach(function(card) {
+    const qrImg = card.querySelector('.qr-img img');
+    const nombre = card.querySelector('.qr-nombre').textContent;
+    const estadoEl = card.querySelector('.qr-estado');
+    const estadoTexto = estadoEl ? estadoEl.textContent : '';
+    const estadoClase = estadoEl ? estadoEl.className.replace('qr-estado', '').trim() : '';
+    html += '<div class="qr-card">';
+    if (qrImg && qrImg.src) html += '<img src="' + qrImg.src + '" alt="QR ' + nombre + '">';
+    html += '<div class="qr-nombre">' + nombre + '</div>';
+    html += '<div class="qr-estado ' + estadoClase + '">' + estadoTexto + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div class="no-print" style="text-align:center; margin-top:20px;">';
+  html += '<button onclick="window.print()" style="padding:10px 20px; font-size:12pt; background:#1e5aa8; color:white; border:none; border-radius:6px; cursor:pointer;">🖨️ Imprimir</button> ';
+  html += '<button onclick="window.close()" style="padding:10px 20px; font-size:12pt; background:#6b7280; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar</button>';
+  html += '</div></body></html>';
+  const ventana = window.open('', '_blank', 'width=900,height=700');
+  if (!ventana) { notificar('Permite ventanas emergentes.', 'error', 'Bloqueada'); return; }
+  ventana.document.write(html);
+  ventana.document.close();
+  setTimeout(function() { ventana.print(); }, 500);
 }
 
 function iniciarLectorQR() {
