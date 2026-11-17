@@ -6,27 +6,30 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f6f9; }
-  h1 { color: #15407a; }
-  .btn { padding: 15px 30px; font-size: 16px; background: #1e5aa8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background: #f4f6f9; }
+  h1 { color: #15407a; font-size: 1.3rem; }
+  .btn { padding: 12px 24px; font-size: 14px; background: #1e5aa8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 5px; }
   .btn:hover { background: #15407a; }
   .btn:disabled { background: #ccc; cursor: not-allowed; }
-  #log { background: #fff; padding: 15px; border-radius: 6px; margin-top: 20px; max-height: 500px; overflow-y: auto; font-family: monospace; font-size: 13px; border: 1px solid #e5e7eb; }
+  #log { background: #fff; padding: 10px; border-radius: 6px; margin-top: 15px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; border: 1px solid #e5e7eb; }
   .ok { color: #2e7d32; }
   .err { color: #d32f2f; }
   .info { color: #1e5aa8; }
-  .aviso { background: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #ed6c02; margin: 15px 0; }
+  .aviso { background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #ed6c02; margin: 10px 0; font-size: 0.9rem; }
+  #progress { width: 100%; height: 20px; background: #e5e7eb; border-radius: 10px; margin: 10px 0; overflow: hidden; display: none; }
+  #progressBar { height: 100%; background: #1e5aa8; width: 0%; transition: width 0.3s; }
 </style>
 </head>
 <body>
 <h1>📤 Subir Juntas Vecinales a Firebase</h1>
-<p>Este script sube <strong>todas las juntas vecinales de la provincia de León</strong> a tu base de datos Firebase.</p>
+<p>Este script sube todas las juntas vecinales de León a Firebase en lotes pequeños para no bloquear el navegador.</p>
 <div class="aviso">
-  <strong>⚠️ IMPORTANTE:</strong> Ejecuta esto <strong>SOLO UNA VEZ</strong>. Si lo repites, sobreescribirá los datos (no duplicará, pero puede tardar).<br>
-  <strong>✅ Requisitos:</strong> Reglas de Firebase en modo abierto (o autenticación) para escritura en <code>juntas_vecinales</code>.
+  <strong>⚠️ IMPORTANTE:</strong> Ejecuta esto <strong>SOLO UNA VEZ</strong>.<br>
+  <strong>✅ Requisitos:</strong> Reglas de Firebase en modo abierto para escritura.
 </div>
-<button class="btn" id="btnSubir" onclick="subirJuntas()">🚀 Subir todas las juntas vecinales</button>
-<button class="btn" style="background:#6b7280;" onclick="verificar()">🔍 Verificar datos en Firebase</button>
+<button class="btn" id="btnSubir" onclick="subirJuntas()">🚀 Subir juntas vecinales</button>
+<button class="btn" style="background:#6b7280;" onclick="verificar()">🔍 Verificar datos</button>
+<div id="progress"><div id="progressBar"></div></div>
 <div id="log"></div>
 
 <script>
@@ -42,7 +45,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Formato compacto: {j: junta, a: ayuntamiento}
+// Juntas vecinales (formato compacto: j=junta, a=ayuntamiento)
 // OMITIDAS: las que tienen junta == ayuntamiento
 const JUNTAS = [
 {j:"ABADENGO DE TORIO",a:"GARRAFE DE TORIO"},{j:"ABANO",a:"QUINTANA DEL CASTILLO"},{j:"ABELGAS DE LUNA",a:"SENA DE LUNA"},
@@ -311,17 +314,17 @@ const JUNTAS = [
 {j:"ROSALES",a:"RIELLO"},{j:"ROZUELO",a:"FOLGOSO DE LA RIBERA"},{j:"RUBIOS (LOS)",a:"CABAÑAS RARAS"},
 {j:"RUCAYO",a:"BOÑAR"},{j:"RUEDA DEL ALMIRANTE",a:"GRADEFES"},{j:"RUIDEFERROS",a:"BALBOA"},
 {j:"RUIDELAMAS",a:"BALBOA"},{j:"RUIFORCO DE TORIO",a:"GARRAFE DE TORIO"},{j:"RUITELAN",a:"VEGA DE VALCARCE"},
-{j:"SABUGO",a:"MURIAS DE PAREDES"},{j:"SACEDA",a:"CASTRILLO DE CABRERA"},{j:"SAELICES DEL PAYUELO",a:"VALDEPOLO"},
-{j:"SAELICES DEL RIO",a:"CEA"},{j:"SAÑÜERA DE LUNA",a:"LOS BARRIOS DE LUNA"},{j:"SAHECHORES DE RUEDA",a:"CUBILLAS DE RUEDA"},
-{j:"SAHELICES DE SABERO",a:"SABERO"},{j:"SALAMON",a:"CREMENES"},{j:"SALAS DE LA RIBERA",a:"PUENTE DE DOMINGO FLOREZ"},
-{j:"SALAS DE LOS BARRIOS",a:"PONFERRADA"},{j:"SALAS LAS",a:"CREMENES"},{j:"SALCE",a:"RIELLO"},
-{j:"SALENTINOS",a:"PALACIOS DEL SIL"},{j:"SALIENTES",a:"PALACIOS DEL SIL"},{j:"SALIO",a:"PEDROSA DEL REY"},
+{j:"SABERO",a:"SABERO"},{j:"SABUGO",a:"MURIAS DE PAREDES"},{j:"SACEDA",a:"CASTRILLO DE CABRERA"},
+{j:"SAELICES DEL PAYUELO",a:"VALDEPOLO"},{j:"SAELICES DEL RIO",a:"CEA"},{j:"SAÑÜERA DE LUNA",a:"LOS BARRIOS DE LUNA"},
+{j:"SAHECHORES DE RUEDA",a:"CUBILLAS DE RUEDA"},{j:"SAHELICES DE SABERO",a:"SABERO"},{j:"SALAMON",a:"CREMENES"},
+{j:"SALAS DE LA RIBERA",a:"PUENTE DE DOMINGO FLOREZ"},{j:"SALAS DE LOS BARRIOS",a:"PONFERRADA"},{j:"SALAS LAS",a:"CREMENES"},
+{j:"SALCE",a:"RIELLO"},{j:"SALENTINOS",a:"PALACIOS DEL SIL"},{j:"SALIENTES",a:"PALACIOS DEL SIL"},{j:"SALIO",a:"PEDROSA DEL REY"},
 {j:"SALUDER DE CASTROPONCE",a:"POZUELO DEL PARAMO"},{j:"SAMPRON",a:"VEGA DE VALCARCE"},
-{j:"SAN ADRIAN DE VALDUEZA",a:"PONFERRADA"},{j:"SAN ANDRES DE LAS PUENTES",a:"TORRE DEL BIERZO"},
-{j:"SAN ANDRES DE MONTEJOS",a:"PONFERRADA"},{j:"SAN BARTOLOME DE RUEDA",a:"GRADEFES"},
-{j:"SAN CIBRIAN",a:"ARDON"},{j:"SAN CIBRIAN",a:"PUEBLA DE LILLO"},{j:"SAN CIPRIANO DE RUEDA",a:"CUBILLAS DE RUEDA"},
-{j:"SAN CIPRIANO DEL CONDADO",a:"VEGAS DEL CONDADO"},{j:"SAN CLEMENTE",a:"VILLAFAÑE DEL BIERZO"},
-{j:"SAN CLEMENTE",a:"CABRILLANES"},{j:"SAN CLEMENTE DE VALDUEZA",a:"PONFERRADA"},
+{j:"SAN ADRIAN DE VALDUEZA",a:"PONFERRADA"},{j:"SAN ADRIAN DEL VALLE",a:"SAN ADRIAN DEL VALLE"},
+{j:"SAN ANDRES DE LAS PUENTES",a:"TORRE DEL BIERZO"},{j:"SAN ANDRES DE MONTEJOS",a:"PONFERRADA"},
+{j:"SAN BARTOLOME DE RUEDA",a:"GRADEFES"},{j:"SAN CIBRIAN",a:"ARDON"},{j:"SAN CIBRIAN",a:"PUEBLA DE LILLO"},
+{j:"SAN CIPRIANO DE RUEDA",a:"CUBILLAS DE RUEDA"},{j:"SAN CIPRIANO DEL CONDADO",a:"VEGAS DEL CONDADO"},
+{j:"SAN CLEMENTE",a:"VILLAFAÑE DEL BIERZO"},{j:"SAN CLEMENTE",a:"CABRILLANES"},{j:"SAN CLEMENTE DE VALDUEZA",a:"PONFERRADA"},
 {j:"SAN CRISTOBAL DE VALDUEZA",a:"PONFERRADA"},{j:"SAN ESTEBAN DE VALDUEZA",a:"PONFERRADA"},
 {j:"SAN ESTEBAN DE VILLACALBIEL",a:"VILLAMAÑAN"},{j:"SAN ESTEBAN DEL TORAL",a:"BEMBIBRE"},
 {j:"SAN FACUNDO",a:"TORRE DEL BIERZO"},{j:"SAN FELIX DE ARCE",a:"CABRILLANES"},{j:"SAN FELIX DE LA VALDERIA",a:"CASTROCALBON"},
@@ -349,8 +352,8 @@ const JUNTAS = [
 {j:"SAN ROMAN EL ANTIGUO",a:"SAN CRISTOBAL POLANTERA"},{j:"SAN TIRSO",a:"VEGA DE VALCARCE"},
 {j:"SAN VICENTE",a:"ARGANZA"},{j:"SAN VICENTE DEL CONDADO",a:"VEGAS DEL CONDADO"},{j:"SANCHEDO",a:"SANEDO"},
 {j:"SANFELISMO",a:"VALDEFRESNO"},{j:"SANTA ANA (CAPITAL)",a:"CABAÑAS RARAS"},{j:"SANTA CATALINA DE SOMOZA",a:"ASTORGA"},
-{j:"SANTA COLOMA DE CURUEÑO",a:"STA COLOMBA DE CURUEÑO"},{j:"SANTA COLOMA DE LA VEGA",a:"SOTO DE LA VEGA"},
-{j:"SANTA COLOMA DE LAS ARRIMADAS",a:"LA ERCINA"},{j:"SANTA COLOMA DE SOMOZA",a:"STA COLOMBA DE SOMOZA"},
+{j:"SANTA COLOMBA DE CURUEÑO",a:"STA COLOMBA DE CURUEÑO"},{j:"SANTA COLOMBA DE LA VEGA",a:"SOTO DE LA VEGA"},
+{j:"SANTA COLOMBA DE LAS ARRIMADAS",a:"LA ERCINA"},{j:"SANTA COLOMBA DE SOMOZA",a:"STA COLOMBA DE SOMOZA"},
 {j:"SANTA CRISTINA DE VALMADRIGAL",a:"STA CRISTINA VALMADRIGAL"},{j:"SANTA CRISTINA DEL PARAMO",a:"LAGUNA DALGA"},
 {j:"SANTA CRUZ DE MONTES",a:"TORRE DEL BIERZO"},{j:"SANTA CRUZ DEL SIL",a:"PARAMO DEL SIL"},
 {j:"SANTA EULALIA DE CABRERA",a:"ENCINEDO"},{j:"SANTA LEOCADIA",a:"TORENO"},{j:"SANTA LUCIA",a:"LA POLA DE GORDON"},
@@ -419,15 +422,16 @@ const JUNTAS = [
 {j:"VALDESOGO DE ARRIBA",a:"VILLATURIEL"},{j:"VALDESPINO",a:"SANTIAGO MILLAS"},{j:"VALDESPINO CERON",a:"MATANZA DE LOS OTEROS"},
 {j:"VALDESPINO DE VACA",a:"JOARILLA DE LAS MATAS"},{j:"VALDETUJA",a:"VALDELAGUEROS"},{j:"VALDEVIEJAS",a:"ASTORGA"},
 {j:"VALDORE",a:"CREMENES"},{j:"VALDORRIA",a:"VALDEPIELAGO"},{j:"VALDUVIECO",a:"GRADEFES"},
-{j:"VALGOMA LA",a:"CAMPONARAYA"},{j:"VALIÑA",a:"VILLADECAÑES"},{j:"VALLE DE FINOLLEDO",a:"VEGA DE ESPINAREDA"},
-{j:"VALLE DE LA VALDUERNA",a:"VILLAMONTAN DE VALDUERNA"},{j:"VALLE DE LAS CASAS",a:"CEBANICO"},
-{j:"VALLE DE MANSILLA",a:"VILLASABARIEGO"},{j:"VALLE DE VEGACERVERA",a:"VEGACERVERA"},{j:"VALLE DEL AGUA",a:"CABAÑAS RARAS"},
-{j:"VALLE EL",a:"FOLGOSO DE LA RIBERA"},{j:"VALLEJO",a:"VALDEVIMBRE"},{j:"VALMARTINO",a:"CISTIERNA"},
-{j:"VALPORQUERO DE RUEDA",a:"LA ERCINA"},{j:"VALPORQUERO DE TORIO",a:"VEGACERVERA"},{j:"VALSECO",a:"PALACIOS DEL SIL"},
-{j:"VALSEMANA",a:"CUADROS"},{j:"VALTUILLE DE ABAJO",a:"VILLAFAÑE DEL BIERZO"},{j:"VALTUILLE DE ARRIBA",a:"VILLAFAÑE DEL BIERZO"},
-{j:"VALVERDE",a:"BALBOA"},{j:"VALVERDE DE CURUEÑO",a:"VALDELAGUEROS"},{j:"VALVERDE DE LA SIERRA",a:"BOCA DE HUERGANO"},
-{j:"VALVERDIN",a:"CARMENES"},{j:"VANIDADES",a:"MAGAZ DE CEPEDA"},{j:"VECILLA DE CURUEÑO (LA)",a:"LA VECILLA DE CURUEÑO"},
-{j:"VECILLA DE LA VEGA",a:"SOTO DE LA VEGA"},{j:"VEGA DE ALMANZA LA",a:"ALMANZA"},{j:"VEGA DE ANTOÑAN",a:"BENAVIDES"},
+{j:"VALENCIA DE DON JUAN",a:"VALENCIA DE DON JUAN"},{j:"VALGOMA LA",a:"CAMPONARAYA"},{j:"VALIÑA",a:"VILLADECAÑES"},
+{j:"VALLE DE FINOLLEDO",a:"VEGA DE ESPINAREDA"},{j:"VALLE DE LA VALDUERNA",a:"VILLAMONTAN DE VALDUERNA"},
+{j:"VALLE DE LAS CASAS",a:"CEBANICO"},{j:"VALLE DE MANSILLA",a:"VILLASABARIEGO"},{j:"VALLE DE VEGACERVERA",a:"VEGACERVERA"},
+{j:"VALLE DEL AGUA",a:"CABAÑAS RARAS"},{j:"VALLE EL",a:"FOLGOSO DE LA RIBERA"},{j:"VALLEJO",a:"VALDEVIMBRE"},
+{j:"VALMARTINO",a:"CISTIERNA"},{j:"VALPORQUERO DE RUEDA",a:"LA ERCINA"},{j:"VALPORQUERO DE TORIO",a:"VEGACERVERA"},
+{j:"VALSECO",a:"PALACIOS DEL SIL"},{j:"VALSEMANA",a:"CUADROS"},{j:"VALTUILLE DE ABAJO",a:"VILLAFAÑE DEL BIERZO"},
+{j:"VALTUILLE DE ARRIBA",a:"VILLAFAÑE DEL BIERZO"},{j:"VALVERDE",a:"BALBOA"},{j:"VALVERDE DE CURUEÑO",a:"VALDELAGUEROS"},
+{j:"VALVERDE DE LA SIERRA",a:"BOCA DE HUERGANO"},{j:"VALVERDIN",a:"CARMENES"},{j:"VANIDADES",a:"MAGAZ DE CEPEDA"},
+{j:"VECILLA DE CURUEÑO (LA)",a:"LA VECILLA DE CURUEÑO"},{j:"VECILLA DE LA VEGA",a:"SOTO DE LA VEGA"},
+{j:"VEGA DE ALMANZA LA",a:"ALMANZA"},{j:"VEGA DE ANTOÑAN",a:"BENAVIDES"},
 {j:"VEGA DE CABALLEROS",a:"LOS BARRIOS DE LUNA"},{j:"VEGA DE GORDON",a:"LA POLA DE GORDON"},
 {j:"VEGA DE LOS ARBOLES",a:"VILLASABARIEGO"},{j:"VEGA DE MAGAZ",a:"MAGAZ DE CEPEDA"},
 {j:"VEGA DE MONASTERIO",a:"CUBILLAS DE RUEDA"},{j:"VEGA DE ROBLEDINO LA",a:"SENA DE LUNA"},
@@ -490,7 +494,7 @@ const JUNTAS = [
 {j:"VIVERO",a:"MURIAS DE PAREDES"},{j:"VOCES",a:"BORRENES"},{j:"VOZMEDIANO",a:"BOÑAR"},{j:"VOZNUENO",a:"BOÑAR"},
 {j:"YEBRA",a:"BENUZA"},{j:"YERES",a:"PUENTE DE DOMINGO FLOREZ"},{j:"YUGUEROS",a:"LA ERCINA"},{j:"ZACOS",a:"MAGAZ DE CEPEDA"},
 {j:"ZALAMILLAS",a:"MATANZA DE LOS OTEROS"},{j:"ZAMBRONCINOS DEL PARAMO",a:"ZOTES DEL PARAMO"},
-{j:"ZUARES DEL PARAMO",a:"BERCIANOS DEL PARAMO"}
+{j:"ZOTES DEL PARAMO",a:"ZOTES DEL PARAMO"},{j:"ZUARES DEL PARAMO",a:"BERCIANOS DEL PARAMO"}
 ];
 
 function log(msg, tipo) {
@@ -504,22 +508,35 @@ function log(msg, tipo) {
 
 async function subirJuntas() {
   document.getElementById('btnSubir').disabled = true;
-  log('🔄 Iniciando subida de ' + JUNTAS.length + ' juntas vecinales...');
-  log('⏳ Esto puede tardar unos segundos...');
+  document.getElementById('progress').style.display = 'block';
+  log('🔄 Iniciando subida de ' + JUNTAS.length + ' juntas vecinales en lotes de 50...', 'info');
   
-  const obj = {};
-  JUNTAS.forEach(function(j, i) { obj[i] = j; });
+  const TAMANO_LOTE = 50;
+  const totalLotes = Math.ceil(JUNTAS.length / TAMANO_LOTE);
   
-  try {
-    await db.ref('juntas_vecinales').set(obj);
-    log('✅ ¡ÉXITO! ' + JUNTAS.length + ' juntas vecinales subidas a Firebase.', 'ok');
-    log('📂 Ruta: juntas_vecinales', 'info');
-    log('🎉 Ya puedes cerrar esta página y borrar el archivo.', 'ok');
-  } catch(e) {
-    log('❌ Error: ' + e.message, 'err');
-    log('💡 Comprueba que las reglas de Firebase permiten escritura.', 'info');
-    document.getElementById('btnSubir').disabled = false;
+  for (let i = 0; i < JUNTAS.length; i += TAMANO_LOTE) {
+    const lote = JUNTAS.slice(i, i + TAMANO_LOTE);
+    const loteNum = Math.floor(i / TAMANO_LOTE) + 1;
+    const obj = {};
+    lote.forEach(function(j, idx) { obj[i + idx] = j; });
+    
+    try {
+      await db.ref('juntas_vecinales').update(obj);
+      const progreso = Math.min(((i + TAMANO_LOTE) / JUNTAS.length) * 100, 100);
+      document.getElementById('progressBar').style.width = progreso + '%';
+      log('✅ Lote ' + loteNum + '/' + totalLotes + ' subido (' + Math.min(i + TAMANO_LOTE, JUNTAS.length) + '/' + JUNTAS.length + ' juntas)', 'ok');
+    } catch(e) {
+      log('❌ Error en lote ' + loteNum + ': ' + e.message, 'err');
+    }
+    
+    // Pausa entre lotes para no bloquear el navegador
+    await new Promise(function(resolve) { setTimeout(resolve, 100); });
   }
+  
+  log('🎉 ¡COMPLETADO! ' + JUNTAS.length + ' juntas vecinales subidas a Firebase.', 'ok');
+  log('📂 Ruta: juntas_vecinales', 'info');
+  log('💡 Ya puedes cerrar esta página.', 'info');
+  document.getElementById('btnSubir').disabled = false;
 }
 
 async function verificar() {
