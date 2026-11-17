@@ -258,7 +258,7 @@
       <h2>Registrar préstamo</h2>
       <form id="formPrestamo">
         <label>Unidad / Artículo</label>
-        <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+        <div style="display:flex; gap:0.5rem; align-items:flex-end; margin-bottom:.75rem;">
           <select id="p_unidad" required style="flex:1; margin-bottom:0;"></select>
           <button type="button" class="btn warning" onclick="abrirModalCamaraQR(document.getElementById('p_unidad'))" style="margin-bottom:0; white-space:nowrap;">📷 Escanear QR</button>
         </div>
@@ -581,6 +581,7 @@ let firmaDevolucionData = null;
 let canvasFirma, ctxFirma, firmando = false, ultimaX = 0, ultimaY = 0;
 let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev = 0;
 let lectorRapido = null;
+let lectorRapidoIniciado = false;
 
 function initFirebase() {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "TU_API_KEY") { setEstado('local','Modo local'); return; }
@@ -1081,29 +1082,22 @@ function obtenerDNIfull() {
   return numero;
 }
 
-// ===== ESCANEAR QR CON BOTÓN =====
+// ===== ESCANEAR QR CON BOTÓN (v4 robusta) =====
 function abrirModalCamaraQR(selectElement) {
   // Verificar HTTPS
   if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    notificar('La cámara solo funciona en HTTPS. Usa GitHub Pages.', 'error', 'Sin HTTPS');
+    notificar('La cámara solo funciona en HTTPS. Usa la URL de GitHub Pages.', 'error', 'Sin HTTPS');
     return;
   }
   
   // Verificar soporte
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    notificar('Tu navegador no soporta la cámara.', 'error', 'Sin cámara');
+    notificar('Tu navegador no soporta la cámara. Usa un móvil o Chrome/Edge actualizado.', 'error', 'Sin soporte cámara');
     return;
   }
   
-  // Cerrar lector previo
-  if (lectorRapido) {
-    try { lectorRapido.stop().then(function(){ lectorRapido.clear(); }).catch(function(){}); } catch(e){}
-    lectorRapido = null;
-  }
-  if (html5QrCode) {
-    try { html5QrCode.stop().then(function(){ html5QrCode.clear(); }).catch(function(){}); } catch(e){}
-    html5QrCode = null;
-  }
+  // Cerrar lector previo de forma segura
+  detenerLectorRapido();
   
   // Crear modal
   const modalQR = document.createElement('div');
@@ -1112,10 +1106,14 @@ function abrirModalCamaraQR(selectElement) {
   modalQR.innerHTML = '<div class="modal" style="max-width:500px;">' +
     '<h3>📷 Escanear código QR</h3>' +
     '<p style="font-size:0.9rem;color:var(--muted);margin-bottom:0.5rem;">Apunta la cámara al código QR de la unidad.</p>' +
-    '<p id="qr-status" style="font-size:0.85rem;color:var(--primary);margin-bottom:0.5rem;">⏳ Iniciando cámara...</p>' +
+    '<p id="qr-status" style="font-size:0.85rem;color:var(--primary);margin-bottom:0.5rem;font-weight:600;">🔍 Buscando cámaras disponibles...</p>' +
     '<div id="qr-reader-rapido" style="width:100%;max-width:400px;margin:0 auto;min-height:250px;background:#111;border-radius:8px;"></div>' +
+    '<div id="qr-sin-camara" style="display:none;margin-top:1rem;padding:1rem;background:#fef3c7;border-radius:6px;font-size:0.85rem;color:#92400e;">' +
+    '<strong>⚠️ No se detectó ninguna cámara en este dispositivo.</strong><br>' +
+    'Puedes seleccionar la unidad manualmente en el desplegable, o abrir esta web desde un móvil con cámara.' +
+    '</div>' +
     '<div style="margin-top:1rem;text-align:center;">' +
-    '<button class="btn danger" id="btnCancelarQR">❌ Cancelar</button>' +
+    '<button class="btn danger" id="btnCancelarQR">❌ Cerrar</button>' +
     '</div></div>';
   document.body.appendChild(modalQR);
   
@@ -1123,30 +1121,37 @@ function abrirModalCamaraQR(selectElement) {
     cerrarModalQR();
   });
   
+  // Esperar a que el DOM esté listo y detectar cámaras
   setTimeout(function() {
-    const contenedor = document.getElementById('qr-reader-rapido');
     const statusEl = document.getElementById('qr-status');
     
-    if (!contenedor) {
-      if (statusEl) statusEl.textContent = '❌ Error: contenedor no encontrado';
-      cerrarModalQR();
-      return;
-    }
-    
-    const rect = contenedor.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) {
-      if (statusEl) statusEl.textContent = '❌ Error: contenedor sin dimensiones';
-      cerrarModalQR();
-      return;
-    }
-    
-    try {
-      lectorRapido = new Html5Qrcode("qr-reader-rapido", { verbose: false });
+    // Detectar cámaras disponibles
+    Html5Qrcode.getCameras().then(function(cameras) {
+      if (!cameras || cameras.length === 0) {
+        // No hay cámaras
+        if (statusEl) statusEl.textContent = '❌ No hay cámaras disponibles';
+        const sinCamara = document.getElementById('qr-sin-camara');
+        if (sinCamara) sinCamara.style.display = 'block';
+        const readerDiv = document.getElementById('qr-reader-rapido');
+        if (readerDiv) readerDiv.style.display = 'none';
+        return;
+      }
       
-      if (statusEl) statusEl.textContent = '📹 Cámara iniciada...';
+      // Elegir cámara: preferir la trasera (environment/back/rear)
+      let camElegida = cameras[0];
+      const camTrasera = cameras.find(function(c) {
+        const label = (c.label || '').toLowerCase();
+        return label.indexOf('back') !== -1 || label.indexOf('rear') !== -1 || label.indexOf('environment') !== -1 || label.indexOf('trasera') !== -1;
+      });
+      if (camTrasera) camElegida = camTrasera;
+      
+      if (statusEl) statusEl.textContent = '📹 Iniciando: ' + (camElegida.label || 'Cámara') + '...';
+      
+      lectorRapido = new Html5Qrcode("qr-reader-rapido", { verbose: false });
+      lectorRapidoIniciado = false;
       
       lectorRapido.start(
-        { facingMode: { exact: "environment" } },
+        camElegida.id,
         { fps: 10, qrbox: { width: 250, height: 250 } },
         function(decodedText) {
           if (statusEl) statusEl.textContent = '✅ QR detectado';
@@ -1156,30 +1161,37 @@ function abrirModalCamaraQR(selectElement) {
         },
         function() {}
       ).then(function() {
+        lectorRapidoIniciado = true;
         if (statusEl) statusEl.textContent = '📹 Cámara activa. Apunta al QR.';
       }).catch(function(err) {
-        console.warn('Fallo cámara trasera:', err);
-        if (statusEl) statusEl.textContent = '📹 Intentando otra cámara...';
-        
-        lectorRapido.stop().then(function() {
-          lectorRapido.start(
-            { facingMode: "user" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            function(decodedText) {
-              procesarQR(decodedText, selectElement);
-            },
-            function() {}
-          ).then(function() {
-            if (statusEl) statusEl.textContent = '📹 Cámara frontal activa.';
-          }).catch(function(err2) {
-            if (statusEl) statusEl.textContent = '❌ No se pudo acceder: ' + err2;
-          });
-        }).catch(function() {});
+        if (statusEl) statusEl.textContent = '❌ Error: ' + err;
+        const sinCamara = document.getElementById('qr-sin-camara');
+        if (sinCamara) sinCamara.style.display = 'block';
+        console.error('Error iniciando cámara:', err);
       });
-    } catch(e) {
-      if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
-    }
-  }, 600);
+      
+    }).catch(function(err) {
+      // Error al enumerar cámaras (probablemente permiso denegado o sin cámara)
+      if (statusEl) statusEl.textContent = '❌ No se pudo acceder a la cámara';
+      const sinCamara = document.getElementById('qr-sin-camara');
+      if (sinCamara) sinCamara.style.display = 'block';
+      const readerDiv = document.getElementById('qr-reader-rapido');
+      if (readerDiv) readerDiv.style.display = 'none';
+      console.error('Error detectando cámaras:', err);
+    });
+  }, 400);
+}
+
+function detenerLectorRapido() {
+  if (lectorRapido && lectorRapidoIniciado) {
+    try {
+      lectorRapido.stop().then(function() {
+        try { lectorRapido.clear(); } catch(e) {}
+      }).catch(function() {});
+    } catch(e) {}
+  }
+  lectorRapido = null;
+  lectorRapidoIniciado = false;
 }
 
 function procesarQR(decodedText, selectElement) {
@@ -1202,18 +1214,9 @@ function procesarQR(decodedText, selectElement) {
 }
 
 function cerrarModalQR() {
+  detenerLectorRapido();
   const modal = document.getElementById('modalQRRapido');
-  if (modal) {
-    if (lectorRapido) {
-      try {
-        lectorRapido.stop().then(function() {
-          try { lectorRapido.clear(); } catch(e) {}
-        }).catch(function() {});
-      } catch(e) {}
-      lectorRapido = null;
-    }
-    modal.remove();
-  }
+  if (modal) modal.remove();
 }
 
 document.getElementById('formPrestamo').addEventListener('submit', function(e) {
@@ -1651,16 +1654,31 @@ function imprimirQR() {
 
 function iniciarLectorQR() {
   if (html5QrCode) { detenerLectorQR(); return; }
-  html5QrCode = new Html5Qrcode("qr-reader");
-  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, function(decodedText) {
-    detenerLectorQR();
-    if (decodedText.indexOf('unidad=') !== -1) { const m = decodedText.match(/unidad=(\d+)/); if (m) mostrarFichaUnidad(parseInt(m[1])); else notificar('QR no válido.', 'error', 'Error'); }
-    else notificar('QR no reconocido.', 'aviso', 'QR desconocido');
-  }, function() {}).catch(function(err) { notificar('Error cámara: ' + err, 'error', 'Error'); });
-  document.getElementById('btnIniciarLector').style.display = 'none';
-  document.getElementById('btnDetenerLector').style.display = 'inline-block';
+  Html5Qrcode.getCameras().then(function(cameras) {
+    if (!cameras || cameras.length === 0) {
+      notificar('No hay cámara disponible en este dispositivo.', 'error', 'Sin cámara');
+      return;
+    }
+    let camElegida = cameras[0];
+    const camTrasera = cameras.find(function(c) {
+      const label = (c.label || '').toLowerCase();
+      return label.indexOf('back') !== -1 || label.indexOf('rear') !== -1 || label.indexOf('environment') !== -1;
+    });
+    if (camTrasera) camElegida = camTrasera;
+    
+    html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCode.start(camElegida.id, { fps: 10, qrbox: 250 }, function(decodedText) {
+      detenerLectorQR();
+      if (decodedText.indexOf('unidad=') !== -1) { const m = decodedText.match(/unidad=(\d+)/); if (m) mostrarFichaUnidad(parseInt(m[1])); else notificar('QR no válido.', 'error', 'Error'); }
+      else notificar('QR no reconocido.', 'aviso', 'QR desconocido');
+    }, function() {}).catch(function(err) { notificar('Error cámara: ' + err, 'error', 'Error'); });
+    document.getElementById('btnIniciarLector').style.display = 'none';
+    document.getElementById('btnDetenerLector').style.display = 'inline-block';
+  }).catch(function(err) {
+    notificar('No se pudo acceder a la cámara: ' + err, 'error', 'Error');
+  });
 }
-function detenerLectorQR() { if (html5QrCode) { html5QrCode.stop().then(function() { html5QrCode.clear(); html5QrCode = null; }).catch(function() {}); } document.getElementById('btnIniciarLector').style.display = 'inline-block'; document.getElementById('btnDetenerLector').style.display = 'none'; }
+function detenerLectorQR() { if (html5QrCode) { html5QrCode.stop().then(function() { html5QrCode.clear(); html5QrCode = null; }).catch(function() {}); } const b1 = document.getElementById('btnIniciarLector'); const b2 = document.getElementById('btnDetenerLector'); if (b1) b1.style.display = 'inline-block'; if (b2) b2.style.display = 'none'; }
 
 function mostrarFichaUnidad(uId) {
   const u = datos.unidades.find(function(x) { return x.id === uId; });
@@ -1766,7 +1784,7 @@ function renderCalendario() {
 
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-  if (e.key === 'Escape') { document.querySelectorAll('.modal-bg.show').forEach(function(m) { m.classList.remove('show'); }); detenerLectorQR(); }
+  if (e.key === 'Escape') { document.querySelectorAll('.modal-bg.show').forEach(function(m) { m.classList.remove('show'); }); detenerLectorQR(); cerrarModalQR(); }
   if (e.key === 'n' || e.key === 'N') showTab('prestamo', document.querySelectorAll('nav button')[1]);
   if (e.key === 'd' || e.key === 'D') showTab('devoluciones', document.querySelectorAll('nav button')[2]);
   if (e.key === 'h' || e.key === 'H') showTab('historico', document.querySelectorAll('nav button')[3]);
