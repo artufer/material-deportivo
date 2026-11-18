@@ -167,7 +167,6 @@
   .unidad-ficha { background:#f9fafb; border-radius:8px; padding:1rem; margin-top:1rem; }
   .unidad-ficha h4 { color:var(--primary-dark); margin-bottom:.5rem; }
   .unidad-ficha .historial-item { padding:.5rem; border-left:3px solid var(--primary); margin-bottom:.5rem; background:#fff; border-radius:4px; font-size:.85rem; }
-  .notas-texto { font-size:.82rem; color:var(--muted); font-style:italic; margin-top:.25rem; }
   .firma-canvas-wrap { border:2px dashed var(--border); border-radius:8px; background:#fafafa; padding:0.5rem; margin-bottom:0.75rem; touch-action:none; }
   .firma-canvas { width:100%; height:180px; display:block; cursor:crosshair; background:#fff; border-radius:4px; }
   .firma-botones { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
@@ -669,7 +668,7 @@ function notificar(mensaje, tipo, titulo) {
   const iconos = { exito: '✅', error: '❌', aviso: '⚠️', info: 'ℹ️' };
   const titulos = { exito: 'Operación completada', error: 'Error', aviso: 'Atención', info: 'Información' };
   t.innerHTML = '<span class="toast-icono">' + (iconos[tipo]||'ℹ️') + '</span><div class="toast-texto"><div class="toast-titulo">' + (titulo||titulos[tipo]||'Aviso') + '</div><div>' + mensaje + '</div></div><button class="toast-cerrar" onclick="cerrarToast(this.parentElement)">×</button>';
-  c.appendChild(t); setTimeout(function() { if (t.parentElement) cerrarToast(t); }, 4000);
+  c.appendChild(t); setTimeout(function() { if (t.parentElement) cerrarToast(t); }, 5000);
 }
 function cerrarToast(t) { if (!t || !t.parentElement) return; t.classList.add('saliendo'); setTimeout(function() { if (t.parentElement) t.parentElement.removeChild(t); }, 300); }
 
@@ -888,7 +887,7 @@ function toggleSeleccionTodos(checkbox) {
   checks.forEach(function(c) { c.checked = checkbox.checked; });
 }
 
-async function abrirModalDevolucionMultiple() {
+function abrirModalDevolucionMultiple() {
   const checks = document.querySelectorAll('.dev-check:checked');
   if (checks.length === 0) { notificar('Seleccione al menos una unidad para registrar la devolución.', 'aviso', 'Selección requerida'); return; }
   const prestamoIds = [];
@@ -1040,11 +1039,8 @@ function procesarDevolucionMultiple(prestamoIds, solicitante) {
   const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaFormateada = 'León, ' + fechaDev.getDate() + ' de ' + MESES_ES[fechaDev.getMonth()] + ' de ' + fechaDev.getFullYear();
   
-  // Generar albarán visible
   setTimeout(function() { generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma); }, 300);
-  
-  // Enviar email con imagen
-  setTimeout(function() { enviarEmailAlbaran(prestamoIds, solicitante, 'DEVOLUCIÓN', fechaFormateada); }, 1500);
+  setTimeout(function() { enviarEmailAlbaran(prestamoIds, solicitante, 'DEVOLUCIÓN', fechaFormateada, firma, estado, incidencias); }, 1500);
 }
 
 function generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma) {
@@ -1281,7 +1277,7 @@ function construirHTMLAlbaran(prestamos, solicitante, tipo, fechaFormateada, fir
   });
   
   const tiposAlbaran = [
-    { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
+    { tipo: 'pancarta', nombre: 'PANCARTAS' },
     { tipo: 'arco', nombre: 'ARCO HINCHABLE' },
     { tipo: 'arco_muy_nuevo', nombre: 'ARCO HINCHABLE (nuevo)' },
     { tipo: 'carpa_hinchable', nombre: 'CARPA HINCHABLE' },
@@ -1306,58 +1302,43 @@ function construirHTMLAlbaran(prestamos, solicitante, tipo, fechaFormateada, fir
   }
   
   let firmaSolicitanteHTML = '';
-  if (p0.firma) firmaSolicitanteHTML = '<img src="' + p0.firma + '" class="firma-img" alt="Firma solicitante">';
+  if (p0.firma) firmaSolicitanteHTML = '<img src="' + p0.firma + '" class="firma-img" alt="Firma">';
   else firmaSolicitanteHTML = '<div class="firma-linea"></div>';
   
   let firmaDevolucionHTML = '';
   if (estaDevuelto) {
-    if (firmaDevolucion) firmaDevolucionHTML = '<img src="' + firmaDevolucion + '" class="firma-img" alt="Firma devolución">';
-    else if (p0.firma) firmaDevolucionHTML = '<img src="' + p0.firma + '" class="firma-img" alt="Firma original">';
+    if (firmaDevolucion) firmaDevolucionHTML = '<img src="' + firmaDevolucion + '" class="firma-img" alt="Firma">';
+    else if (p0.firma) firmaDevolucionHTML = '<img src="' + p0.firma + '" class="firma-img" alt="Firma">';
     else firmaDevolucionHTML = '<div class="firma-linea"></div>';
   } else {
     firmaDevolucionHTML = '<div class="firma-linea"></div>';
   }
   
-  let firmaArturoDevolucionHTML = estaDevuelto ? '<img src="' + firmaArturo + '" class="firma-img" alt="Firma">' : '<div class="firma-linea"></div>';
+  let firmaArturoDevolucionHTML = estaDevuelto ? '<img src="' + firmaArturo + '" class="firma-img" alt="F">' : '<div class="firma-linea"></div>';
   
   let html = '';
-  html += '<h1 style="text-align:center;font-size:14pt;margin-bottom:4px;">CONTROL ENTREGA Y DEVOLUCIÓN</h1>';
-  html += '<h2 style="text-align:center;font-size:10pt;margin-bottom:10px;font-weight:normal;">MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
-  
-  // ENTREGA
-  html += '<div style="margin-bottom:10px;">';
-  html += '<h3 style="font-size:10pt;margin:4px 0;text-decoration:underline;">ENTREGA</h3>';
-  html += '<div style="display:flex;margin-bottom:2px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">D. / Dª.:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;">' + (p0.contacto || '') + '</span><strong style="margin:0 4px;white-space:nowrap;">D.N.I.:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;">' + (p0.dni || '') + '</span></div>';
-  html += '<div style="display:flex;margin-bottom:2px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">en calidad de:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;">' + (p0.calidad || '') + '</span><strong style="margin:0 4px;white-space:nowrap;">del:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;">' + solicitante + '</span></div>';
-  html += '<div style="display:flex;margin-bottom:2px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">N.I.F.:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span><strong style="margin:0 4px;white-space:nowrap;">Teléfono:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;">' + (p0.telefono || '') + '</span><strong style="margin:0 4px;white-space:nowrap;">e-mail:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;">' + (p0.email || '') + '</span></div>';
-  html += '<div style="display:flex;margin-bottom:6px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">RETIRA</strong><span>el material para la prueba</span><span style="flex:1;border-bottom:1px solid #000;margin:0 4px;padding:0 4px;">' + (p0.prueba || '') + '</span><span>a celebrar el día</span><span style="flex:1;border-bottom:1px solid #000;margin:0 4px;padding:0 4px;"></span><span>en la localidad de</span><span style="flex:1;border-bottom:1px solid #000;margin:0 4px;padding:0 4px;">' + (p0.localidad || '') + '</span></div>';
-  html += '<table style="width:100%;border-collapse:collapse;margin:4px 0;font-size:9pt;"><thead><tr><th style="width:10%;border:1px solid #000;padding:2px 4px;background:#f0f0f0;">UDS.</th><th style="width:40%;border:1px solid #000;padding:2px 4px;background:#f0f0f0;">ARTÍCULO</th><th style="width:50%;border:1px solid #000;padding:2px 4px;background:#f0f0f0;">MATERIAL</th></tr></thead><tbody>' + filasEntrega + '</tbody></table>';
-  html += '<div style="display:flex;justify-content:space-between;margin-top:6px;gap:10px;">';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:8pt;">El encargado de edificio</div><div style="font-size:8pt;">Arturo Fernández Carbajo</div><div style="font-size:8pt;">Firmado:</div><img src="' + firmaArturo + '" style="max-width:100px;max-height:30px;" alt="Firma"></div>';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:8pt;">Entidad</div><div style="font-size:8pt;">' + solicitante + '</div><div style="font-size:8pt;">Firmado:</div>' + firmaSolicitanteHTML + '</div>';
-  html += '</div>';
-  html += '<div style="text-align:center;margin-top:4px;font-size:9pt;">' + fechaFormateada + '</div>';
-  html += '</div>';
-  
-  // Separador
-  html += '<div style="border-top:1px dashed #999;margin:8px 0;"></div>';
-  
-  // DEVOLUCIÓN
-  html += '<div>';
-  html += '<h3 style="font-size:10pt;margin:4px 0;text-decoration:underline;">DEVOLUCIÓN</h3>';
-  html += '<div style="display:flex;margin-bottom:2px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">D. / Dª.:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span><strong style="margin:0 4px;white-space:nowrap;">D.N.I.:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span></div>';
-  html += '<div style="display:flex;margin-bottom:2px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">en calidad de:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span><strong style="margin:0 4px;white-space:nowrap;">del:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span></div>';
-  html += '<div style="display:flex;margin-bottom:2px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">N.I.F.:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span><strong style="margin:0 4px;white-space:nowrap;">Teléfono:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span><strong style="margin:0 4px;white-space:nowrap;">e-mail:</strong><span style="flex:1;border-bottom:1px solid #000;padding:0 4px;"></span></div>';
-  html += '<div style="display:flex;margin-bottom:6px;font-size:9pt;"><strong style="margin-right:4px;white-space:nowrap;">DEVUELVE</strong><span>el material cedido para la prueba</span><span style="flex:1;border-bottom:1px solid #000;margin:0 4px;padding:0 4px;"></span></div>';
-  html += '<table style="width:100%;border-collapse:collapse;margin:4px 0;font-size:9pt;"><thead><tr><th style="width:10%;border:1px solid #000;padding:2px 4px;background:#f0f0f0;">UDS.</th><th style="width:40%;border:1px solid #000;padding:2px 4px;background:#f0f0f0;">ARTÍCULO</th><th style="width:50%;border:1px solid #000;padding:2px 4px;background:#f0f0f0;">MATERIAL</th></tr></thead><tbody>' + filasDevolucion + '</tbody></table>';
-  html += '<div style="border:1px solid #000;padding:3px;margin:4px 0;min-height:20px;font-size:9pt;"><strong>INCIDENCIA/S:</strong> ' + (incidenciasHTML || '') + '</div>';
-  html += '<div style="display:flex;gap:12px;font-size:9pt;margin:3px 0;"><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox"' + (estadoDevolucion === 'correcto' ? ' checked' : '') + ' disabled style="width:12px;height:12px;"> Viene todo completo y en buen estado</div><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox"' + (estadoDevolucion === 'averiado' ? ' checked' : '') + ' disabled style="width:12px;height:12px;"> Falta algo o está deteriorado</div></div>';
-  html += '<div style="display:flex;justify-content:space-between;margin-top:6px;gap:10px;">';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:8pt;">El encargado de edificio</div><div style="font-size:8pt;">Arturo Fernández Carbajo</div><div style="font-size:8pt;">Firmado:</div>' + firmaArturoDevolucionHTML + '</div>';
-  html += '<div style="flex:1;text-align:center;"><div style="font-weight:bold;font-size:8pt;">Entidad (quien devuelve)</div><div style="font-size:8pt;">Firmado:</div>' + firmaDevolucionHTML + '</div>';
-  html += '</div>';
-  html += '<div style="text-align:center;margin-top:4px;font-size:9pt;">León, _____ de _______________ de 20___</div>';
-  html += '</div>';
+  html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1><h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
+  html += '<div class="albaran-seccion"><h3>' + tipo + '</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.:</strong><span class="linea">' + (p0.contacto || '') + '</span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea">' + (p0.dni || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de:</strong><span class="linea">' + (p0.calidad || '') + '</span><strong style="margin-left:6px;">del:</strong><span class="linea">' + solicitante + '</span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:6px;">Teléfono:</strong><span class="linea">' + (p0.telefono || '') + '</span><strong style="margin-left:6px;">e-mail:</strong><span class="linea">' + (p0.email || '') + '</span></div>';
+  html += '<div class="campo-linea"><strong>RETIRA</strong><span style="margin:0 4px;">el material para la prueba</span><span class="linea">' + (p0.prueba || '') + '</span><strong style="margin:0 4px;">en la localidad de</strong><span class="linea">' + (p0.localidad || '') + '</span></div>';
+  html += '<table><thead><tr><th style="width:10%;">UDS.</th><th style="width:40%;">ARTÍCULO</th><th style="width:50%;">MATERIAL</th></tr></thead><tbody>' + filasEntrega + '</tbody></table>';
+  html += '<div class="firmas-row"><div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><img src="' + firmaArturo + '" class="firma-img" alt="F"></div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + solicitante + '</div><div class="nombre">Firmado:</div>' + firmaSolicitanteHTML + '</div></div>';
+  html += '<div class="fecha-final">' + fechaFormateada + '</div></div>';
+  html += '<div style="border-top:1px dashed #999;margin:6px 0;"></div>';
+  html += '<div class="albaran-seccion"><h3>DEVOLUCIÓN</h3>';
+  html += '<div class="campo-linea"><strong>D. / Dª.:</strong><span class="linea"></span><strong style="margin-left:6px;">D.N.I.:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>en calidad de:</strong><span class="linea"></span><strong style="margin-left:6px;">del:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>N.I.F.:</strong><span class="linea"></span><strong style="margin-left:6px;">Teléfono:</strong><span class="linea"></span><strong style="margin-left:6px;">e-mail:</strong><span class="linea"></span></div>';
+  html += '<div class="campo-linea"><strong>DEVUELVE</strong><span style="margin:0 4px;">el material cedido para la prueba</span><span class="linea"></span></div>';
+  html += '<table><thead><tr><th style="width:10%;">UDS.</th><th style="width:40%;">ARTÍCULO</th><th style="width:50%;">MATERIAL</th></tr></thead><tbody>' + filasDevolucion + '</tbody></table>';
+  html += '<div class="incidencias-box"><strong>INCIDENCIA/S:</strong> ' + (incidenciasHTML || '') + '</div>';
+  html += '<div style="display:flex;gap:12px;font-size:9pt;margin:3px 0;"><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox"' + (estadoDevolucion === 'correcto' ? ' checked' : '') + ' disabled style="width:12px;height:12px;"> Todo correcto</div><div style="display:flex;align-items:center;gap:3px;"><input type="checkbox"' + (estadoDevolucion === 'averiado' ? ' checked' : '') + ' disabled style="width:12px;height:12px;"> Deteriorado</div></div>';
+  html += '<div class="firmas-row"><div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div>' + firmaArturoDevolucionHTML + '</div>';
+  html += '<div class="firma-box"><div class="titulo">Entidad (quien devuelve)</div><div class="nombre">Firmado:</div>' + firmaDevolucionHTML + '</div></div>';
+  html += '<div class="fecha-final">León, _____ de _______________ de 20___</div></div>';
   
   return html;
 }
@@ -1374,7 +1355,6 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada, fir
   
   const p0 = prestamos[0];
   
-  // Agrupar productos
   const productos = {};
   prestamos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
@@ -1395,7 +1375,6 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada, fir
     tablaHTML += '</tr>';
   });
   
-  // Campos adicionales
   let camposAdicionales = '';
   if (p0.dni) camposAdicionales += '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;width:130px;">D.N.I. / N.I.F.:</td><td style="padding:8px;">' + p0.dni + '</td></tr>';
   if (p0.telefono) camposAdicionales += '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Teléfono:</td><td style="padding:8px;">' + p0.telefono + '</td></tr>';
@@ -1410,44 +1389,44 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada, fir
   }
   if (p0.notas) camposAdicionales += '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;vertical-align:top;">Notas:</td><td style="padding:8px;">' + p0.notas + '</td></tr>';
   
-  // === GENERAR IMAGEN DEL ALBARÁN ===
+  // Generar imagen del albarán
   const htmlAlbaran = construirHTMLAlbaran(prestamos, solicitante, tipo, fechaFormateada, firmaDevolucion, estadoDevolucion, incidenciasDevolucion);
   
   const contenedorTemp = document.createElement('div');
-  contenedorTemp.style.cssText = 'position:fixed;left:-9999px;top:0;width:700px;background:white;padding:20px;font-family:Arial,sans-serif;';
-  contenedorTemp.innerHTML = htmlAlbaran;
+  contenedorTemp.style.cssText = 'position:fixed;left:-9999px;top:0;width:600px;background:white;padding:15px;font-family:Arial,sans-serif;';
+  contenedorTemp.innerHTML = '<div class="albaran-print">' + htmlAlbaran + '</div>';
   document.body.appendChild(contenedorTemp);
-  
-  notificar('Generando imagen del albarán...', 'info', 'Preparando email');
   
   setTimeout(function() {
     html2canvas(contenedorTemp, {
-      scale: 1.5,
+      scale: 1,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#ffffff',
       logging: false,
-      width: 700,
-      windowWidth: 700
+      width: 600
     }).then(function(canvas) {
       document.body.removeChild(contenedorTemp);
       
-      // Reducir tamaño: JPEG calidad 0.6 y escala más pequeña
-      const imagenBase64 = canvas.toDataURL('image/jpeg', 0.6);
-      const tamañoKB = Math.round((imagenBase64.length * 0.75) / 1024);
-      console.log('📸 Tamaño de imagen: ' + tamañoKB + ' KB');
+      // Reducir tamaño máximo a 400px de ancho
+      const canvasReducido = document.createElement('canvas');
+      const anchoFinal = 400;
+      const altoFinal = Math.round(canvas.height * (anchoFinal / canvas.width));
+      canvasReducido.width = anchoFinal;
+      canvasReducido.height = altoFinal;
+      const ctx = canvasReducido.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, anchoFinal, altoFinal);
+      ctx.drawImage(canvas, 0, 0, anchoFinal, altoFinal);
       
-      // Si la imagen es muy grande (>40KB), reducirla más
-      let imagenFinal = imagenBase64;
-      if (tamañoKB > 40) {
-        const canvasSmall = document.createElement('canvas');
-        canvasSmall.width = canvas.width * 0.7;
-        canvasSmall.height = canvas.height * 0.7;
-        const ctx = canvasSmall.getContext('2d');
-        ctx.drawImage(canvas, 0, 0, canvasSmall.width, canvasSmall.height);
-        imagenFinal = canvasSmall.toDataURL('image/jpeg', 0.5);
-        const tamañoFinal = Math.round((imagenFinal.length * 0.75) / 1024);
-        console.log('📸 Imagen reducida a: ' + tamañoFinal + ' KB');
+      let imagenBase64 = canvasReducido.toDataURL('image/jpeg', 0.6);
+      const tamañoKB = Math.round((imagenBase64.length * 0.75) / 1024);
+      console.log('📸 Tamaño imagen: ' + tamañoKB + ' KB');
+      
+      // Si sigue siendo muy grande, reducir más
+      if (tamañoKB > 45) {
+        imagenBase64 = canvasReducido.toDataURL('image/jpeg', 0.4);
+        console.log('📸 Imagen comprimida a calidad 0.4');
       }
       
       const templateParams = {
@@ -1458,28 +1437,126 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada, fir
         tabla_productos: tablaHTML,
         campos_adicionales: camposAdicionales,
         total_unidades: prestamos.length,
-        imagen_albaran: imagenFinal,
+        imagen_albaran: imagenBase64,
         to_email: 'arturo.fernandez@dipuleon.es',
         name: 'Control de Préstamos - Diputación de León',
         email: p0.email || ''
       };
       
       emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
-        .then(function() { 
-          console.log('✅ Email enviado: ' + tipo + ' - ' + solicitante); 
+        .then(function(response) { 
+          console.log('✅ Email enviado:', response); 
           notificar('Email con albarán enviado correctamente.', 'exito', 'Email enviado');
         })
         .catch(function(err) { 
           console.error('❌ Error enviando email:', err); 
-          notificar('Error al enviar el email: ' + (err.text || 'desconocido'), 'error', 'Error de envío');
+          notificar('Error: ' + (err.text || JSON.stringify(err)), 'error', 'Error de envío');
         });
     }).catch(function(err) {
       console.error('❌ Error generando imagen:', err);
       if (contenedorTemp.parentNode) document.body.removeChild(contenedorTemp);
-      notificar('No se pudo generar la imagen del albarán.', 'error', 'Error');
+      // Fallback: enviar sin imagen
+      const templateParams = {
+        solicitante: solicitante,
+        tipo: tipo,
+        fecha: fechaFormateada,
+        contacto: p0.contacto || '-',
+        tabla_productos: tablaHTML,
+        campos_adicionales: camposAdicionales,
+        total_unidades: prestamos.length,
+        imagen_albaran: '',
+        to_email: 'arturo.fernandez@dipuleon.es',
+        name: 'Control de Préstamos - Diputación de León',
+        email: p0.email || ''
+      };
+      emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+        .then(function() { notificar('Email enviado sin imagen (fallback).', 'aviso', 'Email enviado'); })
+        .catch(function(err) { notificar('Error: ' + (err.text || JSON.stringify(err)), 'error', 'Error'); });
     });
-  }, 1000);
+  }, 800);
 }
+
+function probarEmail() {
+  const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
+  if (!configurado) { notificar('Configure primero las claves de EmailJS en el código.', 'aviso', 'EmailJS no configurado'); return; }
+  notificar('Generando imagen de prueba y enviando email...', 'info', 'Prueba');
+  
+  const tablaHTML = '<tr><td style="padding:8px;text-align:center;border:1px solid #ddd;font-weight:bold;">2</td><td style="padding:8px;border:1px solid #ddd;">Arcos hinchables</td><td style="padding:8px;border:1px solid #ddd;color:#6b7280;">Arcos hinchables #1, Arcos hinchables #2</td></tr><tr><td style="padding:8px;text-align:center;border:1px solid #ddd;font-weight:bold;">1</td><td style="padding:8px;border:1px solid #ddd;">Carpas metálicas</td><td style="padding:8px;border:1px solid #ddd;color:#6b7280;">Carpas metálicas #3</td></tr>';
+  
+  const camposAdicionales = '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;width:130px;">D.N.I. / N.I.F.:</td><td style="padding:8px;">12345678A</td></tr><tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Teléfono:</td><td style="padding:8px;">600 123 456</td></tr><tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Prueba / Evento:</td><td style="padding:8px;">Carrera Popular</td></tr><tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Localidad:</td><td style="padding:8px;">La Bañeza</td></tr>';
+  
+  // Generar imagen de prueba
+  const htmlPrueba = '<h1 style="text-align:center;color:#15407a;">🏛️ Albarán de PRUEBA</h1>' +
+    '<p><strong>Solicitante:</strong> TEST - Ayto. de Prueba</p>' +
+    '<p><strong>Contacto:</strong> Persona de contacto</p>' +
+    '<p><strong>Fecha:</strong> León, 18 de noviembre de 2026</p>' +
+    '<table style="width:100%;border-collapse:collapse;margin-top:10px;">' +
+    '<tr style="background:#1e5aa8;color:white;"><th style="padding:6px;">Cant.</th><th style="padding:6px;">Producto</th><th style="padding:6px;">Unidades</th></tr>' +
+    '<tr><td style="padding:6px;border:1px solid #ddd;text-align:center;">2</td><td style="padding:6px;border:1px solid #ddd;">Arcos hinchables</td><td style="padding:6px;border:1px solid #ddd;">#1, #2</td></tr>' +
+    '<tr><td style="padding:6px;border:1px solid #ddd;text-align:center;">1</td><td style="padding:6px;border:1px solid #ddd;">Carpas metálicas</td><td style="padding:6px;border:1px solid #ddd;">#3</td></tr>' +
+    '</table>' +
+    '<p style="margin-top:10px;font-size:10px;color:#666;">Documento de prueba - Control de Préstamos Diputación de León</p>';
+  
+  const contenedorTemp = document.createElement('div');
+  contenedorTemp.style.cssText = 'position:fixed;left:-9999px;top:0;width:500px;background:white;padding:15px;font-family:Arial,sans-serif;';
+  contenedorTemp.innerHTML = htmlPrueba;
+  document.body.appendChild(contenedorTemp);
+  
+  setTimeout(function() {
+    html2canvas(contenedorTemp, {
+      scale: 1,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: 500
+    }).then(function(canvas) {
+      document.body.removeChild(contenedorTemp);
+      
+      const canvasReducido = document.createElement('canvas');
+      const anchoFinal = 350;
+      const altoFinal = Math.round(canvas.height * (anchoFinal / canvas.width));
+      canvasReducido.width = anchoFinal;
+      canvasReducido.height = altoFinal;
+      const ctx = canvasReducido.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, anchoFinal, altoFinal);
+      ctx.drawImage(canvas, 0, 0, anchoFinal, altoFinal);
+      
+      let imagenBase64 = canvasReducido.toDataURL('image/jpeg', 0.5);
+      const tamañoKB = Math.round((imagenBase64.length * 0.75) / 1024);
+      console.log('📸 Tamaño imagen prueba: ' + tamañoKB + ' KB');
+      
+      const templateParams = {
+        solicitante: 'TEST - Ayto. de Prueba',
+        tipo: 'PRUEBA',
+        fecha: 'León, 18 de noviembre de 2026',
+        contacto: 'Persona de contacto (prueba)',
+        tabla_productos: tablaHTML,
+        campos_adicionales: camposAdicionales,
+        total_unidades: '3',
+        imagen_albaran: imagenBase64,
+        to_email: 'arturo.fernandez@dipuleon.es',
+        name: 'Control de Préstamos - Diputación de León',
+        email: ''
+      };
+      
+      emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+        .then(function(response) { 
+          console.log('✅ Respuesta EmailJS:', response);
+          notificar('Email de prueba enviado. Revise su bandeja.', 'exito', 'Email enviado'); 
+        })
+        .catch(function(err) { 
+          console.error('❌ Error EmailJS:', err);
+          notificar('Error: ' + (err.text || JSON.stringify(err)), 'error', 'Error de envío'); 
+        });
+    }).catch(function(err) {
+      console.error('❌ Error html2canvas:', err);
+      if (contenedorTemp.parentNode) document.body.removeChild(contenedorTemp);
+      notificar('Error generando imagen: ' + err.message, 'error', 'Error');
+    });
+  }, 500);
+}
+
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Seleccione --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 
 function cargarAsociaciones() {
@@ -1768,15 +1845,11 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   limpiarFirma();
   notificar('<strong>' + prestamoIds.length + ' unidad(es)</strong> registrada(s) correctamente.', 'exito', 'Préstamo registrado');
   
-  // Fecha formateada
   const fechaSalida = new Date(sal);
   const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaFormateada = 'León, ' + fechaSalida.getDate() + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + fechaSalida.getFullYear();
   
-  // Generar albarán visible
   setTimeout(function() { generarAlbaranMultiple(prestamoIds); }, 300);
-  
-  // Enviar email con imagen (esperar a que el albarán esté en el DOM)
   setTimeout(function() { enviarEmailAlbaran(prestamoIds, sol, 'ENTREGA', fechaFormateada); }, 1500);
 });
 
@@ -1813,7 +1886,7 @@ document.getElementById('formArticulo').addEventListener('submit', function(e) {
   notificar('Dadas de alta <strong>' + c + '</strong> unidad(es) de "' + n + '".', 'exito', 'Artículo registrado');
 });
 
-async function abrirDevolucion(pId) {
+function abrirDevolucion(pId) {
   const p = datos.prestamos.find(function(x) { return x.id === pId; }); if (!p) return;
   const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
   document.getElementById('d_prestamoId').value = pId;
@@ -1858,32 +1931,22 @@ async function eliminarPrestamo(id) {
 }
 
 function exportarDatos() { const b = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(u); notificar('Copia de seguridad descargada correctamente.', 'exito', 'Exportación completada'); }
-async function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; } (async function() { if (!await confirmar('¿Reemplazar todos los datos?', 'Confirmar importación')) return; datos = imp; guardar(); renderTodo(); notificar('Datos importados correctamente en el sistema.', 'exito', 'Importación completada'); })(); } catch(err) { notificar('Error al procesar el archivo: ' + err.message, 'error', 'Error de importación'); } }; r.readAsText(f); ev.target.value = ''; }
+async function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; } if (!await confirmar('¿Reemplazar todos los datos?', 'Confirmar importación')) return; datos = imp; guardar(); renderTodo(); notificar('Datos importados correctamente en el sistema.', 'exito', 'Importación completada'); } catch(err) { notificar('Error al procesar el archivo: ' + err.message, 'error', 'Error de importación'); } }; r.readAsText(f); ev.target.value = ''; }
 
 async function borrarPrestamos() {
   if (!await confirmar('¿Borrar TODOS los préstamos del histórico?\n\n✅ Se mantendrán los materiales del inventario.\n⚠️ Esta acción no se puede deshacer.', 'Borrar histórico')) return;
   if (!await confirmar('🔴 ÚLTIMA CONFIRMACIÓN: ¿Seguro que quiere borrar todos los préstamos?', 'Confirmación final')) return;
-  
-  const articulosGuardados = datos.articulos.slice();
-  const unidadesGuardadas = datos.unidades.slice();
-  
   datos.prestamos = [];
   datos.nextId.prestamo = 1;
-  
-  unidadesGuardadas.forEach(function(u) {
-    u.estado = 'almacen';
-    u.observaciones = '';
-  });
-  
+  datos.unidades.forEach(function(u) { u.estado = 'almacen'; u.observaciones = ''; });
   guardar();
   renderTodo();
-  notificar('Histórico de préstamos borrado. Inventario mantenido (' + articulosGuardados.length + ' artículos).', 'exito', 'Histórico limpiado');
+  notificar('Histórico de préstamos borrado. Inventario mantenido (' + datos.articulos.length + ' artículos).', 'exito', 'Histórico limpiado');
 }
 
 async function borrarTodo() {
   if (!await confirmar('⚠️ ¿Borrar ABSOLUTAMENTE TODO?\n\n• Préstamos\n• Inventario personalizado\n• Se restaurará el inventario inicial\n\nEsta acción NO se puede deshacer.', 'Borrar todo')) return;
   if (!await confirmar('🔴 ÚLTIMA CONFIRMACIÓN: ¿Seguro que quiere borrar TODO?', 'Confirmación final')) return;
-  
   localStorage.removeItem(STORAGE_KEY);
   datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
   inicializarInventario();
@@ -1935,33 +1998,16 @@ function imprimirQR() {
   const tarjetas = document.querySelectorAll('#qrGrid .qr-card');
   if (tarjetas.length === 0) { notificar('Primero debe generar los códigos QR.', 'aviso', 'Sin códigos QR'); return; }
   let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiquetas QR - Diputación de León</title>';
-  html += '<style>';
-  html += 'body { font-family: Arial, sans-serif; padding: 10mm; margin: 0; }';
-  html += 'h1 { text-align: center; font-size: 14pt; margin-bottom: 5px; color: #15407a; }';
-  html += 'h2 { text-align: center; font-size: 11pt; margin-bottom: 15px; font-weight: normal; color: #6b7280; }';
-  html += '.qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }';
-  html += '.qr-card { border: 1px solid #ccc; border-radius: 6px; padding: 8px; text-align: center; page-break-inside: avoid; break-inside: avoid; }';
-  html += '.qr-card img { width: 120px; height: 120px; }';
-  html += '.qr-nombre { font-weight: bold; font-size: 9pt; margin-top: 5px; color: #1f2937; }';
-  html += '@media print { body { padding: 5mm; } .no-print { display: none; } }';
-  html += '@page { size: A4; margin: 8mm; }';
-  html += '</style></head><body>';
-  html += '<h1>🏛️ Control de Préstamos - Diputación de León</h1>';
-  html += '<h2>Etiquetas QR de unidades</h2>';
-  html += '<div class="qr-grid">';
+  html += '<style>body{font-family:Arial,sans-serif;padding:10mm;margin:0;}h1{text-align:center;font-size:14pt;margin-bottom:5px;color:#15407a;}h2{text-align:center;font-size:11pt;margin-bottom:15px;font-weight:normal;color:#6b7280;}.qr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}.qr-card{border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;page-break-inside:avoid;break-inside:avoid;}.qr-card img{width:120px;height:120px;}.qr-nombre{font-weight:bold;font-size:9pt;margin-top:5px;color:#1f2937;}@media print{body{padding:5mm;}.no-print{display:none;}}@page{size:A4;margin:8mm;}</style></head><body>';
+  html += '<h1>🏛️ Control de Préstamos - Diputación de León</h1><h2>Etiquetas QR de unidades</h2><div class="qr-grid">';
   tarjetas.forEach(function(card) {
     const qrImg = card.querySelector('.qr-img img');
     const nombre = card.querySelector('.qr-nombre').textContent;
     html += '<div class="qr-card">';
     if (qrImg && qrImg.src) html += '<img src="' + qrImg.src + '" alt="QR ' + nombre + '">';
-    html += '<div class="qr-nombre">' + nombre + '</div>';
-    html += '</div>';
+    html += '<div class="qr-nombre">' + nombre + '</div></div>';
   });
-  html += '</div>';
-  html += '<div class="no-print" style="text-align:center; margin-top:20px;">';
-  html += '<button onclick="window.print()" style="padding:10px 20px; font-size:12pt; background:#1e5aa8; color:white; border:none; border-radius:6px; cursor:pointer;">🖨️ Imprimir</button> ';
-  html += '<button onclick="window.close()" style="padding:10px 20px; font-size:12pt; background:#6b7280; color:white; border:none; border-radius:6px; cursor:pointer;">Cerrar</button>';
-  html += '</div></body></html>';
+  html += '</div><div class="no-print" style="text-align:center;margin-top:20px;"><button onclick="window.print()" style="padding:10px 20px;font-size:12pt;background:#1e5aa8;color:white;border:none;border-radius:6px;cursor:pointer;">🖨️ Imprimir</button> <button onclick="window.close()" style="padding:10px 20px;font-size:12pt;background:#6b7280;color:white;border:none;border-radius:6px;cursor:pointer;">Cerrar</button></div></body></html>';
   const ventana = window.open('', '_blank', 'width=900,height=700');
   if (!ventana) { notificar('Permita las ventanas emergentes en su navegador.', 'error', 'Ventana bloqueada'); return; }
   ventana.document.write(html);
