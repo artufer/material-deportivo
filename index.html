@@ -394,6 +394,22 @@
     </div>
   </div>
 
+  <div id="modalAveria" class="modal-bg">
+    <div class="modal">
+      <h3>⚠️ Marcar unidad como averiada</h3>
+      <div id="averiaInfo" style="margin-bottom:1rem;font-size:.9rem;"></div>
+      <form id="formAveria">
+        <input type="hidden" id="av_unidadId">
+        <label>Descripción del daño / incidencia *</label>
+        <textarea id="av_descripcion" placeholder="Ej: Lona rasgada en esquina inferior, varilla doblada..." required style="min-height:80px;"></textarea>
+        <div class="row" style="margin-top:1rem;">
+          <button type="submit" class="btn danger">⚠️ Marcar como averiada</button>
+          <button type="button" class="btn secondary" onclick="cerrarModalAveria()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="modalUnidad" class="modal-bg">
     <div class="modal">
       <h3 id="modalUnidadTitulo">Ficha de unidad</h3>
@@ -541,11 +557,9 @@ const firebaseConfig = {
   appId: "1:508599988372:web:c96c0dbae6be456a264481"
 };
 
-// ===== CONFIGURACIÓN EMAILJS =====
 const EMAILJS_SERVICE = 'service_oyu236o';
 const EMAILJS_TEMPLATE = 'template_eyvhgpj';
 const EMAILJS_PUBLIC_KEY = 'HhTaoxZGy2zC2YXSl';
-// ================================
 
 let db = null, firebaseActivo = false, listadoSeleccionado = null;
 let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
@@ -613,7 +627,6 @@ function init() {
   if (raw) { try { const d = JSON.parse(raw); if (esDatosValidos(d)) datos = d; else inicializarInventario(); } catch(e) { inicializarInventario(); } }
   else inicializarInventario();
   
-  // Normalizar tipos de artículos existentes para coincidir con imágenes
   datos.articulos.forEach(function(a) {
     if (a.tipo && a.tipo.toLowerCase().replace(/[-_\s]/g,'').indexOf('mesaping') === 0) {
       a.tipo = 'mesa_pingpon';
@@ -682,7 +695,7 @@ function renderDashboard() {
     let htmlU = '';
     unidades.forEach(function(u) {
       const pr = getPrestamoActivo(u.id);
-      let meta = '📍 En almacén', badge = '<span class="badge ok">DISPONIBLE</span>';
+      let meta = '📍 En almacén', badge = '<span class="badge ok">DISPONIBLE</span> <button class="btn small warning" onclick="event.stopPropagation(); abrirModalAveria(' + u.id + ')" title="Marcar como averiada">⚠️ Averiar</button>';
       if (u.estado === 'prestado' && pr) {
         const vencido = pr.fechaPrevista && new Date() > new Date(pr.fechaPrevista);
         meta = '👤 ' + pr.solicitante + ' · 📅 ' + formatFecha(pr.fechaSalida);
@@ -708,6 +721,36 @@ function marcarReparada(uId) {
   renderTodo();
   notificar('<strong>' + u.identificador + '</strong> marcada como reparada.', 'exito', 'Reparada');
 }
+
+function abrirModalAveria(uId) {
+  const u = datos.unidades.find(function(x) { return x.id === uId; });
+  if (!u || u.estado !== 'almacen') { notificar('Esa unidad no está en almacén.', 'aviso', 'No aplica'); return; }
+  if (!confirm('¿Marcar "' + u.identificador + '" como AVERIADA?')) return;
+  document.getElementById('av_unidadId').value = uId;
+  document.getElementById('averiaInfo').innerHTML = '<strong>' + u.identificador + '</strong><br><span style="color:var(--muted);">Describe qué le pasa a esta unidad:</span>';
+  document.getElementById('av_descripcion').value = '';
+  document.getElementById('modalAveria').classList.add('show');
+  setTimeout(function() { document.getElementById('av_descripcion').focus(); }, 200);
+}
+
+function cerrarModalAveria() {
+  document.getElementById('modalAveria').classList.remove('show');
+}
+
+document.getElementById('formAveria').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const uId = parseInt(document.getElementById('av_unidadId').value);
+  const descripcion = document.getElementById('av_descripcion').value.trim();
+  if (!descripcion) { notificar('Describe el daño.', 'aviso', 'Falta descripción'); return; }
+  const u = datos.unidades.find(function(x) { return x.id === uId; });
+  if (!u) { notificar('Unidad no encontrada.', 'error', 'Error'); return; }
+  u.estado = 'averiado';
+  u.observaciones = descripcion;
+  guardar();
+  cerrarModalAveria();
+  renderTodo();
+  notificar('<strong>' + u.identificador + '</strong> marcada como averiada.', 'aviso', 'Avería registrada');
+});
 
 function renderSelectUnidades() {
   const sel = document.getElementById('p_unidad');
@@ -1697,8 +1740,6 @@ function borrarPrestamos() {
   
   const articulosGuardados = datos.articulos.slice();
   const unidadesGuardadas = datos.unidades.slice();
-  const nextIdArticulo = datos.nextId.articulo;
-  const nextIdUnidad = datos.nextId.unidad;
   
   datos.prestamos = [];
   datos.nextId.prestamo = 1;
