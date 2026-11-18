@@ -4,14 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control Préstamos - Diputación de León</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>
-  (function() {
-    emailjs.init({ publicKey: "TU_PUBLIC_KEY_EMAILJS" });
-  })();
-</script>
 <style>
   :root { --primary:#1e5aa8; --primary-dark:#15407a; --success:#2e7d32; --warning:#ed6c02; --danger:#d32f2f; --bg:#f4f6f9; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -502,7 +498,7 @@
     <div class="card"><h2>🌐 Sincronización en la nube</h2><div id="estadoFirebaseInfo"></div></div>
     <div class="card">
       <h2>📧 Email de albaranes (EmailJS)</h2>
-      <p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;">Al registrar préstamos o devoluciones se envía un email automático con los datos del albarán.</p>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;">Al registrar préstamos o devoluciones se envía un email automático con copia del albarán.</p>
       <div id="estadoEmailInfo"></div>
       <button class="btn outline" onclick="probarEmail()">🧪 Enviar email de prueba</button>
     </div>
@@ -535,7 +531,8 @@ const firebaseConfig = {
 // ===== CONFIGURACIÓN EMAILJS =====
 const EMAILJS_SERVICE = 'service_oyu236o';
 const EMAILJS_TEMPLATE = 'template_eyvhgpj';
-const EMAILJS_PUBLIC_KEY = 'HhTaoxZGy2zC2YXSl';// ================================
+const EMAILJS_PUBLIC_KEY = 'HhTaoxZGy2zC2YXSl';
+// ================================
 
 let db = null, firebaseActivo = false, listadoSeleccionado = null;
 let mesCalendario = new Date().getMonth(), anioCalendario = new Date().getFullYear();
@@ -547,7 +544,7 @@ let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev
 let canvasFirmaDevMult, ctxFirmaDevMult, firmandoDevMult = false;
 let unidadesPrestamo = [];
 
-// Inicializar EmailJS con la Public Key
+// Inicializar EmailJS
 if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI') {
   try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { console.error('Error init EmailJS:', e); }
 }
@@ -949,10 +946,8 @@ function procesarDevolucionMultiple(prestamoIds, solicitante) {
   const msg = '<strong>' + prestamoIds.length + ' unidad(es)</strong> de <strong>' + solicitante + '</strong> devuelta(s).' + (averiados > 0 ? ' <span style="color:var(--danger);">(' + averiados + ' con incidencias)</span>' : '');
   notificar(msg, averiados > 0 ? 'aviso' : 'exito', 'Devolución registrada');
   
-  // Generar albarán de devolución
   setTimeout(function() { generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma); }, 300);
   
-  // Enviar email de devolución
   const fechaDev = new Date(fecha);
   const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaFormateada = 'León, ' + fechaDev.getDate() + ' de ' + MESES_ES[fechaDev.getMonth()] + ' de ' + fechaDev.getFullYear();
@@ -1182,6 +1177,7 @@ function probarEmail() {
     tipo: 'PRUEBA',
     fecha: 'León, ' + new Date().getDate() + ' de prueba',
     unidades: 'Arcos hinchables #1 (prueba)',
+    html_content: '<h1>HOLA</h1><p>Esto es una prueba de EmailJS</p>',
     name: 'Control de Préstamos - Diputación de León',
     email: ''
   };
@@ -1192,24 +1188,85 @@ function probarEmail() {
 
 function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
   const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
-  if (!configurado) { console.log('⚠️ EmailJS no configurado. Email no enviado.'); return; }
+  if (!configurado) { console.log('⚠️ EmailJS no configurado.'); return; }
+  
   const prestamos = prestamoIds.map(function(id) { return datos.prestamos.find(function(x) { return x.id === id; }); }).filter(function(p) { return p; });
-  const unidadesTexto = prestamos.map(function(p) {
+  if (prestamos.length === 0) return;
+  
+  const p0 = prestamos[0];
+  
+  // Lista de unidades (texto simple)
+  const unidadesLista = prestamos.map(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-    return u ? u.identificador : '?';
-  }).join(', ');
-  const emailSolicitante = prestamos[0].email || '';
+    const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
+    return (a ? a.nombre : '?') + ' - ' + (u ? u.identificador : '?');
+  }).join('<br>');
+  
+  // Firma del solicitante
+  let firmaHTML = '';
+  if (p0.firma) {
+    firmaHTML = '<img src="' + p0.firma + '" style="max-width:120px;max-height:40px;margin-top:5px;" alt="Firma">';
+  } else {
+    firmaHTML = '<em style="color:#999;">Sin firma digital</em>';
+  }
+  
+  // HTML compacto del albarán
+  const htmlContent = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:8px;">' +
+    '<div style="background:#1e5aa8;color:white;padding:15px;text-align:center;border-radius:8px 8px 0 0;">' +
+    '<h1 style="margin:0;font-size:18px;">🏛️ Control de Préstamos</h1>' +
+    '<p style="margin:5px 0 0;font-size:12px;opacity:0.9;">Diputación de León - Material deportivo</p>' +
+    '</div>' +
+    '<div style="background:#f9fafb;padding:20px;border:1px solid #e5e7eb;border-top:none;">' +
+    '<h2 style="color:#15407a;margin-top:0;font-size:16px;border-bottom:2px solid #1e5aa8;padding-bottom:8px;">Albarán de ' + tipo + '</h2>' +
+    '<table style="width:100%;border-collapse:collapse;margin:15px 0;">' +
+    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;width:120px;">Solicitante:</td><td style="padding:8px;">' + solicitante + '</td></tr>' +
+    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Contacto:</td><td style="padding:8px;">' + (p0.contacto||'-') + '</td></tr>' +
+    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">D.N.I.:</td><td style="padding:8px;">' + (p0.dni||'-') + '</td></tr>' +
+    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Teléfono:</td><td style="padding:8px;">' + (p0.telefono||'-') + '</td></tr>' +
+    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Fecha:</td><td style="padding:8px;">' + fechaFormateada + '</td></tr>' +
+    (p0.prueba ? '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Prueba/Evento:</td><td style="padding:8px;">' + p0.prueba + '</td></tr>' : '') +
+    (p0.localidad ? '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Localidad:</td><td style="padding:8px;">' + p0.localidad + '</td></tr>' : '') +
+    '</table>' +
+    '<h3 style="color:#15407a;font-size:14px;margin-top:20px;border-bottom:1px solid #e5e7eb;padding-bottom:5px;">Unidades</h3>' +
+    '<div style="background:white;padding:10px;border:1px solid #ddd;border-radius:4px;margin:10px 0;">' + unidadesLista + '</div>' +
+    '<div style="margin-top:25px;padding-top:15px;border-top:2px dashed #e5e7eb;">' +
+    '<h3 style="color:#15407a;font-size:14px;">Firmas</h3>' +
+    '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:15px;">' +
+    '<div style="flex:1;text-align:center;">' +
+    '<p style="font-weight:bold;font-size:11px;margin:0 0 5px;">El encargado de edificio</p>' +
+    '<p style="font-size:10px;margin:0 0 5px;">Arturo Fernández Carbajo</p>' +
+    '<img src="img/firma_arturo.png" style="max-width:100px;max-height:35px;" alt="Firma">' +
+    '</div>' +
+    '<div style="flex:1;text-align:center;">' +
+    '<p style="font-weight:bold;font-size:11px;margin:0 0 5px;">Entidad</p>' +
+    '<p style="font-size:10px;margin:0 0 5px;">' + solicitante + '</p>' +
+    firmaHTML +
+    '</div>' +
+    '</div></div>' +
+    '<div style="background:#dbeafe;border-left:4px solid #1e5aa8;padding:10px;margin:20px 0 0;border-radius:4px;">' +
+    '<p style="margin:0;font-size:11px;color:#1e40af;">📎 Email automático. El albarán original se puede imprimir desde la aplicación.</p>' +
+    '</div>' +
+    '</div>' +
+    '<div style="background:#f9fafb;padding:12px;text-align:center;font-size:10px;color:#6b7280;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;">' +
+    '<p style="margin:0;">Diputación de León - Servicio de Deportes</p>' +
+    '</div></div>';
+  
   const templateParams = {
     solicitante: solicitante,
     tipo: tipo,
     fecha: fechaFormateada,
-    unidades: unidadesTexto,
+    unidades: prestamos.map(function(p) {
+      const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+      return u ? u.identificador : '?';
+    }).join(', '),
+    html_content: htmlContent,
     to_email: 'arturo.fernandez@dipuleon.es',
     name: 'Control de Préstamos - Diputación de León',
-    email: emailSolicitante
+    email: p0.email || ''
   };
+  
   emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
-    .then(function() { console.log('✅ Email enviado: ' + tipo + ' - ' + solicitante); })
+    .then(function() { console.log('✅ Email con albarán enviado: ' + tipo + ' - ' + solicitante); })
     .catch(function(err) { console.error('❌ Error enviando email:', err); });
 }
 
@@ -1501,10 +1558,8 @@ document.getElementById('formPrestamo').addEventListener('submit', function(e) {
   limpiarFirma();
   notificar('<strong>' + prestamoIds.length + ' unidad(es)</strong> registrada(s).', 'exito', 'Préstamo registrado');
   
-  // Generar albarán
   setTimeout(function() { generarAlbaranMultiple(prestamoIds); }, 300);
   
-  // Enviar email de entrega
   const fechaSalida = new Date(sal);
   const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaFormateada = 'León, ' + fechaSalida.getDate() + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + fechaSalida.getFullYear();
