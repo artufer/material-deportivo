@@ -1185,15 +1185,29 @@ function probarEmail() {
   const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
   if (!configurado) { notificar('Configura primero EMAILJS_TEMPLATE y EMAILJS_PUBLIC_KEY.', 'aviso', 'Sin configurar'); return; }
   notificar('Enviando email de prueba...', 'info', 'Prueba');
+  
+  const tablaHTML = '<tr>' +
+    '<td style="padding: 8px; text-align: center; border: 1px solid #ddd; font-weight: bold;">2</td>' +
+    '<td style="padding: 8px; border: 1px solid #ddd;">Arcos hinchables</td>' +
+    '<td style="padding: 8px; border: 1px solid #ddd; color: #6b7280;">Arcos hinchables #1, Arcos hinchables #2</td>' +
+    '</tr>' +
+    '<tr>' +
+    '<td style="padding: 8px; text-align: center; border: 1px solid #ddd; font-weight: bold;">1</td>' +
+    '<td style="padding: 8px; border: 1px solid #ddd;">Carpas metálicas</td>' +
+    '<td style="padding: 8px; border: 1px solid #ddd; color: #6b7280;">Carpas metálicas #3</td>' +
+    '</tr>';
+  
   const templateParams = {
-    solicitante: 'TEST - Prueba de configuración',
+    solicitante: 'TEST - Ayto. de Prueba',
     tipo: 'PRUEBA',
     fecha: 'León, ' + new Date().getDate() + ' de noviembre de 2026',
-    unidades: 'Arcos hinchables #1 (prueba)',
+    contacto: 'Persona de contacto (prueba)',
+    tabla_productos: tablaHTML,
     to_email: 'arturo.fernandez@dipuleon.es',
     name: 'Control de Préstamos - Diputación de León',
     email: ''
   };
+  
   emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
     .then(function() { notificar('Email de prueba enviado correctamente.', 'exito', 'Enviado'); })
     .catch(function(err) { notificar('Error: ' + JSON.stringify(err), 'error', 'Error'); });
@@ -1208,17 +1222,34 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
   
   const p0 = prestamos[0];
   
-  // Lista de unidades (texto simple)
-  const unidadesTexto = prestamos.map(function(p) {
+  // Agrupar productos por tipo
+  const productos = {};
+  prestamos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-    return u ? u.identificador : '?';
-  }).join(', ');
+    const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
+    if (a) {
+      if (!productos[a.nombre]) productos[a.nombre] = { cantidad: 0, unidades: [] };
+      productos[a.nombre].cantidad++;
+      productos[a.nombre].unidades.push(u.identificador);
+    }
+  });
+  
+  // Construir tabla HTML de productos
+  let tablaHTML = '';
+  Object.keys(productos).forEach(function(nombre) {
+    tablaHTML += '<tr>';
+    tablaHTML += '<td style="padding: 8px; text-align: center; border: 1px solid #ddd; font-weight: bold;">' + productos[nombre].cantidad + '</td>';
+    tablaHTML += '<td style="padding: 8px; border: 1px solid #ddd;">' + nombre + '</td>';
+    tablaHTML += '<td style="padding: 8px; border: 1px solid #ddd; color: #6b7280;">' + productos[nombre].unidades.join(', ') + '</td>';
+    tablaHTML += '</tr>';
+  });
   
   const templateParams = {
     solicitante: solicitante,
     tipo: tipo,
     fecha: fechaFormateada,
-    unidades: unidadesTexto,
+    contacto: p0.contacto || '-',
+    tabla_productos: tablaHTML,
     to_email: 'arturo.fernandez@dipuleon.es',
     name: 'Control de Préstamos - Diputación de León',
     email: p0.email || ''
@@ -1228,7 +1259,6 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
     .then(function() { console.log('✅ Email enviado: ' + tipo + ' - ' + solicitante); })
     .catch(function(err) { console.error('❌ Error enviando email:', err); });
 }
-
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Selecciona --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 
 function cargarAsociaciones() {
