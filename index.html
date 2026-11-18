@@ -505,19 +505,19 @@
     <div class="alert warn">⚠️ Si la sincronización está <strong>activa</strong>, los datos se comparten entre todos los dispositivos.</div>
     <div class="card"><h2>Copia de seguridad</h2><div class="row"><button class="btn" onclick="exportarDatos()">📥 Exportar datos (JSON)</button><button class="btn secondary" onclick="document.getElementById('fileImport').click()">📤 Importar datos</button><input type="file" id="fileImport" accept=".json" style="display:none;" onchange="importarDatos(event)"></div></div>
     <div class="card">
-  <h2>Zona peligrosa</h2>
-  <p style="font-size:0.88rem;color:var(--muted);margin-bottom:0.75rem;">Gestión de datos de la aplicación.</p>
-  <div class="row" style="margin-bottom:0.75rem;">
-    <button class="btn warning" onclick="borrarPrestamos()" style="flex:1;">🗑️ Borrar histórico de préstamos</button>
-  </div>
-  <div class="row">
-    <button class="btn danger" onclick="borrarTodo()" style="flex:1;">💣 Borrar TODO (incluido inventario)</button>
-  </div>
-  <p style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;">
-    💡 <strong>Borrar histórico</strong> elimina solo los préstamos y devuelve todo el material al almacén. Tu inventario personalizado se mantiene.<br>
-    ⚠️ <strong>Borrar TODO</strong> restaura el inventario inicial y elimina todo lo demás.
-  </p>
-</div>n></div>
+      <h2>Gestión de datos</h2>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;">Borrar préstamos o reiniciar la aplicación.</p>
+      <div class="row" style="margin-bottom:.75rem;">
+        <button class="btn warning" onclick="borrarPrestamos()" style="flex:1;">🗑️ Borrar histórico de préstamos</button>
+      </div>
+      <div class="row">
+        <button class="btn danger" onclick="borrarTodo()" style="flex:1;">💣 Borrar TODO (incluido inventario)</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem;">
+        💡 <strong>Borrar histórico</strong> elimina solo los préstamos y devuelve todo el material al almacén. Tu inventario personalizado se mantiene.<br>
+        ⚠️ <strong>Borrar TODO</strong> restaura el inventario inicial y elimina todo lo demás.
+      </p>
+    </div>
   </div>
 
   <div id="albaranTab" class="tab albaran-tab">
@@ -543,7 +543,7 @@ const firebaseConfig = {
 
 // ===== CONFIGURACIÓN EMAILJS =====
 const EMAILJS_SERVICE = 'service_oyu236o';
-const EMAILJS_TEMPLATE = 'template_h7v8smx';
+const EMAILJS_TEMPLATE = 'template_eyvhgpj';
 const EMAILJS_PUBLIC_KEY = 'HhTaoxZGy2zC2YXSl';
 // ================================
 
@@ -557,7 +557,6 @@ let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev
 let canvasFirmaDevMult, ctxFirmaDevMult, firmandoDevMult = false;
 let unidadesPrestamo = [];
 
-// Inicializar EmailJS
 if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI') {
   try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { console.error('Error init EmailJS:', e); }
 }
@@ -574,7 +573,7 @@ let datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1,
 
 const AYUNTAMIENTOS_LEON = ["Acebedo","Algadefe","Alija del Infantado","Almanza","Antigua, La","Ardón","Arganza","Astorga","Balboa","Bañeza, La","Barjas","Barrios de Luna, Los","Bembibre","Benavides","Benuza","Bercianos del Páramo","Bercianos del Real Camino","Berlanga del Bierzo","Boca de Huérgano","Boñar","Borrenes","Brazuelo","Burgo Ranero, El","Burón","Bustillo del Páramo","Cabañas Raras","Cabreros del Río","Cabrillanes","Cacabelos","Calzada del Coto","Campazas","Campo de Villavidel","Camponaraya","Candín","Cármenes","Carracedelo","Carrizo","Carrocera","Carucedo","Castilfalé","Castrillo de Cabrera","Castrillo de la Valduerna","Castrocalbón","Castrocontrigo","Castropodame","Castrotierra de Valmadrigal","Cea","Cebanico","Cebrones del Río","Chozas de Abajo","Cistierna","Congosto","Corbillos de los Oteros","Corullón","Crémenes","Cuadros","Cubillas de los Oteros","Cubillas de Rueda","Cubillos del Sil","Destriana","Encinedo","Ercina, La","Escobar de Campos","Fabero","Folgoso de la Ribera","Fresno de la Vega","Fuentes de Carbajal","Garrafe de Torío","Gordaliza del Pino","Gordoncillo","Gradefes","Grajal de Campos","Gusendos de los Oteros","Hospital de Órbigo","Igüeña","Izagre","Joarilla de las Matas","Laguna Dalga","Laguna de Negrillos","León","Llamas de la Ribera","Lucillo","Luyego","Magaz de Cepeda","Mansilla de las Mulas","Mansilla Mayor","Maraña","Matadeón de los Oteros","Matallana de Torío","Matanza","Molinaseca","Murias de Paredes","Noceda del Bierzo","Oencia","Omañas, Las","Onzonilla","Oseja de Sajambre","Pajares de los Oteros","Palacios de la Valduerna","Palacios del Sil","Páramo del Sil","Peranzanes","Pobladura de Pelayo García","Pola de Gordón, La","Ponferrada","Posada de Valdeón","Pozuelo del Páramo","Prado de la Guzpeña","Priaranza del Bierzo","Prioro","Puebla de Lillo","Puente de Domingo Flórez","Quintana del Castillo","Quintana del Marco","Quintana y Congosto","Regueras de Arriba","Reyero","Riaño","Riego de la Vega","Riello","Rioseco de Tapia","Robla, La","Roperuelos del Páramo","Sabero","Sahagún","San Adrián del Valle","San Andrés del Rabanedo","San Cristóbal de la Polantera","San Emiliano","San Esteban de Nogales","San Justo de la Vega","San Millán de los Caballeros","San Pedro Bercianos","Sancedo","Santa Colomba de Curueño","Santa Colomba de Somoza","Santa Cristina de Valmadrigal","Santa Elena de Jamuz","Santa María de la Isla","Santa María de Ordás","Santa María del Monte de Cea","Santa María del Páramo","Santa Marina del Rey","Santas Martas","Santiago Millas","Santovenia de la Valdoncina","Sariegos","Sena de Luna","Sobrado","Soto de la Vega","Soto y Amío","Toral de los Guzmanes","Toral de los Vados","Toreno","Torre del Bierzo","Trabadelo","Truchas","Turcia","Urdiales del Páramo","Val de San Lorenzo","Valdefresno","Valdefuentes del Páramo","Valdelugueros","Valdemora","Valdepiélago","Valdepolo","Valderas","Valderrey","Valderrueda","Valdesamario","Valdevimbre","Valencia de Don Juan","Vallecillo","Valverde de la Virgen","Valverde-Enrique","Vecilla, La","Vega de Espinareda","Vega de Infanzones","Vega de Valcarce","Vegacervera","Vegaquemada","Vegas del Condado","Villablino","Villabraz","Villadangos del Páramo","Villademor de la Vega","Villafranca del Bierzo","Villagatón","Villamandos","Villamanín","Villamañán","Villamartín de Don Sancho","Villamejil","Villamol","Villamontán de la Valduerna","Villanueva de las Manzanas","Villaobispo de Otero","Villaornate y Castro","Villaquejida","Villaquilambre","Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"];
 
-const ICONOS_IMAGEN = {'arco':'arco','arco_muy_nuevo':'arco_muy_nuevo','carpa_hinchable':'carpa_hinchable','carpa_metalica':'carpa_metalica','podio':'podio','pancarta':'pancarta','mesa_pingpong':'mesa_pingpong','tatami':'tatami','balon':'balon','red':'red','cono':'cono'};
+const ICONOS_IMAGEN = {'arco':'arco','arco_muy_nuevo':'arco_muy_nuevo','carpa_hinchable':'carpa_hinchable','carpa_metalica':'carpa_metalica','podio':'podio','pancarta':'pancarta','mesa_pingpon':'mesa_pingpon','tatami':'tatami','balon':'balon','red':'red','cono':'cono'};
 const ICONOS_EMOJI = {'arco':'🏁','arco_muy_nuevo':'🏁','carpa_hinchable':'🎪','carpa_metalica':'⛺','podio':'🏆','pancarta':'🪧','mesa_pingpon':'🏓','tatami':'🥋','balon':'⚽','red':'🥅','cono':'🔶','default':'📦'};
 
 function iconoError(el, tipo) { el.outerHTML = '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>'; }
@@ -596,7 +595,7 @@ function inicializarInventario() {
     { nombre: "Podios", tipo: "podio", cantidad: 1, descripcion: "" },
     { nombre: "Pancartas", tipo: "pancarta", cantidad: 20, descripcion: "" },
     { nombre: "Tatami", tipo: "tatami", cantidad: 1, descripcion: "Alfombra/colchoneta para lucha leonesa" },
-    { nombre: "Mesas de ping-pong", tipo: "mesa_pingpong", cantidad: 2, descripcion: "" },
+    { nombre: "Mesas de ping pong", tipo: "mesa_pingpon", cantidad: 5, descripcion: "" },
   ];
   inv.forEach(function(a) {
     const idA = datos.nextId.articulo++;
@@ -613,6 +612,14 @@ function init() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) { try { const d = JSON.parse(raw); if (esDatosValidos(d)) datos = d; else inicializarInventario(); } catch(e) { inicializarInventario(); } }
   else inicializarInventario();
+  
+  // Normalizar tipos de artículos existentes para coincidir con imágenes
+  datos.articulos.forEach(function(a) {
+    if (a.tipo && a.tipo.toLowerCase().replace(/[-_\s]/g,'').indexOf('mesaping') === 0) {
+      a.tipo = 'mesa_pingpon';
+    }
+  });
+  
   renderTodo();
   initCanvasFirma();
   if (db) {
@@ -994,7 +1001,7 @@ function generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estad
     { tipo: 'carpa_metalica', nombre: 'CARPA METÁLICA' },
     { tipo: 'podio', nombre: 'PODIOS' },
     { tipo: 'tatami', nombre: 'TATAMI' },
-    { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING-PONG' }
+    { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING PONG' }
   ];
   let html = '';
   html += '<h1>CONTROL ENTREGA Y DEVOLUCIÓN</h1><h2>MATERIALES DEPORTIVO-PROMOCIONALES SERVICIO DEPORTES</h2>';
@@ -1222,7 +1229,6 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
   
   const p0 = prestamos[0];
   
-  // Agrupar productos por tipo
   const productos = {};
   prestamos.forEach(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
@@ -1234,7 +1240,6 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
     }
   });
   
-  // Construir tabla HTML de productos
   let tablaHTML = '';
   Object.keys(productos).forEach(function(nombre) {
     tablaHTML += '<tr>';
@@ -1259,6 +1264,7 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
     .then(function() { console.log('✅ Email enviado: ' + tipo + ' - ' + solicitante); })
     .catch(function(err) { console.error('❌ Error enviando email:', err); });
 }
+
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Selecciona --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 
 function cargarAsociaciones() {
@@ -1583,7 +1589,7 @@ function generarAlbaranMultiple(prestamoIds) {
     { tipo: 'carpa_metalica', nombre: 'CARPA METÁLICA' },
     { tipo: 'podio', nombre: 'PODIOS' },
     { tipo: 'tatami', nombre: 'TATAMI' },
-    { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING-PONG' }
+    { tipo: 'mesa_pingpon', nombre: 'MESAS DE PING PONG' }
   ];
   const conteo = {};
   prestamos.forEach(function(p) {
@@ -1684,21 +1690,19 @@ function eliminarPrestamo(id) {
 
 function exportarDatos() { const b = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(u); notificar('Copia descargada.', 'exito', 'Exportado'); }
 function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('Archivo no válido.', 'error', 'Error'); return; } if (!confirm('¿Reemplazar todos los datos?')) return; datos = imp; guardar(); renderTodo(); notificar('Datos importados.', 'exito', 'Importado'); } catch(err) { notificar('Error: ' + err.message, 'error', 'Error'); } }; r.readAsText(f); ev.target.value = ''; }
+
 function borrarPrestamos() {
   if (!confirm('¿Borrar TODOS los préstamos del histórico?\n\n✅ Se mantendrán los materiales del inventario.\n⚠️ Esta acción no se puede deshacer.')) return;
   if (!confirm('🔴 ÚLTIMA CONFIRMACIÓN: ¿Seguro que quieres borrar todos los préstamos?')) return;
   
-  // Guardar el inventario actual (artículos + unidades)
   const articulosGuardados = datos.articulos.slice();
   const unidadesGuardadas = datos.unidades.slice();
   const nextIdArticulo = datos.nextId.articulo;
   const nextIdUnidad = datos.nextId.unidad;
   
-  // Resetear solo préstamos
   datos.prestamos = [];
   datos.nextId.prestamo = 1;
   
-  // Devolver todas las unidades al almacén (ya no hay préstamos activos)
   unidadesGuardadas.forEach(function(u) {
     u.estado = 'almacen';
     u.observaciones = '';
@@ -1758,7 +1762,7 @@ function genListadoAlmacen() { const al = datos.unidades.filter(function(u) { re
 
 function abrirVentanaListado(titulo, contenido) { const ahora = new Date(); const fg = ahora.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); const v = window.open('', '_blank', 'width=900,height=700'); if (!v) { notificar('Permite ventanas emergentes.', 'error', 'Bloqueada'); return; } v.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titulo+'</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937;}h1{color:#15407a;border-bottom:2px solid #1e5aa8;padding-bottom:10px;font-size:18pt;}h2{color:#1e5aa8;font-size:14pt;margin-top:5px;}.meta{color:#6b7280;font-size:10pt;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:15px;}th{background:#f0f0f0;padding:8px;text-align:left;border:1px solid #ccc;font-size:10pt;}td{padding:6px 8px;border:1px solid #ccc;font-size:10pt;}tr:nth-child(even){background:#f9fafb;}.pie{margin-top:20px;font-size:9pt;color:#6b7280;border-top:1px solid #ccc;padding-top:10px;}@media print{body{padding:10px;}.no-print{display:none;}}</style></head><body><h1>🏛️ Control de Préstamos - Diputación de León</h1><h2>'+titulo+'</h2><p class="meta">Generado el '+fg+'</p>'+contenido+'<div class="pie">Documento generado automáticamente.</div><div class="no-print" style="margin-top:20px;text-align:center;"><button onclick="window.print()" style="padding:10px 20px;font-size:12pt;background:#1e5aa8;color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨️ Imprimir / PDF</button> <button onclick="window.close()" style="padding:10px 20px;font-size:12pt;background:#6b7280;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-left:10px;">Cerrar</button></div></body></html>'); v.document.close(); }
 
-function generarTodosQR() { const grid = document.getElementById('qrGrid'); if (!grid) return; grid.innerHTML = ''; const urlBase = window.location.href.split('?')[0]; datos.unidades.forEach(function(u) { const card = document.createElement('div'); card.className = 'qr-card'; const qrDiv = document.createElement('div'); qrDiv.className = 'qr-img'; const urlUnidad = urlBase + '?unidad=' + u.id; try { new QRCode(qrDiv, { text: urlUnidad, width: 140, height: 140, colorDark: '#15407a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch(e) { qrDiv.innerHTML = '<p style="color:red;">Error QR</p>'; } const estadoTexto = u.estado === 'almacen' ? '📍 Almacén' : u.estado === 'prestado' ? '👤 Prestado' : '🔧 Averiado'; const estadoColor = u.estado === 'almacen' ? 'green' : u.estado === 'prestado' ? 'orange' : 'red'; card.innerHTML = '<div class="qr-nombre">' + u.identificador + '</div><div class="qr-estado" style="color:' + estadoColor + ';">' + estadoTexto + '</div>'; card.insertBefore(qrDiv, card.firstChild); grid.appendChild(card); }); if (datos.unidades.length === 0) grid.innerHTML = '<div class="vacio"><div class="icono">📦</div><div>No hay unidades</div></div>'; }
+function generarTodosQR() { const grid = document.getElementById('qrGrid'); if (!grid) return; grid.innerHTML = ''; const urlBase = window.location.href.split('?')[0]; datos.unidades.forEach(function(u) { const card = document.createElement('div'); card.className = 'qr-card'; const qrDiv = document.createElement('div'); qrDiv.className = 'qr-img'; const urlUnidad = urlBase + '?unidad=' + u.id; try { new QRCode(qrDiv, { text: urlUnidad, width: 140, height: 140, colorDark: '#15407a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch(e) { qrDiv.innerHTML = '<p style="color:red;">Error QR</p>'; } card.innerHTML = '<div class="qr-nombre">' + u.identificador + '</div>'; card.insertBefore(qrDiv, card.firstChild); grid.appendChild(card); }); if (datos.unidades.length === 0) grid.innerHTML = '<div class="vacio"><div class="icono">📦</div><div>No hay unidades</div></div>'; }
 
 function imprimirQR() {
   const tarjetas = document.querySelectorAll('#qrGrid .qr-card');
