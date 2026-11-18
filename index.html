@@ -1183,14 +1183,14 @@ function renderEstadoEmail() {
 
 function probarEmail() {
   const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
-  if (!configurado) { notificar('Configura primero EMAILJS_TEMPLATE y EMAILJS_PUBLIC_KEY en el código.', 'aviso', 'Sin configurar'); return; }
+  if (!configurado) { notificar('Configura primero EMAILJS_TEMPLATE y EMAILJS_PUBLIC_KEY.', 'aviso', 'Sin configurar'); return; }
   notificar('Enviando email de prueba...', 'info', 'Prueba');
   const templateParams = {
     solicitante: 'TEST - Prueba de configuración',
     tipo: 'PRUEBA',
-    fecha: 'León, ' + new Date().getDate() + ' de prueba',
+    fecha: 'León, ' + new Date().getDate() + ' de noviembre de 2026',
     unidades: 'Arcos hinchables #1 (prueba)',
-    html_content: '<h1>HOLA</h1><p>Esto es una prueba de EmailJS</p>',
+    to_email: 'arturo.fernandez@dipuleon.es',
     name: 'Control de Préstamos - Diputación de León',
     email: ''
   };
@@ -1209,77 +1209,23 @@ function enviarEmailAlbaran(prestamoIds, solicitante, tipo, fechaFormateada) {
   const p0 = prestamos[0];
   
   // Lista de unidades (texto simple)
-  const unidadesLista = prestamos.map(function(p) {
+  const unidadesTexto = prestamos.map(function(p) {
     const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-    const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
-    return (a ? a.nombre : '?') + ' - ' + (u ? u.identificador : '?');
-  }).join('<br>');
-  
-  // Firma del solicitante
-  let firmaHTML = '';
-  if (p0.firma) {
-    firmaHTML = '<img src="' + p0.firma + '" style="max-width:120px;max-height:40px;margin-top:5px;" alt="Firma">';
-  } else {
-    firmaHTML = '<em style="color:#999;">Sin firma digital</em>';
-  }
-  
-  // HTML compacto del albarán
-  const htmlContent = '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:8px;">' +
-    '<div style="background:#1e5aa8;color:white;padding:15px;text-align:center;border-radius:8px 8px 0 0;">' +
-    '<h1 style="margin:0;font-size:18px;">🏛️ Control de Préstamos</h1>' +
-    '<p style="margin:5px 0 0;font-size:12px;opacity:0.9;">Diputación de León - Material deportivo</p>' +
-    '</div>' +
-    '<div style="background:#f9fafb;padding:20px;border:1px solid #e5e7eb;border-top:none;">' +
-    '<h2 style="color:#15407a;margin-top:0;font-size:16px;border-bottom:2px solid #1e5aa8;padding-bottom:8px;">Albarán de ' + tipo + '</h2>' +
-    '<table style="width:100%;border-collapse:collapse;margin:15px 0;">' +
-    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;width:120px;">Solicitante:</td><td style="padding:8px;">' + solicitante + '</td></tr>' +
-    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Contacto:</td><td style="padding:8px;">' + (p0.contacto||'-') + '</td></tr>' +
-    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">D.N.I.:</td><td style="padding:8px;">' + (p0.dni||'-') + '</td></tr>' +
-    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Teléfono:</td><td style="padding:8px;">' + (p0.telefono||'-') + '</td></tr>' +
-    '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Fecha:</td><td style="padding:8px;">' + fechaFormateada + '</td></tr>' +
-    (p0.prueba ? '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Prueba/Evento:</td><td style="padding:8px;">' + p0.prueba + '</td></tr>' : '') +
-    (p0.localidad ? '<tr><td style="padding:8px;font-weight:bold;color:#6b7280;">Localidad:</td><td style="padding:8px;">' + p0.localidad + '</td></tr>' : '') +
-    '</table>' +
-    '<h3 style="color:#15407a;font-size:14px;margin-top:20px;border-bottom:1px solid #e5e7eb;padding-bottom:5px;">Unidades</h3>' +
-    '<div style="background:white;padding:10px;border:1px solid #ddd;border-radius:4px;margin:10px 0;">' + unidadesLista + '</div>' +
-    '<div style="margin-top:25px;padding-top:15px;border-top:2px dashed #e5e7eb;">' +
-    '<h3 style="color:#15407a;font-size:14px;">Firmas</h3>' +
-    '<div style="display:flex;justify-content:space-between;margin-top:10px;gap:15px;">' +
-    '<div style="flex:1;text-align:center;">' +
-    '<p style="font-weight:bold;font-size:11px;margin:0 0 5px;">El encargado de edificio</p>' +
-    '<p style="font-size:10px;margin:0 0 5px;">Arturo Fernández Carbajo</p>' +
-    '<img src="img/firma_arturo.png" style="max-width:100px;max-height:35px;" alt="Firma">' +
-    '</div>' +
-    '<div style="flex:1;text-align:center;">' +
-    '<p style="font-weight:bold;font-size:11px;margin:0 0 5px;">Entidad</p>' +
-    '<p style="font-size:10px;margin:0 0 5px;">' + solicitante + '</p>' +
-    firmaHTML +
-    '</div>' +
-    '</div></div>' +
-    '<div style="background:#dbeafe;border-left:4px solid #1e5aa8;padding:10px;margin:20px 0 0;border-radius:4px;">' +
-    '<p style="margin:0;font-size:11px;color:#1e40af;">📎 Email automático. El albarán original se puede imprimir desde la aplicación.</p>' +
-    '</div>' +
-    '</div>' +
-    '<div style="background:#f9fafb;padding:12px;text-align:center;font-size:10px;color:#6b7280;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;">' +
-    '<p style="margin:0;">Diputación de León - Servicio de Deportes</p>' +
-    '</div></div>';
+    return u ? u.identificador : '?';
+  }).join(', ');
   
   const templateParams = {
     solicitante: solicitante,
     tipo: tipo,
     fecha: fechaFormateada,
-    unidades: prestamos.map(function(p) {
-      const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-      return u ? u.identificador : '?';
-    }).join(', '),
-    html_content: htmlContent,
+    unidades: unidadesTexto,
     to_email: 'arturo.fernandez@dipuleon.es',
     name: 'Control de Préstamos - Diputación de León',
     email: p0.email || ''
   };
   
   emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
-    .then(function() { console.log('✅ Email con albarán enviado: ' + tipo + ' - ' + solicitante); })
+    .then(function() { console.log('✅ Email enviado: ' + tipo + ' - ' + solicitante); })
     .catch(function(err) { console.error('❌ Error enviando email:', err); });
 }
 
