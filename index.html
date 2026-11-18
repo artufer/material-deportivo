@@ -54,9 +54,13 @@
   button.btn:hover { background:var(--primary-dark); }
   button.btn.small { padding:.3rem .5rem; font-size:.75rem; }
   button.btn.success { background:var(--success); }
+  button.btn.success:hover { background:#1b5e20; }
   button.btn.danger { background:var(--danger); }
+  button.btn.danger:hover { background:#9a1c1c; }
   button.btn.warning { background:var(--warning); }
+  button.btn.warning:hover { background:#c05602; }
   button.btn.secondary { background:#6b7280; }
+  button.btn.secondary:hover { background:#4b5563; }
   button.btn.big { padding:.75rem 1.2rem; font-size:1rem; width:100%; margin-top:.5rem; }
   button.btn.outline { background:#fff; color:var(--primary); border:2px solid var(--primary); }
   button.btn.outline:hover { background:var(--primary); color:#fff; }
@@ -80,6 +84,9 @@
   .modal-bg.show { display:flex; }
   .modal { background:#fff; border-radius:8px; padding:1.25rem; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; }
   .modal h3 { margin-bottom:1rem; color:var(--primary-dark); }
+  #modalConfirm { z-index:200; }
+  #modalConfirm .modal { max-width:460px; }
+  #cf_mensaje { font-size:.92rem; color:var(--text); white-space:pre-line; margin-bottom:1.25rem; line-height:1.6; }
   .campo-oculto { display:none; }
   .devolucion-card { border:1px solid var(--border); border-left:5px solid var(--warning); border-radius:8px; padding:1rem; margin-bottom:.75rem; background:#fff; }
   .devolucion-card.vencido { border-left-color:var(--danger); background:#fef2f2; }
@@ -410,6 +417,17 @@
     </div>
   </div>
 
+  <div id="modalConfirm" class="modal-bg">
+    <div class="modal">
+      <h3 id="cf_titulo">Confirmar</h3>
+      <div id="cf_mensaje"></div>
+      <div class="row">
+        <button type="button" id="cf_aceptar" class="btn success">Aceptar</button>
+        <button type="button" id="cf_cancelar" class="btn secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modalUnidad" class="modal-bg">
     <div class="modal">
       <h3 id="modalUnidadTitulo">Ficha de unidad</h3>
@@ -662,6 +680,27 @@ function notificar(mensaje, tipo, titulo) {
 }
 function cerrarToast(t) { if (!t || !t.parentElement) return; t.classList.add('saliendo'); setTimeout(function() { if (t.parentElement) t.parentElement.removeChild(t); }, 300); }
 
+function confirmarApp(mensaje, opciones) {
+  opciones = opciones || {};
+  return new Promise(function(resolve) {
+    document.getElementById('cf_titulo').textContent = opciones.titulo || 'Confirmar';
+    document.getElementById('cf_mensaje').textContent = mensaje;
+    const btnA = document.getElementById('cf_aceptar');
+    btnA.textContent = opciones.textoAceptar || 'Aceptar';
+    btnA.className = 'btn ' + (opciones.claseAceptar || 'success');
+    document.getElementById('cf_cancelar').textContent = opciones.textoCancelar || 'Cancelar';
+    const modal = document.getElementById('modalConfirm');
+    modal.classList.add('show');
+    function limpiar() {
+      modal.classList.remove('show');
+      btnA.onclick = null;
+      document.getElementById('cf_cancelar').onclick = null;
+    }
+    btnA.onclick = function() { limpiar(); resolve(true); };
+    document.getElementById('cf_cancelar').onclick = function() { limpiar(); resolve(false); };
+  });
+}
+
 function showTab(id, btn) {
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
@@ -714,23 +753,27 @@ function renderDashboard() {
 function marcarReparada(uId) {
   const u = datos.unidades.find(function(x) { return x.id === uId; });
   if (!u || u.estado !== 'averiado') { notificar('Esta unidad no tiene ninguna incidencia registrada.', 'aviso', 'No aplica'); return; }
-  if (!confirm('¿Confirmar que "' + u.identificador + '" ha sido reparada y devolverla al almacén?')) return;
-  u.estado = 'almacen';
-  u.observaciones = '';
-  guardar();
-  renderTodo();
-  notificar('<strong>' + u.identificador + '</strong> devuelta al almacén tras reparación.', 'exito', 'Reparación confirmada');
+  confirmarApp('¿Confirma que "' + u.identificador + '" ha sido reparada y quiere devolverla al almacén?', { titulo:'🔧 Confirmar reparación', textoAceptar:'Sí, reparada', claseAceptar:'success' }).then(function(ok) {
+    if (!ok) return;
+    u.estado = 'almacen';
+    u.observaciones = '';
+    guardar();
+    renderTodo();
+    notificar('<strong>' + u.identificador + '</strong> devuelta al almacén tras reparación.', 'exito', 'Reparación confirmada');
+  });
 }
 
 function abrirModalAveria(uId) {
   const u = datos.unidades.find(function(x) { return x.id === uId; });
   if (!u || u.estado !== 'almacen') { notificar('Solo se pueden registrar incidencias en unidades disponibles en almacén.', 'aviso', 'No disponible'); return; }
-  if (!confirm('¿Registrar incidencia en "' + u.identificador + '" y marcarla como AVERIADA?')) return;
-  document.getElementById('av_unidadId').value = uId;
-  document.getElementById('averiaInfo').innerHTML = '<strong>' + u.identificador + '</strong><br><span style="color:var(--muted);">Describa el daño o incidencia observada:</span>';
-  document.getElementById('av_descripcion').value = '';
-  document.getElementById('modalAveria').classList.add('show');
-  setTimeout(function() { document.getElementById('av_descripcion').focus(); }, 200);
+  confirmarApp('¿Quiere registrar una incidencia en "' + u.identificador + '" y retirarla del almacén?', { titulo:'⚠️ Registrar incidencia', textoAceptar:'Sí, registrar', claseAceptar:'warning' }).then(function(ok) {
+    if (!ok) return;
+    document.getElementById('av_unidadId').value = uId;
+    document.getElementById('averiaInfo').innerHTML = '<strong>' + u.identificador + '</strong><br><span style="color:var(--muted);">Describa el daño o incidencia observada:</span>';
+    document.getElementById('av_descripcion').value = '';
+    document.getElementById('modalAveria').classList.add('show');
+    setTimeout(function() { document.getElementById('av_descripcion').focus(); }, 200);
+  });
 }
 
 function cerrarModalAveria() {
@@ -1213,11 +1256,15 @@ function darDeBaja(id) {
   const un = datos.unidades.filter(function(u) { return u.articuloId === id; });
   const pr = un.filter(function(u) { return u.estado === 'prestado'; }).length;
   if (pr > 0) { notificar('No se puede dar de baja: tiene ' + pr + ' unidad(es) prestada(s).', 'error', 'Operación no permitida'); return; }
-  if (!confirm('⚠️ ¿Seguro que quiere dar de baja "' + a.nombre + '" (' + un.length + ' ud.)?')) return;
-  if (!confirm('🔴 SEGUNDA CONFIRMACIÓN: ¿Eliminar PERMANENTEMENTE?')) return;
-  datos.articulos = datos.articulos.filter(function(x) { return x.id !== id; });
-  datos.unidades = datos.unidades.filter(function(u) { return u.articuloId !== id; });
-  guardar(); renderTodo(); notificar('Artículo dado de baja del inventario.', 'exito', 'Baja registrada');
+  confirmarApp('Va a dar de baja "' + a.nombre + '" y sus ' + un.length + ' unidad(es) del inventario.\n\nEsta acción no se puede deshacer.', { titulo:'🗑️ Dar de baja artículo', textoAceptar:'Sí, dar de baja', claseAceptar:'danger' }).then(function(ok1) {
+    if (!ok1) return;
+    confirmarApp('⛔ CONFIRMACIÓN FINAL: ¿Eliminar PERMANENTEMENTE "' + a.nombre + '"?', { titulo:'Confirmación final', textoAceptar:'Eliminar definitivamente', claseAceptar:'danger' }).then(function(ok2) {
+      if (!ok2) return;
+      datos.articulos = datos.articulos.filter(function(x) { return x.id !== id; });
+      datos.unidades = datos.unidades.filter(function(u) { return u.articuloId !== id; });
+      guardar(); renderTodo(); notificar('Artículo dado de baja del inventario.', 'exito', 'Baja registrada');
+    });
+  });
 }
 
 function renderEstadoFirebase() { const el = document.getElementById('estadoFirebaseInfo'); if (!el) return; el.innerHTML = firebaseActivo ? '<p style="color:var(--success);font-weight:600;">✅ Sincronización ACTIVA</p>' : '<p style="color:var(--warning);font-weight:600;">📴 Modo local</p>'; }
@@ -1720,50 +1767,57 @@ function eliminarPrestamo(id) {
   const p = datos.prestamos.find(function(x) { return x.id === id; });
   if (!p) { notificar('No se ha encontrado el préstamo en el sistema.', 'error', 'Error'); return; }
   const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-  let msg = '🗑️ ELIMINAR PRÉSTAMO DEL HISTÓRICO\n\n• Material: ' + (u ? u.identificador : 'desconocido') + '\n• Solicitante: ' + p.solicitante + '\n• Salida: ' + formatFecha(p.fechaSalida);
+  let msg = 'Se eliminará del histórico:\n\n• Material: ' + (u ? u.identificador : 'desconocido') + '\n• Solicitante: ' + p.solicitante + '\n• Salida: ' + formatFecha(p.fechaSalida);
   if (!p.fechaDevolucion) msg += '\n\n⚠️ El material ESTÁ PRESTADO.\nAl eliminar, la unidad volverá AL ALMACÉN.';
   else msg += '\n\n✅ El préstamo ya fue devuelto.\nSe eliminará solo del histórico.';
-  msg += '\n\n¿Continuar?';
-  if (!confirm(msg)) return;
-  if (!p.fechaDevolucion) { if (u) u.estado = 'almacen'; notificar('Préstamo eliminado. Unidad devuelta al almacén.', 'info', 'Registro eliminado'); }
-  else notificar('Registro eliminado del histórico.', 'info', 'Registro eliminado');
-  datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
-  guardar(); renderTodo();
+  confirmarApp(msg, { titulo:'🗑️ Eliminar préstamo', textoAceptar:'Sí, eliminar', claseAceptar:'danger' }).then(function(ok) {
+    if (!ok) return;
+    if (!p.fechaDevolucion) { if (u) u.estado = 'almacen'; notificar('Préstamo eliminado. Unidad devuelta al almacén.', 'info', 'Registro eliminado'); }
+    else notificar('Registro eliminado del histórico.', 'info', 'Registro eliminado');
+    datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
+    guardar(); renderTodo();
+  });
 }
 
 function exportarDatos() { const b = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'prestamos_backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(u); notificar('Copia de seguridad descargada correctamente.', 'exito', 'Exportación completada'); }
-function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; } if (!confirm('¿Reemplazar todos los datos?')) return; datos = imp; guardar(); renderTodo(); notificar('Datos importados correctamente en el sistema.', 'exito', 'Importación completada'); } catch(err) { notificar('Error al procesar el archivo: ' + err.message, 'error', 'Error de importación'); } }; r.readAsText(f); ev.target.value = ''; }
+function importarDatos(ev) { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(e) { try { const imp = JSON.parse(e.target.result); if (!imp.articulos || !imp.unidades || !imp.prestamos) { notificar('El archivo no tiene el formato correcto.', 'error', 'Archivo no válido'); return; } confirmarApp('Se reemplazarán TODOS los datos actuales por los del archivo:\n\n• ' + (imp.articulos||[]).length + ' artículo(s)\n• ' + (imp.unidades||[]).length + ' unidad(es)\n• ' + (imp.prestamos||[]).length + ' préstamo(s)\n\nEsta acción no se puede deshacer.', { titulo:'📤 Importar datos', textoAceptar:'Sí, importar', claseAceptar:'warning' }).then(function(ok) {
+  if (!ok) return;
+  datos = imp; guardar(); renderTodo(); notificar('Datos importados correctamente en el sistema.', 'exito', 'Importación completada');
+}); } catch(err) { notificar('Error al procesar el archivo: ' + err.message, 'error', 'Error de importación'); } }; r.readAsText(f); ev.target.value = ''; }
 
 function borrarPrestamos() {
-  if (!confirm('¿Borrar TODOS los préstamos del histórico?\n\n✅ Se mantendrán los materiales del inventario.\n⚠️ Esta acción no se puede deshacer.')) return;
-  if (!confirm('🔴 ÚLTIMA CONFIRMACIÓN: ¿Seguro que quiere borrar todos los préstamos?')) return;
-  
-  const articulosGuardados = datos.articulos.slice();
-  const unidadesGuardadas = datos.unidades.slice();
-  
-  datos.prestamos = [];
-  datos.nextId.prestamo = 1;
-  
-  unidadesGuardadas.forEach(function(u) {
-    u.estado = 'almacen';
-    u.observaciones = '';
+  confirmarApp('Se eliminarán TODOS los préstamos del histórico.\n\n✅ Los materiales del inventario se mantienen.\n📍 El material prestado volverá al almacén.\n⚠️ Esta acción no se puede deshacer.', { titulo:'🗑️ Borrar histórico', textoAceptar:'Sí, borrar histórico', claseAceptar:'warning' }).then(function(ok1) {
+    if (!ok1) return;
+    confirmarApp('⛔ CONFIRMACIÓN FINAL: ¿Eliminar todos los préstamos del histórico?', { titulo:'Confirmación final', textoAceptar:'Eliminar definitivamente', claseAceptar:'danger' }).then(function(ok2) {
+      if (!ok2) return;
+      const articulosGuardados = datos.articulos.slice();
+      const unidadesGuardadas = datos.unidades.slice();
+      datos.prestamos = [];
+      datos.nextId.prestamo = 1;
+      unidadesGuardadas.forEach(function(u) {
+        u.estado = 'almacen';
+        u.observaciones = '';
+      });
+      guardar();
+      renderTodo();
+      notificar('Histórico de préstamos borrado. Inventario mantenido (' + articulosGuardados.length + ' artículos).', 'exito', 'Histórico limpiado');
+    });
   });
-  
-  guardar();
-  renderTodo();
-  notificar('Histórico de préstamos borrado. Inventario mantenido (' + articulosGuardados.length + ' artículos).', 'exito', 'Histórico limpiado');
 }
 
 function borrarTodo() {
-  if (!confirm('⚠️ ¿Borrar ABSOLUTAMENTE TODO?\n\n• Préstamos\n• Inventario personalizado\n• Se restaurará el inventario inicial\n\nEsta acción NO se puede deshacer.')) return;
-  if (!confirm('🔴 ÚLTIMA CONFIRMACIÓN: ¿Seguro que quiere borrar TODO?')) return;
-  
-  localStorage.removeItem(STORAGE_KEY);
-  datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
-  inicializarInventario();
-  guardar();
-  renderTodo();
-  notificar('Aplicación reiniciada. Inventario inicial restaurado.', 'aviso', 'Sistema reiniciado');
+  confirmarApp('Va a borrar ABSOLUTAMENTE TODO:\n\n• Todos los préstamos del histórico\n• Todo el inventario personalizado\n• Se restaurará el inventario inicial\n\n⚠️ Esta acción NO se puede deshacer.', { titulo:'💣 Borrar TODO', textoAceptar:'Sí, borrar todo', claseAceptar:'danger' }).then(function(ok1) {
+    if (!ok1) return;
+    confirmarApp('⛔ ÚLTIMA CONFIRMACIÓN: ¿Reiniciar la aplicación de fábrica?', { titulo:'Confirmación final', textoAceptar:'Reiniciar aplicación', claseAceptar:'danger' }).then(function(ok2) {
+      if (!ok2) return;
+      localStorage.removeItem(STORAGE_KEY);
+      datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
+      inicializarInventario();
+      guardar();
+      renderTodo();
+      notificar('Aplicación reiniciada. Inventario inicial restaurado.', 'aviso', 'Sistema reiniciado');
+    });
+  });
 }
 
 function formatFecha(iso) { if (!iso) return '-'; const d = new Date(iso); return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
