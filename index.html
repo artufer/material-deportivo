@@ -777,9 +777,6 @@ function guardarFirmaDevMult(){
   else{firmaDevolucionMultData=null;document.getElementById('firmaDevMultPreview').classList.add('campo-oculto')}
 }
 function limpiarFirmaDevMult(){if(!ctxFirmaDevMult||!canvasFirmaDevMult)return;const rect=canvasFirmaDevMult.getBoundingClientRect();ctxFirmaDevMult.clearRect(0,0,rect.width,rect.height);firmaDevolucionMultData=null;document.getElementById('firmaDevMultPreview').classList.add('campo-oculto')}
-
-
-
 function procesarDevolucionMultiple(prestamoIds,solicitante){
   const fecha=document.getElementById('dm_fecha').value;
   const estado=document.getElementById('dm_estado').value;
@@ -935,9 +932,6 @@ function abrirModalEditar(id){
   document.getElementById('e_descripcion').value=a.descripcion||'';
   document.getElementById('e_cantidad_ayuda').textContent='Tiene '+un.length+' unidad(es).'
 </div>
-
-
-
   document.getElementById('editInfo').innerHTML='Editando: <strong>'+getIconoTexto(a.tipo)+' '+a.nombre+'</strong>';
   document.getElementById('modalEditar').classList.add('show')
 }
@@ -1471,4 +1465,3 @@ init();
 
 </body>
 </html>
-
