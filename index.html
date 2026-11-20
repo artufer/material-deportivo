@@ -648,6 +648,7 @@ function init() {
   datos.articulos.forEach(function(a) {
     if (a.tipo && a.tipo.toLowerCase().replace(/[-_\s]/g,'').indexOf('mesaping') === 0) {
       a.tipo = 'mesa_pingpon';
+      if (a.nombre && a.nombre.toLowerCase().indexOf('nuevo') !== -1 && a.nombre.toLowerCase().indexOf('arco') !== -1) { a.tipo = 'arco_muy_nuevo'; }
     }
   });
   
