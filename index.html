@@ -557,6 +557,8 @@ function init(){
     const raw=localStorage.getItem(STORAGE_KEY);
     if(raw){try{const d=JSON.parse(raw);if(esDatosValidos(d))datos=d;else inicializarInventario()}catch(e){console.error('Error parseando datos:',e);inicializarInventario()}}
     else inicializarInventario();
+    
+    // Normalizar tipos de artículos (CORREGIDO)
     try{
       datos.articulos.forEach(function(a){
         if(a.tipo&&a.tipo.toLowerCase().replace(/[-_\s]/g,'').indexOf('mesaping')===0){a.tipo='mesa_pingpon'}
@@ -564,19 +566,29 @@ function init(){
         else if(a.nombre&&a.nombre.toLowerCase().indexOf('arco')!==-1&&a.nombre.toLowerCase().indexOf('nuevo')===-1){a.tipo='arco'}
       })
     }catch(e){console.error('Error normalizando tipos:',e)}
-    renderTodo();initCanvasFirma();
+    
+    renderTodo();
+    initCanvasFirma();
+    
     if(db){
       db.ref('datos').once('value').then(function(snap){
         const r=snap.val();
-        if(r&&esDatosValidos(r)){if(JSON.stringify(r)!==JSON.stringify(datos)){datos=r;localStorage.setItem(STORAGE_KEY,JSON.stringify(datos));setEstado('sync','Sincronizado (nube)');renderTodo()}else setEstado('sync','Sincronizado')}
-        else db.ref('datos').set(datos).then(function(){setEstado('sync','Sincronizado (subido)')})
+        if(r&&esDatosValidos(r)){
+          if(JSON.stringify(r)!==JSON.stringify(datos)){datos=r;localStorage.setItem(STORAGE_KEY,JSON.stringify(datos));setEstado('sync','Sincronizado (nube)');renderTodo()}
+          else setEstado('sync','Sincronizado')
+        }else db.ref('datos').set(datos).then(function(){setEstado('sync','Sincronizado (subido)')})
       }).catch(function(){setEstado('error','Sin conexión')});
-      db.ref('datos').on('value',function(snap){const r=snap.val();if(r&&esDatosValidos(r)&&JSON.stringify(r)!==JSON.stringify(datos)){datos=r;localStorage.setItem(STORAGE_KEY,JSON.stringify(datos));renderTodo()}})
+      db.ref('datos').on('value',function(snap){
+        const r=snap.val();
+        if(r&&esDatosValidos(r)&&JSON.stringify(r)!==JSON.stringify(datos)){datos=r;localStorage.setItem(STORAGE_KEY,JSON.stringify(datos));renderTodo()}
+      })
     }
     renderEstadoFirebase()
-  }catch(e){console.error('Error en init():',e);setEstado('error','Error al cargar')}
+  }catch(e){
+    console.error('Error en init():',e);
+    setEstado('error','Error al cargar')
+  }
 }
-
 function notificar(mensaje,tipo,titulo){
   tipo=tipo||'info';titulo=titulo||'';
   const c=document.getElementById('toast-container'),t=document.createElement('div');
