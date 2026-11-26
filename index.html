@@ -277,7 +277,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div id="unidadesSeleccionadas"></div>
 <label style="margin-top:1rem;">Tipo de solicitante</label>
 <select id="p_tipo_solicitante" required onchange="cambiarTipoSolicitante()">
-<option value="">-- Selecciona --</option>
+<option value="">-- Seleccione --</option>
 <option value="ayuntamiento">Ayuntamiento</option>
 <option value="asociacion">Asociación</option>
 <option value="otro">Otro</option>
@@ -285,7 +285,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div id="campo_ayuntamiento" class="campo-oculto"><label>Ayuntamiento</label><select id="p_ayuntamiento"></select></div>
 <div id="campo_asociacion" class="campo-oculto">
 <label>Asociación</label>
-<select id="p_asociacion" onchange="cambioAsociacion()"><option value="">-- Selecciona asociación --</option></select>
+<select id="p_asociacion" onchange="cambioAsociacion()"><option value="">-- Seleccione asociación --</option></select>
 <input type="text" id="p_asociacion_nueva" placeholder="Nombre de la nueva asociación..." class="campo-oculto">
 </div>
 <div id="campo_nombre_libre" class="campo-oculto"><label id="label_nombre_libre">Nombre</label><input type="text" id="p_nombre_libre" placeholder=""></div>
@@ -309,7 +309,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
 </div>
 </div>
-<div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduzca 8 números</div>
+<div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Faltan números</div>
 <div id="campo_nif" class="campo-oculto" style="display:flex; gap:0.3rem; align-items:flex-end;">
 <div style="width:50px;">
 <input type="text" value="24" readonly title="Código de León" style="margin-bottom:0; text-align:center; font-weight:bold; background:#f0f9ff; border-color:var(--primary);">
@@ -321,7 +321,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <input type="text" id="p_nif_letra" placeholder="A" maxlength="1" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
 </div>
 </div>
-<div id="nif_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduzca 5 números</div>
+<div id="nif_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Faltan números</div>
 </div>
 </div>
 <div class="row">
@@ -2201,6 +2201,12 @@ if (e.key === 'q' || e.key === 'Q') showTab('qr', document.querySelectorAll('nav
 if (e.key === 'c' || e.key === 'C') showTab('calendario', document.querySelectorAll('nav button')[6]);
 if (e.key === 'l' || e.key === 'L') showTab('listados', document.querySelectorAll('nav button')[7]);
 });
+function cerrarModalReformar() {
+document.getElementById('modalReformar').classList.remove('show');
+reformaPrestamoId = null;
+reformaUnidadesAnadir = [];
+reformaUnidadesQuitar = [];
+}
 (function() { const params = new URLSearchParams(window.location.search); const uId = params.get('unidad'); if (uId) setTimeout(function() { const uid = parseInt(uId); if (!isNaN(uid)) mostrarFichaUnidad(uid); }, 500); })();
 // ===== BÚSQUEDA GLOBAL =====
 (function() {
