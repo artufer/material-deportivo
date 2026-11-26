@@ -1561,7 +1561,14 @@ const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agos
 const fechaFormateada = 'León, ' + fechaSalida.getDate() + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + fechaSalida.getFullYear();
 enviarEmailAlbaran(prestamoIds, sol, 'ENTREGA', fechaFormateada);
 });
-function generarAlbaran(prestamoId) { generarAlbaranMultiple([prestamoId]); }
+function generarAlbaran(prestamoId) {
+const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
+if (!p) return;
+const prestamosRelacionados = datos.prestamos.filter(function(x) {
+return x.solicitante === p.solicitante && x.fechaSalida === p.fechaSalida;
+}).map(function(x) { return x.id; });
+generarAlbaranMultiple(prestamosRelacionados);
+}
 function generarAlbaranMultiple(prestamoIds) {
 const prestamos = prestamoIds.map(function(id) { return datos.prestamos.find(function(x) { return x.id === id; }); }).filter(function(p) { return p; });
 if (prestamos.length === 0) return;
