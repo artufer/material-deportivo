@@ -209,23 +209,123 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 @media print { body { background: white; padding: 0; margin: 0; } header, nav, main > .tab:not(.albaran-tab), #toast-container, #icono-preview, .no-print { display: none !important; } .albaran-tab { display: block !important; } .albaran-print { padding: 0; max-width: 100%; } }
 @media (max-width:600px) { .row > * { min-width:100%; } table { font-size:.75rem; } th,td { padding:.35rem; } .contador { display:block; margin-left:0; margin-top:.25rem; } #toast-container { top:auto; bottom:1rem; right:.5rem; left:.5rem; max-width:none; } .devolucion-card .info-grid { grid-template-columns:1fr; } .estado-sync { top:.5rem; right:.5rem; font-size:.65rem; } .inv-tabla { font-size:.72rem; table-layout:auto; } .inv-tabla th:nth-child(1),.inv-tabla td:nth-child(1),.inv-tabla th:nth-child(2),.inv-tabla td:nth-child(2),.inv-tabla th:nth-child(3),.inv-tabla td:nth-child(3),.inv-tabla th:nth-child(4),.inv-tabla td:nth-child(4),.inv-tabla th:nth-child(5),.inv-tabla td:nth-child(5) { width:auto; } .inv-tabla th,.inv-tabla td { padding:.4rem; } .inv-tabla .descripcion-celda { max-width:100px; } .icono-articulo { width:22px; height:22px; margin-right:4px; } button.btn.small { padding:.25rem .4rem; font-size:.7rem; } #icono-preview img { width:140px; height:140px; } .listado-opciones { grid-template-columns:1fr 1fr; } nav button { font-size:.75rem; min-width:70px; padding:.7rem .3rem; } .firma-canvas { height: 150px; } }
 
-/* ===== ESTILOS HISTÓRICO AGRUPADO ===== */
-.hist-fila-grupo { cursor:pointer; transition:background .15s; }
-.hist-fila-grupo:hover { background:#f0f9ff !important; }
-.hist-fila-grupo.abierta { background:#eff6ff !important; }
-.hist-fila-grupo .flecha-grupo { transition:transform .2s; display:inline-block; margin-right:4px; }
-.hist-fila-grupo.abierta .flecha-grupo { transform:rotate(90deg); }
-.hist-fila-detalle { display:none; background:#fafbfc; }
-.hist-fila-detalle.abierta { display:table-row; }
-.hist-detalle-contenido { padding:1rem; }
-.hist-detalle-unidad { display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.75rem; border-bottom:1px solid var(--border); }
-.hist-detalle-unidad:last-child { border-bottom:none; }
-.hist-detalle-unidad input[type="checkbox"] { width:18px; height:18px; cursor:pointer; }
-.hist-detalle-unidad .unidad-nombre { flex:1; font-weight:500; }
-.hist-detalle-unidad .unidad-articulo { font-size:0.82rem; color:var(--muted); }
-.hist-detalle-acciones { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:1rem; padding-top:0.75rem; border-top:2px solid var(--border); }
-.hist-detalle-info { background:#f0f9ff; padding:0.75rem; border-radius:6px; border-left:4px solid var(--primary); margin-bottom:1rem; font-size:0.9rem; }
-.hist-detalle-info strong { color:var(--primary-dark); }
+/* ===== NUEVOS ESTILOS PARA HISTÓRICO REESTRUCTURADO ===== */
+.hist-albaran-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+  background: #fff;
+}
+.hist-albaran-row:hover { background: #f0f9ff; }
+.hist-albaran-row.seleccionado { background: #eff6ff; border-left: 4px solid var(--primary); }
+.hist-albaran-row input[type="checkbox"] {
+  width: 20px; height: 20px; cursor: pointer; flex-shrink: 0;
+}
+.hist-albaran-info { flex: 1; }
+.hist-albaran-solicitante { font-weight: 600; font-size: 1rem; color: var(--primary-dark); }
+.hist-albaran-fecha { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+.hist-albaran-estado { font-size: 0.75rem; }
+.hist-detalle-panel {
+  display: none;
+  background: #fafbfc;
+  border-bottom: 2px solid var(--border);
+  padding: 1rem 1.25rem 1.5rem 3.5rem;
+}
+.hist-detalle-panel.abierto { display: block; }
+.hist-detalle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.hist-detalle-header h4 { color: var(--primary-dark); font-size: 1rem; }
+.hist-unidad-item {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.hist-unidad-item.defectuoso { border-left: 4px solid var(--danger); background: #fef2f2; }
+.hist-unidad-item.cedido { border-left: 4px solid #8b5cf6; background: #f5f3ff; }
+.hist-unidad-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.hist-unidad-cabecera input[type="checkbox"] {
+  width: 18px; height: 18px; cursor: pointer;
+}
+.hist-unidad-nombre { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.hist-unidad-articulo { font-size: 0.82rem; color: var(--muted); }
+.hist-unidad-acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.hist-unidad-acciones label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  background: #f3f4f6;
+  transition: background 0.15s;
+}
+.hist-unidad-acciones label:hover { background: #e5e7eb; }
+.hist-unidad-acciones input[type="radio"] { cursor: pointer; }
+.hist-unidad-observaciones {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+}
+.hist-unidad-observaciones textarea {
+  margin-bottom: 0;
+  min-height: 50px;
+  font-size: 0.85rem;
+}
+.hist-detalle-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--border);
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.hist-resumen {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+}
+.hist-resumen strong { color: var(--primary-dark); }
+.hist-resumen .resumen-item { margin: 0.25rem 0; }
+.hist-resumen .resumen-devolver { color: var(--success); }
+.hist-resumen .resumen-ceder { color: #6d28d9; }
+.hist-resumen .resumen-defectuoso { color: var(--danger); }
+.flecha-expandir {
+  transition: transform 0.2s;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-right: 0.5rem;
+}
+.hist-albaran-row.expandido .flecha-expandir { transform: rotate(90deg); }
 </style>
 </head>
 <body>
@@ -405,12 +505,8 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div id="modalCesion" class="modal-bg">
 <div class="modal" style="max-width:700px;">
 <h3>🔄 Ceder material a otro titular</h3>
-<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">Seleccione las unidades que desea ceder. El material pasará directamente al nuevo titular.</p>
+<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">Complete los datos del nuevo titular. El material pasará directamente sin volver al almacén.</p>
 <div id="cesionInfo" style="margin-bottom:1rem;"></div>
-<div style="background:#f0f9ff; padding:0.75rem; border-radius:6px; margin-bottom:1rem; border-left:4px solid var(--primary);">
-<strong>📋 Seleccione las unidades a ceder:</strong>
-<div id="cesionUnidadesCheck" style="max-height:200px; overflow-y:auto; margin-top:0.5rem;"></div>
-</div>
 <div style="background:#ede9fe; padding:0.75rem; border-radius:6px; margin-bottom:1rem; border-left:4px solid #8b5cf6;">
 <strong>👤 Nuevo titular del material:</strong>
 <div style="margin-top:0.5rem;">
@@ -457,17 +553,18 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 </div>
 <div id="historico" class="tab">
 <div class="card">
-<h2>Histórico de préstamos (agrupado por albarán)</h2>
-<p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Cada fila representa un albarán completo. Haga clic en una fila para desplegar las unidades y actuar sobre ellas.</p>
+<h2>📜 Gestión de albaranes</h2>
+<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">Seleccione un albarán para gestionar devoluciones y cesiones. Haga clic en la fila para ver el detalle.</p>
 <div class="filtro-bar">
-<input type="text" id="filtroSolicitante" placeholder="🔍 Buscar por solicitante..." oninput="renderHistorico()">
-<input type="text" id="filtroArticulo" placeholder="🔍 Buscar por artículo..." oninput="renderHistorico()">
-<select id="filtroEstado" onchange="renderHistorico()"><option value="">Todos los estados</option><option value="activo">En curso</option><option value="devuelto_correcto">Devueltos OK</option><option value="devuelto_averiado">Con incidencias</option><option value="cedido">Cedidos</option></select>
+<input type="text" id="filtroSolicitanteHist" placeholder="🔍 Buscar por solicitante..." oninput="renderHistorico()">
+<select id="filtroEstadoHist" onchange="renderHistorico()">
+<option value="">Todos los estados</option>
+<option value="activo">En curso</option>
+<option value="cedido">Cedidos</option>
+<option value="devuelto">Devueltos</option>
+</select>
 </div>
-<div style="overflow-x:auto;"><table id="tablaHistorico">
-<thead><tr><th></th><th>Fecha salida</th><th>Solicitante</th><th>Contacto</th><th>Material (alfabético)</th><th>Estado</th><th>Incidencias</th><th>Albarán</th><th>Acciones</th></tr></thead>
-<tbody></tbody>
-</table></div>
+<div id="histListaAlbaranes" style="border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#fff;"></div>
 </div>
 </div>
 <div id="inventario" class="tab">
@@ -598,6 +695,7 @@ let canvasFirmaDev, ctxFirmaDev, firmandoDev = false, ultimaXDev = 0, ultimaYDev
 let canvasFirmaDevMult, ctxFirmaDevMult, firmandoDevMult = false;
 let unidadesPrestamo = [];
 let cesionPrestamoIds = [];
+let cesionUnidadesPendiente = null;
 if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI') {
 try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { console.error('Error init EmailJS:', e); }
 }
@@ -991,14 +1089,12 @@ html += '<button class="btn outline" onclick="generarAlbaran(' + p.id + ')" styl
 cont.innerHTML = html;
 }
 
-// ===== HISTÓRICO AGRUPADO CON FILAS EXPANDIBLES =====
+// ===== HISTÓRICO REESTRUCTURADO =====
 function renderHistorico() {
-const tbody = document.querySelector('#tablaHistorico tbody');
-if (!tbody) return;
-tbody.innerHTML = '';
-const fs = document.getElementById('filtroSolicitante').value.toLowerCase();
-const fa = document.getElementById('filtroArticulo').value.toLowerCase();
-const fe = document.getElementById('filtroEstado').value;
+const cont = document.getElementById('histListaAlbaranes');
+if (!cont) return;
+const fs = (document.getElementById('filtroSolicitanteHist').value || '').toLowerCase();
+const fe = document.getElementById('filtroEstadoHist').value;
 
 // Agrupar préstamos por solicitante + fechaSalida
 const grupos = {};
@@ -1024,21 +1120,9 @@ if (fe === 'cedido') {
 const todosCedidos = grupo.prestamos.every(function(p) { return p.estado === 'cedido'; });
 if (!todosCedidos) return false;
 }
-if (fe === 'devuelto_correcto') {
-const todosDevueltosOK = grupo.prestamos.every(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'correcto'; });
-if (!todosDevueltosOK) return false;
-}
-if (fe === 'devuelto_averiado') {
-const algunoAveriado = grupo.prestamos.some(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; });
-if (!algunoAveriado) return false;
-}
-if (fa) {
-const coincide = grupo.prestamos.some(function(p) {
-const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-const artNombre = u ? u.identificador.toLowerCase() : '';
-return artNombre.indexOf(fa) !== -1;
-});
-if (!coincide) return false;
+if (fe === 'devuelto') {
+const todosDevueltos = grupo.prestamos.every(function(p) { return !!p.fechaDevolucion; });
+if (!todosDevueltos) return false;
 }
 return true;
 });
@@ -1048,207 +1132,220 @@ listaGrupos.sort(function(a, b) {
 return new Date(b.clave.split('||')[1]) - new Date(a.clave.split('||')[1]);
 });
 
-listaGrupos.forEach(function(grupo, idxGrupo) {
+if (listaGrupos.length === 0) {
+cont.innerHTML = '<div class="vacio" style="padding:2rem;"><div class="icono">📭</div><div><strong>No hay albaranes que coincidan con los filtros</strong></div></div>';
+return;
+}
+
+let html = '';
+listaGrupos.forEach(function(grupo, idx) {
 const p0 = grupo.prestamos[0];
 const prestamoIds = grupo.prestamos.map(function(p) { return p.id; });
-
-// Material ordenado alfabéticamente
-const materialesAlfabetico = [];
-grupo.prestamos.forEach(function(p) {
-const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
-if (u) {
-materialesAlfabetico.push({
-nombre: a ? a.nombre : u.identificador,
-identificador: u.identificador,
-orden: (a ? a.nombre : u.identificador).toLowerCase()
-});
-}
-});
-materialesAlfabetico.sort(function(x, y) { return x.orden.localeCompare(y.orden); });
-const materialTexto = materialesAlfabetico.map(function(m) { return m.identificador; }).join(', ');
+const filaId = 'hist-fila-' + idx;
+const detalleId = 'hist-detalle-' + idx;
 
 // Estado del grupo
 let badge = '<span class="badge prestado">EN CURSO</span>';
 const todosDevueltos = grupo.prestamos.every(function(p) { return p.fechaDevolucion; });
 const todosCedidos = grupo.prestamos.every(function(p) { return p.estado === 'cedido'; });
-const algunoAveriado = grupo.prestamos.some(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; });
 if (todosCedidos) badge = '<span class="badge cedido">🔄 CEDIDO</span>';
-else if (todosDevueltos) badge = algunoAveriado ? '<span class="badge danio">INCIDENCIA</span>' : '<span class="badge ok">OK</span>';
-
-// Incidencias
-const incidenciasTexto = grupo.prestamos.filter(function(p) { return p.incidencias; }).map(function(p) {
-const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-return (u ? u.identificador : '?') + ': ' + p.incidencias;
-}).join('; ') || '-';
-
-// Fila principal (clickable)
-const filaId = 'hist-fila-' + idxGrupo;
-const detalleId = 'hist-detalle-' + idxGrupo;
-const flechaId = 'flecha-' + idxGrupo;
-
-let acciones = '';
-if (!todosDevueltos && !todosCedidos) {
-acciones += '<button class="btn small success" onclick="event.stopPropagation(); devolverSeleccionadas(\'' + detalleId + '\')">↩️ Devolver sel.</button> ';
-acciones += '<button class="btn small cesion" onclick="event.stopPropagation(); cederSeleccionadas(\'' + detalleId + '\', \'' + p0.solicitante.replace(/'/g,"\\'") + '\')">🔄 Ceder sel.</button> ';
-}
-acciones += '<button class="btn small" onclick="event.stopPropagation(); generarAlbaranMultiple([' + prestamoIds.join(',') + '])">📄 Ver albarán</button> ';
-acciones += '<button class="btn small danger" onclick="event.stopPropagation(); eliminarPrestamoGrupo([' + prestamoIds.join(',') + '])">🗑️ Eliminar</button>';
+else if (todosDevueltos) badge = '<span class="badge ok">DEVUELTO</span>';
 
 // Fila principal
-tbody.innerHTML += '<tr class="hist-fila-grupo" id="' + filaId + '" onclick="toggleFilaHistorico(\'' + filaId + '\', \'' + detalleId + '\', \'' + flechaId + '\')">';
-tbody.innerHTML += '<td><span class="flecha-grupo" id="' + flechaId + '">▶</span></td>';
-tbody.innerHTML += '<td>' + formatFecha(p0.fechaSalida) + '</td>';
-tbody.innerHTML += '<td>' + p0.solicitante + (p0.cesiones && p0.cesiones.length > 0 ? '<br><small style="color:#6d28d9">🔄 Cedido ' + p0.cesiones.length + ' vez/veces</small>' : '') + '</td>';
-tbody.innerHTML += '<td>' + (p0.contacto||'-') + (p0.telefono?'<br><small>'+p0.telefono+'</small>':'') + '</td>';
-tbody.innerHTML += '<td style="font-size:0.8rem;">' + materialTexto + ' <small style="color:var(--muted)">(' + grupo.prestamos.length + ' ud.)</small></td>';
-tbody.innerHTML += '<td>' + badge + '</td>';
-tbody.innerHTML += '<td style="font-size:0.8rem;">' + incidenciasTexto + '</td>';
-tbody.innerHTML += '<td></td>';
-tbody.innerHTML += '<td>' + acciones + '</td>';
-tbody.innerHTML += '</tr>';
+html += '<div class="hist-albaran-row" id="' + filaId + '" onclick="toggleHistDetalle(\'' + filaId + '\', \'' + detalleId + '\')">';
+html += '<input type="checkbox" onclick="event.stopPropagation(); toggleSeleccionAlbaran(\'' + filaId + '\')" title="Seleccionar albarán">';
+html += '<span class="flecha-expandir">▶</span>';
+html += '<div class="hist-albaran-info">';
+html += '<div class="hist-albaran-solicitante">' + p0.solicitante + '</div>';
+html += '<div class="hist-albaran-fecha">📅 ' + formatFecha(p0.fechaSalida) + ' · ' + grupo.prestamos.length + ' unidad(es) · ' + badge + '</div>';
+html += '</div>';
+html += '<button class="btn small outline" onclick="event.stopPropagation(); generarAlbaranMultiple([' + prestamoIds.join(',') + '])" title="Ver albarán completo">📄</button>';
+html += '</div>';
 
-// Fila de detalle (expandible)
-tbody.innerHTML += '<tr class="hist-fila-detalle" id="' + detalleId + '"><td colspan="9"><div class="hist-detalle-contenido">';
-tbody.innerHTML += '<div class="hist-detalle-info"><strong>📋 Unidades del albarán:</strong> <small style="color:var(--muted)">Marque las que desee devolver o ceder</small></div>';
-tbody.innerHTML += '<div class="seleccionar-todas-bar"><label><input type="checkbox" id="sel-todos-' + idxGrupo + '" onchange="toggleSeleccionGrupo(\'' + detalleId + '\', this)"> Seleccionar todas</label><span style="font-size:0.85rem; color:var(--muted);">' + grupo.prestamos.length + ' unidad(es)</span></div>';
+// Panel de detalle
+html += '<div class="hist-detalle-panel" id="' + detalleId + '">';
+html += '<div class="hist-detalle-header"><h4>📦 Unidades del albarán</h4><span style="font-size:0.85rem;color:var(--muted);">' + grupo.prestamos.length + ' unidad(es)</span></div>';
 
-grupo.prestamos.forEach(function(p) {
+grupo.prestamos.forEach(function(p, idxP) {
 const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
 const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
-const vencido = p.fechaPrevista && new Date() > new Date(p.fechaPrevista);
-const bgStyle = vencido ? 'background:#fef2f2;' : '';
-tbody.innerHTML += '<div class="hist-detalle-unidad" style="' + bgStyle + '">';
-tbody.innerHTML += '<input type="checkbox" class="hist-check" data-prestamo-id="' + p.id + '" data-detalle-id="' + detalleId + '">';
-tbody.innerHTML += '<div style="flex:1;"><div class="unidad-nombre">' + (u ? u.identificador : '?') + '</div>';
-tbody.innerHTML += '<div class="unidad-articulo">' + (a ? a.nombre : '') + ' · Prestado hace ' + Math.floor((new Date() - new Date(p.fechaSalida)) / 86400000) + ' día(s)';
-if (p.fechaPrevista) {
-const fp = new Date(p.fechaPrevista);
-const dr = Math.ceil((fp - new Date()) / 86400000);
-if (vencido) tbody.innerHTML += ' · <strong style="color:var(--danger);">⚠️ VENCIDO hace ' + Math.abs(dr) + ' día(s)</strong>';
-else tbody.innerHTML += ' · Devolución prevista: ' + formatFecha(p.fechaPrevista);
-}
-tbody.innerHTML += '</div></div>';
+const itemId = 'hist-item-' + idx + '-' + idxP;
+
+html += '<div class="hist-unidad-item" id="' + itemId + '">';
+html += '<div class="hist-unidad-cabecera">';
+html += '<input type="checkbox" id="check-' + itemId + '" onchange="actualizarResumenHist(\'' + detalleId + '\')">';
+html += '<div style="flex:1;">';
+html += '<div class="hist-unidad-nombre">' + (u ? u.identificador : '?') + '</div>';
+html += '<div class="hist-unidad-articulo">' + (a ? a.nombre : '') + ' · Prestado hace ' + Math.floor((new Date() - new Date(p.fechaSalida)) / 86400000) + ' día(s)</div>';
+html += '</div>';
+html += '</div>';
+
+html += '<div class="hist-unidad-acciones">';
+html += '<label><input type="radio" name="accion-' + itemId + '" value="mantener" checked onchange="actualizarResumenHist(\'' + detalleId + '\')"> ⏸️ Mantener</label>';
+html += '<label><input type="radio" name="accion-' + itemId + '" value="devolver" onchange="actualizarResumenHist(\'' + detalleId + '\')"> ↩️ Devolver</label>';
+html += '<label><input type="radio" name="accion-' + itemId + '" value="ceder" onchange="actualizarResumenHist(\'' + detalleId + '\')"> 🔄 Ceder</label>';
+html += '</div>';
+
+html += '<div class="hist-unidad-observaciones" id="obs-' + itemId + '" style="display:none;">';
+html += '<label style="font-size:0.82rem;">Estado del material:</label>';
+html += '<div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">';
+html += '<label style="font-size:0.82rem;"><input type="radio" name="estado-' + itemId + '" value="bueno" checked> ✅ Bueno</label>';
+html += '<label style="font-size:0.82rem;"><input type="radio" name="estado-' + itemId + '" value="defectuoso" onchange="toggleObsDefectuoso(\'' + itemId + '\')"> ⚠️ Defectuoso</label>';
+html += '</div>';
+html += '<div id="def-obs-' + itemId + '" style="display:none;">';
+html += '<label style="font-size:0.82rem;">Descripción del problema:</label>';
+html += '<textarea id="def-texto-' + itemId + '" placeholder="Describa el daño o incidencia..."></textarea>';
+html += '</div>';
+html += '</div>';
+
+html += '</div>';
 });
 
-tbody.innerHTML += '<div class="hist-detalle-acciones">';
-if (!todosDevueltos && !todosCedidos) {
-tbody.innerHTML += '<button class="btn success" onclick="devolverSeleccionadas(\'' + detalleId + '\')">↩️ Devolver seleccionadas</button>';
-tbody.innerHTML += '<button class="btn cesion" onclick="cederSeleccionadas(\'' + detalleId + '\', \'' + p0.solicitante.replace(/'/g,"\\'") + '\')">🔄 Ceder seleccionadas</button>';
-}
-tbody.innerHTML += '<button class="btn secondary" onclick="generarAlbaranMultiple([' + prestamoIds.join(',') + '])">📄 Ver albarán completo</button>';
-tbody.innerHTML += '</div>';
+// Resumen
+html += '<div class="hist-resumen" id="resumen-' + detalleId + '"></div>';
 
-tbody.innerHTML += '</div></td></tr>';
+// Botones de acción
+html += '<div class="hist-detalle-footer">';
+html += '<button class="btn secondary" onclick="event.stopPropagation(); cerrarDetalleHist(\'' + detalleId + '\')">Cancelar</button>';
+html += '<button class="btn success" onclick="event.stopPropagation(); procesarSeleccionHist(\'' + detalleId + '\', \'' + p0.solicitante.replace(/'/g,"\\'") + '\')">✅ Procesar selección</button>';
+html += '</div>';
+
+html += '</div>';
 });
 
-if (listaGrupos.length === 0) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);">Sin registros</td></tr>';
+cont.innerHTML = html;
 }
 
-function toggleFilaHistorico(filaId, detalleId, flechaId) {
+function toggleHistDetalle(filaId, detalleId) {
 const fila = document.getElementById(filaId);
 const detalle = document.getElementById(detalleId);
-const flecha = document.getElementById(flechaId);
 if (!fila || !detalle) return;
-const abierta = fila.classList.contains('abierta');
-if (abierta) {
-fila.classList.remove('abierta');
-detalle.classList.remove('abierta');
-flecha.textContent = '▶';
+const abierto = detalle.classList.contains('abierto');
+if (abierto) {
+fila.classList.remove('expandido');
+detalle.classList.remove('abierto');
 } else {
-fila.classList.add('abierta');
-detalle.classList.add('abierta');
-flecha.textContent = '▼';
+fila.classList.add('expandido');
+detalle.classList.add('abierto');
+actualizarResumenHist(detalleId);
 }
 }
 
-function toggleSeleccionGrupo(detalleId, checkboxTodos) {
+function toggleSeleccionAlbaran(filaId) {
+const fila = document.getElementById(filaId);
+if (fila) fila.classList.toggle('seleccionado');
+}
+
+function toggleObsDefectuoso(itemId) {
+const obsDiv = document.getElementById('def-obs-' + itemId);
+if (obsDiv) {
+const radioDef = document.querySelector('input[name="estado-' + itemId + '"][value="defectuoso"]');
+obsDiv.style.display = radioDef && radioDef.checked ? 'block' : 'none';
+}
+}
+
+function actualizarResumenHist(detalleId) {
 const detalle = document.getElementById(detalleId);
 if (!detalle) return;
-const checks = detalle.querySelectorAll('.hist-check');
-checks.forEach(function(c) { c.checked = checkboxTodos.checked; });
+const items = detalle.querySelectorAll('.hist-unidad-item');
+let devolver = 0, ceder = 0, mantener = 0, defectuosos = 0;
+items.forEach(function(item) {
+const itemId = item.id;
+const check = document.getElementById('check-' + itemId);
+const accion = document.querySelector('input[name="accion-' + itemId + '"]:checked');
+if (!check || !check.checked || !accion) return;
+if (accion.value === 'devolver') {
+devolver++;
+const estado = document.querySelector('input[name="estado-' + itemId + '"]:checked');
+if (estado && estado.value === 'defectuoso') defectuosos++;
+} else if (accion.value === 'ceder') {
+ceder++;
+} else {
+mantener++;
 }
-
-function obtenerChecksSeleccionados(detalleId) {
-const detalle = document.getElementById(detalleId);
-if (!detalle) return [];
-const checks = detalle.querySelectorAll('.hist-check:checked');
-const ids = [];
-checks.forEach(function(c) { ids.push(parseInt(c.dataset.prestamoId)); });
-return ids;
-}
-
-function devolverSeleccionadas(detalleId) {
-const ids = obtenerChecksSeleccionados(detalleId);
-if (ids.length === 0) { notificar('Seleccione al menos una unidad.', 'aviso', 'Selección requerida'); return; }
-const p0 = datos.prestamos.find(function(x) { return x.id === ids[0]; });
-if (!p0) return;
-const unidades = ids.map(function(id) {
-const p = datos.prestamos.find(function(x) { return x.id === id; });
-const u = p ? datos.unidades.find(function(x) { return x.id === p.unidadId; }) : null;
-return u ? u.identificador : '?';
 });
-confirmarApp('Va a devolver las siguientes unidades de ' + p0.solicitante + ':\n\n• ' + unidades.join('\n• ') + '\n\n¿Confirma la devolución?', { titulo:'↩️ Confirmar devolución', textoAceptar:'Sí, devolver', claseAceptar:'success' }).then(function(ok) {
-if (!ok) return;
+const resumen = document.getElementById('resumen-' + detalleId);
+if (resumen) {
+let html = '<strong>📊 Resumen de la selección:</strong>';
+if (devolver > 0) html += '<div class="resumen-item resumen-devolver">↩️ <strong>' + devolver + ' unidad(es)</strong> a devolver' + (defectuosos > 0 ? ' (<span class="resumen-defectuoso">' + defectuosos + ' defectuosa(s)</span>)' : '') + '</div>';
+if (ceder > 0) html += '<div class="resumen-item resumen-ceder">🔄 <strong>' + ceder + ' unidad(es)</strong> a ceder</div>';
+if (mantener > 0) html += '<div class="resumen-item">⏸️ <strong>' + mantener + ' unidad(es)</strong> se mantienen prestadas</div>';
+if (devolver === 0 && ceder === 0 && mantener === 0) html += '<div class="resumen-item" style="color:var(--muted);font-style:italic;">Seleccione al menos una unidad marcando el checkbox</div>';
+resumen.innerHTML = html;
+}
+}
+
+async function procesarSeleccionHist(detalleId, solicitante) {
+const detalle = document.getElementById(detalleId);
+if (!detalle) return;
+const items = detalle.querySelectorAll('.hist-unidad-item');
+const idsDevolver = [];
+const idsCeder = [];
+const datosDevolucion = [];
+const datosCesion = [];
+
+items.forEach(function(item) {
+const itemId = item.id;
+const check = document.getElementById('check-' + itemId);
+const accion = document.querySelector('input[name="accion-' + itemId + '"]:checked');
+if (!check || !check.checked || !accion) return;
+
+if (accion.value === 'devolver') {
+const pId = parseInt(itemId.split('-')[2]);
+const p = datos.prestamos.find(function(x) { return x.id === pId; });
+if (!p) return;
+const estado = document.querySelector('input[name="estado-' + itemId + '"]:checked');
+const esDefectuoso = estado && estado.value === 'defectuoso';
+const observaciones = esDefectuoso ? (document.getElementById('def-texto-' + itemId) || {}).value || '' : '';
+idsDevolver.push(pId);
+datosDevolucion.push({ id: pId, estado: esDefectuoso ? 'averiado' : 'correcto', observaciones: observaciones });
+} else if (accion.value === 'ceder') {
+const pId = parseInt(itemId.split('-')[2]);
+idsCeder.push(pId);
+}
+});
+
+if (idsDevolver.length === 0 && idsCeder.length === 0) {
+notificar('Seleccione al menos una unidad y marque una acción (devolver o ceder).', 'aviso', 'Selección requerida');
+return;
+}
+
+// Procesar devoluciones
+if (idsDevolver.length > 0) {
 const ahora = new Date(); ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset());
-ids.forEach(function(id) {
+const fechaDev = ahora.toISOString().slice(0,16);
+idsDevolver.forEach(function(id, idx) {
 const p = datos.prestamos.find(function(x) { return x.id === id; });
 if (!p) return;
-p.fechaDevolucion = ahora.toISOString().slice(0,16);
-p.estadoMaterial = 'correcto';
+const datosD = datosDevolucion[idx];
+p.fechaDevolucion = fechaDev;
+p.estadoMaterial = datosD.estado;
+p.incidencias = datosD.observaciones;
 p.estado = 'devuelto';
 const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-if (u) { u.estado = 'almacen'; u.observaciones = ''; }
+if (u) {
+if (datosD.estado === 'averiado') { u.estado = 'averiado'; u.observaciones = datosD.observaciones; }
+else { u.estado = 'almacen'; u.observaciones = ''; }
+}
 });
-guardar(); renderTodo();
-notificar('<strong>' + ids.length + ' unidad(es)</strong> devuelta(s) correctamente.', 'exito', 'Devolución registrada');
 const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const fechaFormateada = 'León, ' + ahora.getDate() + ' de ' + MESES_ES[ahora.getMonth()] + ' de ' + ahora.getFullYear();
-confirmarApp('Devolución registrada.\n\n¿Desea enviar el albarán por email?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar', textoCancelar:'No', claseAceptar:'success' }).then(function(enviar) {
-if (enviar) { enviarEmailAlbaran(ids, p0.solicitante, 'DEVOLUCIÓN', fechaFormateada); }
-});
-});
+enviarEmailAlbaran(idsDevolver, solicitante, 'DEVOLUCIÓN', fechaFormateada);
+notificar('<strong>' + idsDevolver.length + ' unidad(es)</strong> devuelta(s) correctamente.', 'exito', 'Devolución registrada');
 }
 
-function cederSeleccionadas(detalleId, solicitanteActual) {
-const ids = obtenerChecksSeleccionados(detalleId);
-if (ids.length === 0) { notificar('Seleccione al menos una unidad.', 'aviso', 'Selección requerida'); return; }
-abrirModalCesion(ids, solicitanteActual);
-}
-
-function eliminarPrestamoGrupo(prestamoIds) {
-const p0 = datos.prestamos.find(function(x) { return x.id === prestamoIds[0]; });
-if (!p0) return;
-const msg = 'Se eliminarán ' + prestamoIds.length + ' préstamo(s) del histórico:\n• Solicitante: ' + p0.solicitante + '\n• Salida: ' + formatFecha(p0.fechaSalida) + '\n\n¿Continuar?';
-confirmarApp(msg, { titulo:'🗑️ Eliminar préstamo', textoAceptar:'Sí, eliminar', claseAceptar:'danger' }).then(function(ok) {
-if (!ok) return;
-prestamoIds.forEach(function(id) {
-const p = datos.prestamos.find(function(x) { return x.id === id; });
-if (p && !p.fechaDevolucion && p.estado !== 'cedido') {
-const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
-if (u) u.estado = 'almacen';
-}
-datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
-});
-guardar(); renderTodo();
-notificar('Préstamos eliminados.', 'info', 'Registro eliminado');
-});
-}
-// ===== FIN HISTÓRICO AGRUPADO =====
-
-// ===== FUNCIONES DE CESIÓN =====
-function abrirModalCesion(prestamoIds, solicitanteActual) {
-if (!Array.isArray(prestamoIds)) prestamoIds = [prestamoIds];
-cesionPrestamoIds = prestamoIds;
-const p0 = datos.prestamos.find(function(x) { return x.id === prestamoIds[0]; });
-if (!p0) return;
-const unidades = prestamoIds.map(function(id) {
+// Procesar cesiones
+if (idsCeder.length > 0) {
+cesionPrestamoIds = idsCeder;
+cesionUnidadesPendiente = solicitante;
+const p0 = datos.prestamos.find(function(x) { return x.id === idsCeder[0]; });
+if (p0) {
+const unidades = idsCeder.map(function(id) {
 const p = datos.prestamos.find(function(x) { return x.id === id; });
 const u = p ? datos.unidades.find(function(x) { return x.id === p.unidadId; }) : null;
 return u ? u.identificador : '?';
 });
-document.getElementById('cesionInfo').innerHTML = '<strong style="font-size:1.05rem;">' + unidades.length + ' unidad(es) a ceder</strong><br><span style="color:var(--muted);">Titular actual:</span> ' + (solicitanteActual || p0.solicitante) + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p0.fechaSalida);
-document.getElementById('cesionUnidadesCheck').innerHTML = '<ul style="margin:0.5rem 0 0 1.5rem; font-size:0.9rem;">' + unidades.map(function(u) { return '<li>' + u + '</li>'; }).join('') + '</ul>';
+document.getElementById('cesionInfo').innerHTML = '<strong style="font-size:1.05rem;">' + unidades.length + ' unidad(es) a ceder</strong><br><span style="color:var(--muted);">Titular actual:</span> ' + solicitante + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p0.fechaSalida);
 document.getElementById('c_tipo_solicitante').value = '';
 document.getElementById('c_campo_ayuntamiento').classList.add('campo-oculto');
 document.getElementById('c_campo_asociacion').classList.add('campo-oculto');
@@ -1266,7 +1363,22 @@ const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset(
 document.getElementById('c_fecha').value = now.toISOString().slice(0,16);
 document.getElementById('modalCesion').classList.add('show');
 }
-function cerrarModalCesion() { document.getElementById('modalCesion').classList.remove('show'); cesionPrestamoIds = []; }
+}
+
+guardar();
+renderTodo();
+}
+
+function cerrarDetalleHist(detalleId) {
+const detalle = document.getElementById(detalleId);
+if (detalle) detalle.classList.remove('abierto');
+const filaId = detalleId.replace('hist-detalle-', 'hist-fila-');
+const fila = document.getElementById(filaId);
+if (fila) fila.classList.remove('expandido');
+}
+// ===== FIN HISTÓRICO REESTRUCTURADO =====
+
+// ===== FUNCIONES DE CESIÓN =====
 function cambiarTipoSolicitanteCesion() {
 const t = document.getElementById('c_tipo_solicitante').value;
 const ca = document.getElementById('c_campo_ayuntamiento');
@@ -1337,17 +1449,17 @@ const p = datos.prestamos.find(function(x) { return x.id === id; });
 const u = p ? datos.unidades.find(function(x) { return x.id === p.unidadId; }) : null;
 return u ? u.identificador : '?';
 });
-const resumen = 'Unidades a ceder:\n• ' + unidades.join('\n• ') + '\nDe: ' + p0.solicitante + '\nA: ' + nuevoSolicitante + '\nContacto: ' + nuevoContacto + (nuevoTelefono ? ' (' + nuevoTelefono + ')' : '') + '\nFecha: ' + formatFecha(fechaCesion) + (motivo ? '\nMotivo: ' + motivo : '');
+const solicitanteAnterior = cesionUnidadesPendiente || p0.solicitante;
+const resumen = 'Unidades a ceder:\n• ' + unidades.join('\n• ') + '\nDe: ' + solicitanteAnterior + '\nA: ' + nuevoSolicitante + '\nContacto: ' + nuevoContacto + (nuevoTelefono ? ' (' + nuevoTelefono + ')' : '') + '\nFecha: ' + formatFecha(fechaCesion) + (motivo ? '\nMotivo: ' + motivo : '');
 const ok = await confirmarApp('Se va a registrar la siguiente cesión:\n\n' + resumen + '\n\nEl material NO volverá al almacén.\n¿Confirma la cesión?', { titulo:'🔄 Confirmar cesión', textoAceptar:'Sí, ceder material', claseAceptar:'cesion' });
 if (!ok) return;
-const solicitanteAnterior = p0.solicitante;
 cesionPrestamoIds.forEach(function(id) {
 const p = datos.prestamos.find(function(x) { return x.id === id; });
 if (!p) return;
 if (!p.cesiones) p.cesiones = [];
 p.cesiones.push({
 fecha: fechaCesion,
-de: p.solicitante,
+de: solicitanteAnterior,
 a: nuevoSolicitante,
 motivo: motivo || 'Cesión de material',
 contactoAnterior: p.contacto,
@@ -1372,7 +1484,10 @@ if (generar) {
 generarAlbaranesCesion(cesionPrestamoIds, solicitanteAnterior, nuevoSolicitante, fechaFormateada);
 }
 });
+cesionPrestamoIds = [];
+cesionUnidadesPendiente = null;
 }
+function cerrarModalCesion() { document.getElementById('modalCesion').classList.remove('show'); cesionPrestamoIds = []; cesionUnidadesPendiente = null; }
 function generarAlbaranesCesion(idsCedidos, solicitanteAnterior, nuevoSolicitante, fechaFormateada) {
 const prestamosCedidos = idsCedidos.map(function(id) { return datos.prestamos.find(function(x) { return x.id === id; }); }).filter(function(p) { return p; });
 if (prestamosCedidos.length === 0) return;
@@ -1386,11 +1501,7 @@ const conteo = {};
 prestamosCedidos.forEach(function(p) {
 const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
 const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
-if (a) {
-if (!conteo[a.tipo]) conteo[a.tipo] = { cantidad: 0, nombres: [] };
-conteo[a.tipo].cantidad++;
-conteo[a.tipo].nombres.push(u.identificador);
-}
+if (a) { if (!conteo[a.tipo]) conteo[a.tipo] = { cantidad: 0, nombres: [] }; conteo[a.tipo].cantidad++; conteo[a.tipo].nombres.push(u.identificador); }
 });
 const tiposAlbaran = [
 { tipo: 'pancarta', nombre: 'PANCARTAS (nº de logos y leyendas)' },
