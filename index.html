@@ -9,7 +9,7 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
-:root { --primary:#1e5aa8; --primary-dark:#15407a; --success:#2e7d32; --warning:#ed6c02; --danger:#d32f2f; --bg:#f4f6f9; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; }
+:root { --primary:#1e5aa8; --primary-dark:#15407a; --success:#2e7d32; --warning:#ed6c02; --danger:#d32f2f; --bg:#f4f6f9; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; --info:#0ea5e9; }
 * { box-sizing:border-box; margin:0; padding:0; }
 body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
 header { background:var(--primary); color:#fff; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,.1); position:relative; }
@@ -80,8 +80,10 @@ button.btn.warning { background:var(--warning); }
 button.btn.warning:hover { background:#c05602; }
 button.btn.secondary { background:#6b7280; }
 button.btn.secondary:hover { background:#4b5563; }
-button.btn.info { background:#0ea5e9; }
+button.btn.info { background:var(--info); }
 button.btn.info:hover { background:#0284c7; }
+button.btn.cesion { background:#8b5cf6; }
+button.btn.cesion:hover { background:#7c3aed; }
 button.btn.big { padding:.75rem 1.2rem; font-size:1rem; width:100%; margin-top:.5rem; }
 button.btn.outline { background:#fff; color:var(--primary); border:2px solid var(--primary); }
 button.btn.outline:hover { background:var(--primary); color:#fff; }
@@ -101,6 +103,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 .badge.prestado { background:#fff3cd; color:#856404; }
 .badge.danio { background:#f8d7da; color:var(--danger); }
 .badge.vencido { background:#f8d7da; color:var(--danger); font-weight:700; animation:parp 1.5s infinite; }
+.badge.cedido { background:#ede9fe; color:#6d28d9; }
 .modal-bg { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.5); z-index:100; align-items:center; justify-content:center; padding:1rem; }
 .modal-bg.show { display:flex; }
 .modal { background:#fff; border-radius:8px; padding:1.25rem; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; }
@@ -173,7 +176,6 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 .qr-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:1rem; text-align:center; }
 .qr-card .qr-img { margin:.5rem auto; }
 .qr-card .qr-nombre { font-weight:600; font-size:.9rem; margin-top:.5rem; }
-.qr-card .qr-estado { font-size:.8rem; margin-top:.25rem; }
 #qr-reader { width:100%; max-width:500px; margin:0 auto; }
 .calendario-wrap { overflow-x:auto; }
 .calendario { border-collapse:collapse; font-size:.75rem; min-width:800px; }
@@ -195,7 +197,6 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 .unidad-ficha { background:#f9fafb; border-radius:8px; padding:1rem; margin-top:1rem; }
 .unidad-ficha h4 { color:var(--primary-dark); margin-bottom:.5rem; }
 .unidad-ficha .historial-item { padding:.5rem; border-left:3px solid var(--primary); margin-bottom:.5rem; background:#fff; border-radius:4px; font-size:.85rem; }
-.notas-texto { font-size:.82rem; color:var(--muted); font-style:italic; margin-top:.25rem; }
 .firma-canvas-wrap { border:2px dashed var(--border); border-radius:8px; background:#fafafa; padding:0.5rem; margin-bottom:0.75rem; touch-action:none; }
 .firma-canvas { width:100%; height:180px; display:block; cursor:crosshair; background:#fff; border-radius:4px; }
 .firma-botones { display:flex; gap:0.5rem; margin-bottom:0.75rem; }
@@ -206,10 +207,10 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 .seleccionar-todas-bar { background:#f9fafb; padding:0.6rem 0.75rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
 .seleccionar-todas-bar label { display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; font-size:0.9rem; margin:0; }
 .seleccionar-todas-bar input[type="checkbox"] { width:18px; height:18px; cursor:pointer; margin:0; }
-.reforma-lista { background:#fff; border:1px solid var(--border); border-radius:6px; padding:0.5rem; margin:0.5rem 0; max-height:200px; overflow-y:auto; }
-.reforma-item { display:flex; justify-content:space-between; align-items:center; padding:0.5rem; border-bottom:1px solid var(--border); }
-.reforma-item:last-child { border-bottom:none; }
-.reforma-item .nombre { font-weight:500; }
+.reforma-lista, .cesion-lista { background:#fff; border:1px solid var(--border); border-radius:6px; padding:0.5rem; margin:0.5rem 0; max-height:200px; overflow-y:auto; }
+.reforma-item, .cesion-item { display:flex; justify-content:space-between; align-items:center; padding:0.5rem; border-bottom:1px solid var(--border); }
+.reforma-item:last-child, .cesion-item:last-child { border-bottom:none; }
+.reforma-item .nombre, .cesion-item .nombre { font-weight:500; }
 .albaran-print { font-family: Arial, sans-serif; padding: 8px 15px; color: #000; max-width: 800px; margin: 0 auto; font-size: 9pt; line-height: 1.2; }
 .albaran-print h1 { text-align: center; font-size: 11pt; margin-bottom: 2px; }
 .albaran-print h2 { text-align: center; font-size: 9pt; margin-bottom: 6px; font-weight: normal; }
@@ -277,7 +278,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div id="unidadesSeleccionadas"></div>
 <label style="margin-top:1rem;">Tipo de solicitante</label>
 <select id="p_tipo_solicitante" required onchange="cambiarTipoSolicitante()">
-<option value="">-- Seleccione --</option>
+<option value="">-- Selecciona --</option>
 <option value="ayuntamiento">Ayuntamiento</option>
 <option value="asociacion">Asociación</option>
 <option value="otro">Otro</option>
@@ -285,7 +286,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div id="campo_ayuntamiento" class="campo-oculto"><label>Ayuntamiento</label><select id="p_ayuntamiento"></select></div>
 <div id="campo_asociacion" class="campo-oculto">
 <label>Asociación</label>
-<select id="p_asociacion" onchange="cambioAsociacion()"><option value="">-- Seleccione asociación --</option></select>
+<select id="p_asociacion" onchange="cambioAsociacion()"><option value="">-- Selecciona asociación --</option></select>
 <input type="text" id="p_asociacion_nueva" placeholder="Nombre de la nueva asociación..." class="campo-oculto">
 </div>
 <div id="campo_nombre_libre" class="campo-oculto"><label id="label_nombre_libre">Nombre</label><input type="text" id="p_nombre_libre" placeholder=""></div>
@@ -306,22 +307,22 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <input type="text" id="p_dni_numero" placeholder="12345678" maxlength="8" inputmode="numeric" pattern="[0-9]*" oninput="calcularLetraDNI()" style="margin-bottom:0;">
 </div>
 <div style="width:45px;">
-<input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
+<input type="text" id="p_dni_letra" readonly placeholder="A" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff;">
 </div>
 </div>
-<div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Faltan números</div>
+<div id="dni_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduzca 8 números</div>
 <div id="campo_nif" class="campo-oculto" style="display:flex; gap:0.3rem; align-items:flex-end;">
 <div style="width:50px;">
-<input type="text" value="24" readonly title="Código de León" style="margin-bottom:0; text-align:center; font-weight:bold; background:#f0f9ff; border-color:var(--primary);">
+<input type="text" value="24" readonly title="Código de León" style="margin-bottom:0; text-align:center; font-weight:bold; background:#f0f9ff;">
 </div>
 <div style="flex:1;">
 <input type="text" id="p_nif_numero" placeholder="12345" maxlength="5" inputmode="numeric" pattern="[0-9]*" oninput="validarNIF()" style="margin-bottom:0;">
 </div>
 <div style="width:45px;">
-<input type="text" id="p_nif_letra" placeholder="A" maxlength="1" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff; border-color:var(--primary);">
+<input type="text" id="p_nif_letra" placeholder="A" maxlength="1" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')" style="margin-bottom:0; text-align:center; font-weight:bold; font-size:1.1rem; background:#f0f9ff;">
 </div>
 </div>
-<div id="nif_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Faltan números</div>
+<div id="nif_error" style="font-size:0.78rem; color:var(--danger); margin-top:2px; display:none;">⚠️ Introduzca 5 números</div>
 </div>
 </div>
 <div class="row">
@@ -449,6 +450,52 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 </div>
 </div>
 </div>
+<div id="modalCesion" class="modal-bg">
+<div class="modal" style="max-width:700px;">
+<h3>🔄 Ceder material a otro titular</h3>
+<p style="font-size:0.88rem;color:var(--muted);margin-bottom:1rem;">El material pasará directamente del titular actual al nuevo titular, sin volver al almacén.</p>
+<div id="cesionInfo" style="margin-bottom:1rem;"></div>
+<div style="background:#f0f9ff; padding:0.75rem; border-radius:6px; margin-bottom:1rem; border-left:4px solid var(--primary);">
+<strong>📋 Material que se va a ceder:</strong>
+<div id="cesionUnidades" class="cesion-lista"></div>
+</div>
+<div style="background:#ede9fe; padding:0.75rem; border-radius:6px; margin-bottom:1rem; border-left:4px solid #8b5cf6;">
+<strong>👤 Nuevo titular del material:</strong>
+<div style="margin-top:0.5rem;">
+<label style="margin-top:0.5rem;">Tipo de solicitante</label>
+<select id="c_tipo_solicitante" required onchange="cambiarTipoSolicitanteCesion()">
+<option value="">-- Seleccione --</option>
+<option value="ayuntamiento">Ayuntamiento</option>
+<option value="asociacion">Asociación</option>
+<option value="otro">Otro</option>
+</select>
+<div id="c_campo_ayuntamiento" class="campo-oculto"><label>Ayuntamiento</label><select id="c_ayuntamiento"></select></div>
+<div id="c_campo_asociacion" class="campo-oculto">
+<label>Asociación</label>
+<select id="c_asociacion" onchange="cambioAsociacionCesion()"><option value="">-- Seleccione --</option></select>
+<input type="text" id="c_asociacion_nueva" placeholder="Nombre de la nueva asociación..." class="campo-oculto">
+</div>
+<div id="c_campo_nombre_libre" class="campo-oculto"><label id="c_label_nombre_libre">Nombre</label><input type="text" id="c_nombre_libre" placeholder=""></div>
+<label style="margin-top:0.5rem;">Persona de contacto *</label>
+<input type="text" id="c_contacto" placeholder="Nombre y apellidos" required>
+<div class="row">
+<div><label>Teléfono</label><input type="tel" id="c_telefono" placeholder="600 000 000"></div>
+<div><label>e-mail</label><input type="email" id="c_email" placeholder="correo@ejemplo.com"></div>
+</div>
+<label>En calidad de</label>
+<input type="text" id="c_calidad" placeholder="Ej: Operario, Presidente...">
+<label style="margin-top:0.5rem;">Motivo de la cesión</label>
+<textarea id="c_motivo" placeholder="Ej: El Ayto. de X cede el material al Ayto. de Y para la carrera popular del día Z..."></textarea>
+<label style="margin-top:0.5rem;">Fecha de la cesión</label>
+<input type="datetime-local" id="c_fecha" required>
+</div>
+</div>
+<div class="row">
+<button type="button" class="btn cesion" onclick="guardarCesion()">🔄 Confirmar cesión</button>
+<button type="button" class="btn secondary" onclick="cerrarModalCesion()">Cancelar</button>
+</div>
+</div>
+</div>
 <div id="modalUnidad" class="modal-bg">
 <div class="modal">
 <h3 id="modalUnidadTitulo">Ficha de unidad</h3>
@@ -462,7 +509,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div class="filtro-bar">
 <input type="text" id="filtroSolicitante" placeholder="🔍 Buscar por solicitante..." oninput="renderHistorico()">
 <input type="text" id="filtroArticulo" placeholder="🔍 Buscar por artículo..." oninput="renderHistorico()">
-<select id="filtroEstado" onchange="renderHistorico()"><option value="">Todos los estados</option><option value="activo">En curso</option><option value="devuelto_correcto">Devueltos OK</option><option value="devuelto_averiado">Con incidencias</option></select>
+<select id="filtroEstado" onchange="renderHistorico()"><option value="">Todos los estados</option><option value="activo">En curso</option><option value="devuelto_correcto">Devueltos OK</option><option value="devuelto_averiado">Con incidencias</option><option value="cedido">Cedidos</option></select>
 </div>
 <div style="overflow-x:auto;"><table id="tablaHistorico">
 <thead><tr><th class="sortable" onclick="ordenarHistorico('articulo')">Artículo <span class="sort-icon" id="sort-articulo"></span></th><th class="sortable" onclick="ordenarHistorico('solicitante')">Solicitante <span class="sort-icon" id="sort-solicitante"></span></th><th>Contacto</th><th class="sortable" onclick="ordenarHistorico('salida')">Salida <span class="sort-icon" id="sort-salida"></span></th><th class="sortable" onclick="ordenarHistorico('devuelto')">Devuelto <span class="sort-icon" id="sort-devuelto"></span></th><th>Estado</th><th>Incidencias</th><th>Albarán</th><th>Acciones</th></tr></thead>
@@ -511,6 +558,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <span><div class="box" style="background:#d4edda;"></div> En almacén</span>
 <span><div class="box" style="background:#fff3cd;"></div> Prestado</span>
 <span><div class="box" style="background:#f8d7da;"></div> Averiado</span>
+<span><div class="box" style="background:#ede9fe;"></div> Cedido</span>
 <span><div class="box" style="background:#f3f4f6;"></div> Fin de semana</span>
 </div>
 <div class="calendario-nav">
@@ -535,6 +583,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div class="listado-opcion" onclick="seleccionarListado('prestado',this)"><div class="op-icono">👤</div><div class="op-titulo">Material prestado</div><div class="op-desc">Lo que está fuera del almacén</div></div>
 <div class="listado-opcion" onclick="seleccionarListado('averiado',this)"><div class="op-icono">🔧</div><div class="op-titulo">Material averiado</div><div class="op-desc">Unidades con incidencias</div></div>
 <div class="listado-opcion" onclick="seleccionarListado('almacen',this)"><div class="op-icono">📍</div><div class="op-titulo">Material en almacén</div><div class="op-desc">Unidades disponibles</div></div>
+<div class="listado-opcion" onclick="seleccionarListado('cesiones',this)"><div class="op-icono">🔄</div><div class="op-titulo">Cesiones realizadas</div><div class="op-desc">Historial de traspasos entre titulares</div></div>
 <div class="listado-opcion" onclick="seleccionarListado('activos_imprimible',this)"><div class="op-icono">📋</div><div class="op-titulo">Préstamos activos (imprimible)</div><div class="op-desc">Material actualmente prestado con detalle</div></div>
 <div class="listado-opcion" onclick="seleccionarListado('averiados_imprimible',this)"><div class="op-icono">🔧</div><div class="op-titulo">Material averiado (imprimible)</div><div class="op-desc">Unidades con incidencias registradas</div></div>
 <div class="listado-opcion" onclick="seleccionarListado('historico_completo',this)"><div class="op-icono">📚</div><div class="op-titulo">Histórico completo de movimientos</div><div class="op-desc">Todo lo prestado alguna vez con fechas e incidencias</div></div>
@@ -550,7 +599,7 @@ th .sort-icon { margin-left:4px; font-size:.7rem; }
 <div class="card"><h2>🌐 Sincronización en la nube</h2><div id="estadoFirebaseInfo"></div></div>
 <div class="card">
 <h2>📧 Email de albaranes (EmailJS)</h2>
-<p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;">Al registrar préstamos o devoluciones se envía un email automático con copia del albarán.</p>
+<p style="font-size:.88rem;color:var(--muted);margin-bottom:.75rem;">Al registrar préstamos, devoluciones o cesiones se envía un email automático.</p>
 <div id="estadoEmailInfo"></div>
 <button class="btn outline" onclick="probarEmail()">🧪 Enviar email de prueba</button>
 </div>
@@ -603,6 +652,7 @@ let unidadesPrestamo = [];
 let reformaPrestamoId = null;
 let reformaUnidadesAnadir = [];
 let reformaUnidadesQuitar = [];
+let cesionPrestamoId = null;
 if (EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI') {
 try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { console.error('Error init EmailJS:', e); }
 }
@@ -616,13 +666,17 @@ const STORAGE_KEY = 'dipuleon_prestamos_v1';
 let datos = { articulos: [], unidades: [], prestamos: [], nextId: { articulo: 1, unidad: 1, prestamo: 1 } };
 const AYUNTAMIENTOS_LEON = ["Acebedo","Algadefe","Alija del Infantado","Almanza","Antigua, La","Ardón","Arganza","Astorga","Balboa","Bañeza, La","Barjas","Barrios de Luna, Los","Bembibre","Benavides","Benuza","Bercianos del Páramo","Bercianos del Real Camino","Berlanga del Bierzo","Boca de Huérgano","Boñar","Borrenes","Brazuelo","Burgo Ranero, El","Burón","Bustillo del Páramo","Cabañas Raras","Cabreros del Río","Cabrillanes","Cacabelos","Calzada del Coto","Campazas","Campo de Villavidel","Camponaraya","Candín","Cármenes","Carracedelo","Carrizo","Carrocera","Carucedo","Castilfalé","Castrillo de Cabrera","Castrillo de la Valduerna","Castrocalbón","Castrocontrigo","Castropodame","Castrotierra de Valmadrigal","Cea","Cebanico","Cebrones del Río","Chozas de Abajo","Cistierna","Congosto","Corbillos de los Oteros","Corullón","Crémenes","Cuadros","Cubillas de los Oteros","Cubillas de Rueda","Cubillos del Sil","Destriana","Encinedo","Ercina, La","Escobar de Campos","Fabero","Folgoso de la Ribera","Fresno de la Vega","Fuentes de Carbajal","Garrafe de Torío","Gordaliza del Pino","Gordoncillo","Gradefes","Grajal de Campos","Gusendos de los Oteros","Hospital de Órbigo","Igüeña","Izagre","Joarilla de las Matas","Laguna Dalga","Laguna de Negrillos","León","Llamas de la Ribera","Lucillo","Luyego","Magaz de Cepeda","Mansilla de las Mulas","Mansilla Mayor","Maraña","Matadeón de los Oteros","Matallana de Torío","Matanza","Molinaseca","Murias de Paredes","Noceda del Bierzo","Oencia","Omañas, Las","Onzonilla","Oseja de Sajambre","Pajares de los Oteros","Palacios de la Valduerna","Palacios del Sil","Páramo del Sil","Peranzanes","Pobladura de Pelayo García","Pola de Gordón, La","Ponferrada","Posada de Valdeón","Pozuelo del Páramo","Prado de la Guzpeña","Priaranza del Bierzo","Prioro","Puebla de Lillo","Puente de Domingo Flórez","Quintana del Castillo","Quintana del Marco","Quintana y Congosto","Regueras de Arriba","Reyero","Riaño","Riego de la Vega","Riello","Rioseco de Tapia","Robla, La","Roperuelos del Páramo","Sabero","Sahagún","San Adrián del Valle","San Andrés del Rabanedo","San Cristóbal de la Polantera","San Emiliano","San Esteban de Nogales","San Justo de la Vega","San Millán de los Caballeros","San Pedro Bercianos","Sancedo","Santa Colomba de Curueño","Santa Colomba de Somoza","Santa Cristina de Valmadrigal","Santa Elena de Jamuz","Santa María de la Isla","Santa María de Ordás","Santa María del Monte de Cea","Santa María del Páramo","Santa Marina del Rey","Santas Martas","Santiago Millas","Santovenia de la Valdoncina","Sariegos","Sena de Luna","Sobrado","Soto de la Vega","Soto y Amío","Toral de los Guzmanes","Toral de los Vados","Toreno","Torre del Bierzo","Trabadelo","Truchas","Turcia","Urdiales del Páramo","Val de San Lorenzo","Valdefresno","Valdefuentes del Páramo","Valdelugueros","Valdemora","Valdepiélago","Valdepolo","Valderas","Valderrey","Valderrueda","Valdesamario","Valdevimbre","Valencia de Don Juan","Vallecillo","Valverde de la Virgen","Valverde-Enrique","Vecilla, La","Vega de Espinareda","Vega de Infanzones","Vega de Valcarce","Vegacervera","Vegaquemada","Vegas del Condado","Villablino","Villabraz","Villadangos del Páramo","Villademor de la Vega","Villafranca del Bierzo","Villagatón","Villamandos","Villamanín","Villamañán","Villamartín de Don Sancho","Villamejil","Villamol","Villamontán de la Valduerna","Villanueva de las Manzanas","Villaobispo de Otero","Villaornate y Castro","Villaquejida","Villaquilambre","Villarejo de Órbigo","Villares de Órbigo","Villasabariego","Villaselán","Villaturiel","Villazala","Villazanzo de Valderaduey","Zotes del Páramo"];
 const ICONOS_IMAGEN = {'arco':'arco','arco_muy_nuevo':'arco_muy_nuevo','carpa_hinchable':'carpa_hinchable','carpa_metalica':'carpa_metalica','podio':'podio','pancarta':'pancarta','mesa_pingpon':'mesa_pingpon','tatami':'tatami','balon':'balon','red':'red','cono':'cono','motor_inflador':'motor_inflador','estaca':'estaca'};
-const ICONOS_EMOJI = {'arco':'🏁','arco_muy_nuevo':'🏁','carpa_hinchable':'🎪','carpa_metalica':'⛺','podio':'🏆','pancarta':'🪧','mesa_pingpon':'🏓','tatami':'🥋','balon':'⚽','red':'🥅','cono':'🔶','motor_inflador':'🔌','estaca':'🚩','default':'📦'};function iconoError(el, tipo) { el.outerHTML = '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>'; }
+const ICONOS_EMOJI = {'arco':'🏁','arco_muy_nuevo':'🏁','carpa_hinchable':'🎪','carpa_metalica':'⛺','podio':'🏆','pancarta':'🪧','mesa_pingpon':'🏓','tatami':'🥋','balon':'⚽','red':'🥅','cono':'🔶','motor_inflador':'🔌','estaca':'🚩','default':'📦'};
+function iconoError(el, tipo) { el.outerHTML = '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>'; }
 function getIconoHTML(tipo) { const n = ICONOS_IMAGEN[tipo]; if (n) return '<img src="img/' + n + '.png" alt="' + tipo + '" class="icono-articulo" onerror="iconoError(this,\'' + tipo + '\')">'; return '<span class="icono-articulo emoji">' + (ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default) + '</span>'; }
 function getIconoTexto(tipo) { return ICONOS_EMOJI[tipo] || ICONOS_EMOJI.default; }
 function esDatosValidos(d) { return d && Array.isArray(d.articulos) && Array.isArray(d.unidades) && Array.isArray(d.prestamos) && d.articulos.length > 0; }
 function guardar() {
-localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-if (db) db.ref('datos').set(datos).then(function() { setEstado('sync','Sincronizado'); }).catch(function() { setEstado('error','Error'); });
+const datosLimpios = JSON.parse(JSON.stringify(datos, function(key, value) {
+return value === undefined ? null : value;
+}));
+localStorage.setItem(STORAGE_KEY, JSON.stringify(datosLimpios));
+if (db) db.ref('datos').set(datosLimpios).then(function() { setEstado('sync','Sincronizado'); }).catch(function() { setEstado('error','Error'); });
 }
 function inicializarInventario() {
 const inv = [
@@ -658,6 +712,10 @@ a.tipo = 'mesa_pingpon';
 if (a.nombre && a.nombre.toLowerCase().indexOf('muy nuevo') !== -1 && a.nombre.toLowerCase().indexOf('arco') !== -1) {
 a.tipo = 'arco_muy_nuevo';
 }
+});
+datos.prestamos.forEach(function(p) {
+if (!p.cesiones) p.cesiones = [];
+if (p.estado === undefined && !p.fechaDevolucion) p.estado = 'activo';
 });
 renderTodo();
 initCanvasFirma();
@@ -718,7 +776,7 @@ if (id === 'prestamo') { setTimeout(initCanvasFirma, 100); cargarAsociaciones();
 if (id === 'ajustes') renderEstadoEmail();
 }
 function renderTodo() { renderDashboard(); renderSelectUnidades(); renderDevoluciones(); renderHistorico(); renderInventario(); cargarAyuntamientos(); renderEstadoFirebase(); }
-function getPrestamoActivo(uId) { return datos.prestamos.find(function(p) { return p.unidadId === uId && !p.fechaDevolucion; }); }
+function getPrestamoActivo(uId) { return datos.prestamos.find(function(p) { return p.unidadId === uId && !p.fechaDevolucion && p.estado !== 'cedido'; }); }
 function toggleGrupo(id, btn) { const c = document.getElementById(id); const a = c.classList.toggle('abierto'); btn.classList.toggle('abierto', a); }
 function renderDashboard() {
 const grid = document.getElementById('dashboardGrid');
@@ -837,7 +895,7 @@ const sel = document.getElementById('dev_solicitante');
 if (!sel) return;
 const solicitantes = {};
 datos.prestamos.forEach(function(p) {
-if (!p.fechaDevolucion) {
+if (!p.fechaDevolucion && p.estado !== 'cedido') {
 if (!solicitantes[p.solicitante]) solicitantes[p.solicitante] = [];
 solicitantes[p.solicitante].push(p);
 }
@@ -855,7 +913,7 @@ const cont = document.getElementById('devListaUnidades');
 const acciones = document.getElementById('devAcciones');
 if (!sel.value) { cont.innerHTML = ''; acciones.style.display = 'none'; return; }
 const solicitante = decodeURIComponent(sel.value);
-const prestamosActivos = datos.prestamos.filter(function(p) { return p.solicitante === solicitante && !p.fechaDevolucion; });
+const prestamosActivos = datos.prestamos.filter(function(p) { return p.solicitante === solicitante && !p.fechaDevolucion && p.estado !== 'cedido'; });
 if (prestamosActivos.length === 0) {
 cont.innerHTML = '<div class="vacio"><div class="icono">✅</div><div>No hay material pendiente de este solicitante</div></div>';
 acciones.style.display = 'none';
@@ -1037,7 +1095,7 @@ const fechaDev = new Date(fecha);
 const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const fechaFormateada = 'León, ' + fechaDev.getDate() + ' de ' + MESES_ES[fechaDev.getMonth()] + ' de ' + fechaDev.getFullYear();
 setTimeout(function() { generarAlbaranDevolucionMultiple(prestamoIds, solicitante, fecha, estado, incidencias, firma); }, 300);
-confirmarApp('Devolución registrada correctamente.\n\n¿Desea enviar el albarán por email a arturo.fernandez@dipuleon.es?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar email', textoCancelar:'No, gracias', claseAceptar:'success' }).then(function(enviar) {
+confirmarApp('Devolución registrada correctamente.\n\n¿Desea enviar el albarán por email?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar email', textoCancelar:'No, gracias', claseAceptar:'success' }).then(function(enviar) {
 if (enviar) {
 enviarEmailAlbaran(prestamoIds, solicitante, 'DEVOLUCIÓN', fechaFormateada);
 } else {
@@ -1114,7 +1172,7 @@ function renderVencidos() {
 const cont = document.getElementById('listaVencidos');
 if (!cont) return;
 const ahora = new Date();
-const vencidos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion && p.fechaPrevista && ahora > new Date(p.fechaPrevista); });
+const vencidos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion && p.estado !== 'cedido' && p.fechaPrevista && ahora > new Date(p.fechaPrevista); });
 if (vencidos.length === 0) {
 cont.innerHTML = '<div class="vacio"><div class="icono">✅</div><div><strong>Sin material vencido</strong></div><div style="font-size:0.9rem; margin-top:0.25rem;">Todos los préstamos están al día.</div></div>';
 return;
@@ -1145,7 +1203,8 @@ const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
 const artNombre = u ? u.identificador.toLowerCase() : '';
 if (fs && p.solicitante.toLowerCase().indexOf(fs) === -1) return false;
 if (fa && artNombre.indexOf(fa) === -1) return false;
-if (fe === 'activo' && p.fechaDevolucion) return false;
+if (fe === 'activo' && (p.fechaDevolucion || p.estado === 'cedido')) return false;
+if (fe === 'cedido' && p.estado !== 'cedido') return false;
 if (fe === 'devuelto_correcto' && (!p.fechaDevolucion || p.estadoMaterial !== 'correcto')) return false;
 if (fe === 'devuelto_averiado' && (!p.fechaDevolucion || p.estadoMaterial !== 'averiado')) return false;
 return true;
@@ -1155,7 +1214,7 @@ let va, vb;
 if (ordenHistorico.campo === 'articulo') { const ua = datos.unidades.find(function(x){return x.id===a.unidadId;}); const ub = datos.unidades.find(function(x){return x.id===b.unidadId;}); va = ua?ua.identificador:''; vb = ub?ub.identificador:''; }
 else if (ordenHistorico.campo === 'solicitante') { va = a.solicitante; vb = b.solicitante; }
 else if (ordenHistorico.campo === 'salida') { va = a.fechaSalida; vb = b.fechaSalida; }
-else if (ordenHistorico.campo === 'devuelto') { va = a.fechaDevolucion || '9999'; vb = b.fechaDevolucion || '9999'; }
+else if (ordenHistorico.campo === 'devuelto') { va = a.fechaDevolucion || (a.estado === 'cedido' ? a.fechaCesion || '9998' : '9999'); vb = b.fechaDevolucion || (b.estado === 'cedido' ? b.fechaCesion || '9998' : '9999'); }
 else { va = a.fechaSalida; vb = b.fechaSalida; }
 if (va < vb) return -1 * ordenHistorico.dir;
 if (va > vb) return 1 * ordenHistorico.dir;
@@ -1168,14 +1227,16 @@ if (el) el.textContent = ordenHistorico.campo === c ? (ordenHistorico.dir === 1 
 lista.forEach(function(p) {
 const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
 let badge = '<span class="badge prestado">EN CURSO</span>';
-if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
+if (p.estado === 'cedido') badge = '<span class="badge cedido">🔄 CEDIDO</span>';
+else if (p.fechaDevolucion) badge = p.estadoMaterial === 'correcto' ? '<span class="badge ok">OK</span>' : '<span class="badge danio">INCIDENCIA</span>';
 let acciones = '';
-if (!p.fechaDevolucion) {
+if (!p.fechaDevolucion && p.estado !== 'cedido') {
 acciones += '<button class="btn small success" onclick="abrirDevolucion(' + p.id + ')">↩️ Devolver</button> ';
+acciones += '<button class="btn small cesion" onclick="abrirModalCesion(' + p.id + ')">🔄 Ceder</button> ';
 acciones += '<button class="btn small info" onclick="abrirModalReformar(' + p.id + ')">✏️ Reformar</button> ';
 }
 acciones += '<button class="btn small danger" onclick="eliminarPrestamo(' + p.id + ')">🗑️ Eliminar</button>';
-tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-') + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td><button class="btn small" onclick="generarAlbaran(' + p.id + ')">📄 Ver/Imprimir</button></td><td>' + acciones + '</td></tr>';
+tbody.innerHTML += '<tr><td>' + (u?u.identificador:'?') + '</td><td>' + p.solicitante + (p.cesiones && p.cesiones.length > 0 ? '<br><small style="color:#6d28d9">🔄 Cedido ' + p.cesiones.length + ' vez/veces</small>' : '') + '</td><td>' + (p.contacto||'-') + (p.telefono?'<br><small>'+p.telefono+'</small>':'') + '</td><td>' + formatFecha(p.fechaSalida) + '</td><td>' + (p.fechaDevolucion?formatFecha(p.fechaDevolucion):(p.estado==='cedido' && p.fechaCesion?formatFecha(p.fechaCesion):'-')) + '</td><td>' + badge + '</td><td>' + (p.incidencias||'-') + '</td><td><button class="btn small" onclick="generarAlbaran(' + p.id + ')">📄 Ver/Imprimir</button></td><td>' + acciones + '</td></tr>';
 });
 if (lista.length === 0) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);">Sin registros</td></tr>';
 }
@@ -1186,7 +1247,7 @@ renderHistorico();
 }
 function abrirModalReformar(prestamoId) {
 const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
-if (!p || p.fechaDevolucion) { notificar('Solo se pueden reformar préstamos activos.', 'aviso', 'No disponible'); return; }
+if (!p || p.fechaDevolucion || p.estado === 'cedido') { notificar('Solo se pueden reformar préstamos activos.', 'aviso', 'No disponible'); return; }
 reformaPrestamoId = prestamoId;
 reformaUnidadesAnadir = [];
 reformaUnidadesQuitar = [];
@@ -1287,10 +1348,10 @@ const id = datos.nextId.prestamo++;
 datos.prestamos.push({
 id: id, unidadId: u.id, tipoSolicitante: p.tipoSolicitante, solicitante: p.solicitante,
 contacto: p.contacto, dni: p.dni, telefono: p.telefono, email: p.email, calidad: p.calidad,
-fechaSalida: p.fechaSalida, fechaPrevista: p.fechaPrevista, fechaDevolucion: null,
+fechaSalida: p.fechaSalida, fechaPrevista: p.fechaPrevista || null, fechaDevolucion: null,
 estado: 'activo', estadoMaterial: null, incidencias: '',
 notas: p.notas, prueba: p.prueba, localidad: p.localidad,
-firma: p.firma, firmaDevolucion: null
+firma: p.firma, firmaDevolucion: null, cesiones: []
 });
 u.estado = 'prestado';
 });
@@ -1301,7 +1362,7 @@ notificar('Préstamo reformado correctamente.', 'exito', 'Reforma aplicada');
 const fechaSalida = new Date(p.fechaSalida);
 const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const fechaFormateada = 'León, ' + fechaSalida.getDate() + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + fechaSalida.getFullYear();
-const prestamoIdsActualizados = datos.prestamos.filter(function(x) { return x.solicitante === p.solicitante && x.fechaSalida === p.fechaSalida && !x.fechaDevolucion; }).map(function(x) { return x.id; });
+const prestamoIdsActualizados = datos.prestamos.filter(function(x) { return x.solicitante === p.solicitante && x.fechaSalida === p.fechaSalida && !x.fechaDevolucion && x.estado !== 'cedido'; }).map(function(x) { return x.id; });
 confirmarApp('Préstamo reformado correctamente.\n\n¿Desea enviar el albarán actualizado por email?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar email', textoCancelar:'No, gracias', claseAceptar:'success' }).then(function(enviar) {
 if (enviar && prestamoIdsActualizados.length > 0) {
 enviarEmailAlbaran(prestamoIdsActualizados, p.solicitante, 'ENTREGA (REFORMA)', fechaFormateada);
@@ -1448,8 +1509,19 @@ emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
 .catch(function(err) { console.error('❌ Error enviando email:', err); notificar('Error al enviar el email.', 'error', 'Error de envío'); });
 }
 function cargarAyuntamientos() { const s = document.getElementById('p_ayuntamiento'); if (!s || s.options.length > 1) return; s.innerHTML = '<option value="">-- Seleccione --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
+function cargarAyuntamientosCesion() { const s = document.getElementById('c_ayuntamiento'); if (!s) return; s.innerHTML = '<option value="">-- Seleccione --</option>'; AYUNTAMIENTOS_LEON.forEach(function(a) { s.innerHTML += '<option value="'+a+'">'+a+'</option>'; }); }
 function cargarAsociaciones() {
 const sel = document.getElementById('p_asociacion');
+if (!sel) return;
+const asociaciones = {};
+datos.prestamos.forEach(function(p) { if (p.tipoSolicitante === 'asociacion' && p.solicitante) asociaciones[p.solicitante] = true; });
+const keys = Object.keys(asociaciones).sort();
+sel.innerHTML = '<option value="">-- Seleccione asociación --</option>';
+keys.forEach(function(k) { sel.innerHTML += '<option value="'+k+'">'+k+'</option>'; });
+sel.innerHTML += '<option value="__nueva__">➕ Otra (escribir nueva)...</option>';
+}
+function cargarAsociacionesCesion() {
+const sel = document.getElementById('c_asociacion');
 if (!sel) return;
 const asociaciones = {};
 datos.prestamos.forEach(function(p) { if (p.tipoSolicitante === 'asociacion' && p.solicitante) asociaciones[p.solicitante] = true; });
@@ -1461,6 +1533,12 @@ sel.innerHTML += '<option value="__nueva__">➕ Otra (escribir nueva)...</option
 function cambioAsociacion() {
 const sel = document.getElementById('p_asociacion');
 const inputNueva = document.getElementById('p_asociacion_nueva');
+if (sel.value === '__nueva__') { inputNueva.classList.remove('campo-oculto'); inputNueva.value = ''; inputNueva.focus(); }
+else { inputNueva.classList.add('campo-oculto'); inputNueva.value = ''; }
+}
+function cambioAsociacionCesion() {
+const sel = document.getElementById('c_asociacion');
+const inputNueva = document.getElementById('c_asociacion_nueva');
 if (sel.value === '__nueva__') { inputNueva.classList.remove('campo-oculto'); inputNueva.value = ''; inputNueva.focus(); }
 else { inputNueva.classList.add('campo-oculto'); inputNueva.value = ''; }
 }
@@ -1480,6 +1558,22 @@ if (t === 'ayuntamiento') { ca.classList.remove('campo-oculto'); cargarAyuntamie
 else if (t === 'asociacion') { cas.classList.remove('campo-oculto'); cargarAsociaciones(); }
 else if (t === 'otro') { ll.textContent = 'Nombre / Entidad'; il.placeholder = 'Ej: Colegio, empresa...'; cl.classList.remove('campo-oculto'); }
 }
+function cambiarTipoSolicitanteCesion() {
+const t = document.getElementById('c_tipo_solicitante').value;
+const ca = document.getElementById('c_campo_ayuntamiento');
+const cas = document.getElementById('c_campo_asociacion');
+const cl = document.getElementById('c_campo_nombre_libre');
+const ll = document.getElementById('c_label_nombre_libre');
+const il = document.getElementById('c_nombre_libre');
+ca.classList.add('campo-oculto'); cas.classList.add('campo-oculto'); cl.classList.add('campo-oculto');
+document.getElementById('c_ayuntamiento').value = '';
+document.getElementById('c_asociacion').value = '';
+document.getElementById('c_asociacion_nueva').value = '';
+il.value = '';
+if (t === 'ayuntamiento') { ca.classList.remove('campo-oculto'); cargarAyuntamientosCesion(); }
+else if (t === 'asociacion') { cas.classList.remove('campo-oculto'); cargarAsociacionesCesion(); }
+else if (t === 'otro') { ll.textContent = 'Nombre / Entidad'; il.placeholder = 'Ej: Colegio, empresa...'; cl.classList.remove('campo-oculto'); }
+}
 function obtenerSolicitante() {
 const t = document.getElementById('p_tipo_solicitante').value;
 if (t === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('p_ayuntamiento').value;
@@ -1491,6 +1585,19 @@ if (sel && sel !== '__nueva__') return sel;
 return nueva || '';
 }
 else if (t === 'otro') return document.getElementById('p_nombre_libre').value.trim();
+return '';
+}
+function obtenerSolicitanteCesion() {
+const t = document.getElementById('c_tipo_solicitante').value;
+if (t === 'ayuntamiento') return 'Ayto. de ' + document.getElementById('c_ayuntamiento').value;
+else if (t === 'asociacion') {
+const sel = document.getElementById('c_asociacion').value;
+const nueva = document.getElementById('c_asociacion_nueva').value.trim();
+if (sel === '__nueva__' && nueva) return nueva;
+if (sel && sel !== '__nueva__') return sel;
+return nueva || '';
+}
+else if (t === 'otro') return document.getElementById('c_nombre_libre').value.trim();
 return '';
 }
 function initCanvasFirma() {
@@ -1703,7 +1810,7 @@ contacto: con, dni: dni, telefono: tel, email: email, calidad: calidad,
 fechaSalida: sal, fechaPrevista: pre || null, fechaDevolucion: null,
 estado: 'activo', estadoMaterial: null, incidencias: '',
 notas: not, prueba: prueba, localidad: localidad,
-firma: firmaData, firmaDevolucion: null
+firma: firmaData, firmaDevolucion: null, cesiones: []
 });
 u.estado = 'prestado';
 prestamoIds.push(id);
@@ -1726,7 +1833,7 @@ setTimeout(function() { generarAlbaranMultiple(prestamoIds); }, 300);
 const fechaSalida = new Date(sal);
 const MESES_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const fechaFormateada = 'León, ' + fechaSalida.getDate() + ' de ' + MESES_ES[fechaSalida.getMonth()] + ' de ' + fechaSalida.getFullYear();
-confirmarApp('Préstamo registrado correctamente.\n\n¿Desea enviar el albarán por email a arturo.fernandez@dipuleon.es?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar email', textoCancelar:'No, gracias', claseAceptar:'success' }).then(function(enviar) {
+confirmarApp('Préstamo registrado correctamente.\n\n¿Desea enviar el albarán por email?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar email', textoCancelar:'No, gracias', claseAceptar:'success' }).then(function(enviar) {
 if (enviar) {
 enviarEmailAlbaran(prestamoIds, sol, 'ENTREGA', fechaFormateada);
 } else {
@@ -1738,7 +1845,7 @@ function generarAlbaran(prestamoId) {
 const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
 if (!p) return;
 const prestamosRelacionados = datos.prestamos.filter(function(x) {
-return x.solicitante === p.solicitante && x.fechaSalida === p.fechaSalida;
+return x.solicitante === p.solicitante && x.fechaSalida === p.fechaSalida && x.estado !== 'cedido';
 }).map(function(x) { return x.id; });
 generarAlbaranMultiple(prestamosRelacionados);
 }
@@ -1784,6 +1891,13 @@ conteo[a.tipo].nombres.push(u.identificador);
 });
 tiposAlbaran.forEach(function(t) { if (conteo[t.tipo]) html += '<tr><td style="text-align:center;">' + conteo[t.tipo].cantidad + '</td><td>' + conteo[t.tipo].nombres.join(', ') + '</td><td>' + t.nombre + '</td></tr>'; });
 html += '</tbody></table>';
+if (p0.cesiones && p0.cesiones.length > 0) {
+html += '<div style="margin-top:8px;padding:6px;background:#ede9fe;border-left:3px solid #8b5cf6;font-size:8pt;"><strong>🔄 Historial de cesiones:</strong><ul style="margin:4px 0 0 15px;">';
+p0.cesiones.forEach(function(c) {
+html += '<li><strong>' + formatFecha(c.fecha) + ':</strong> de <em>' + c.de + '</em> a <em>' + c.a + '</em>' + (c.motivo ? ' — ' + c.motivo : '') + '</li>';
+});
+html += '</ul></div>';
+}
 html += '<div class="firmas-row"><div class="firma-box"><div class="titulo">El encargado de edificio</div><div class="nombre">Arturo Fernández Carbajo</div><div class="nombre">Firmado:</div><img src="' + firmaArturo + '" class="firma-img" alt="Firma"></div>';
 html += '<div class="firma-box"><div class="titulo">Entidad</div><div class="nombre">' + p0.solicitante + '</div><div class="nombre">Firmado:</div>';
 if (p0.firma) html += '<img src="' + p0.firma + '" class="firma-img" alt="Firma solicitante">'; else html += '<div class="firma-linea"></div>';
@@ -1863,11 +1977,13 @@ const p = datos.prestamos.find(function(x) { return x.id === id; });
 if (!p) { notificar('No se ha encontrado el préstamo en el sistema.', 'error', 'Error'); return; }
 const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
 let msg = 'Se eliminará del histórico:\n• Material: ' + (u ? u.identificador : 'desconocido') + '\n• Solicitante: ' + p.solicitante + '\n• Salida: ' + formatFecha(p.fechaSalida);
-if (!p.fechaDevolucion) msg += '\n⚠️ El material ESTÁ PRESTADO.\nAl eliminar, la unidad volverá AL ALMACÉN.';
+if (!p.fechaDevolucion && p.estado !== 'cedido') msg += '\n⚠️ El material ESTÁ PRESTADO.\nAl eliminar, la unidad volverá AL ALMACÉN.';
+else if (p.estado === 'cedido') msg += '\n🔄 El material fue CEDIDO a otro titular.\nAl eliminar, la unidad quedará sin titular asignado.';
 else msg += '\n✅ El préstamo ya fue devuelto.\nSe eliminará solo del histórico.';
 confirmarApp(msg, { titulo:'🗑️ Eliminar préstamo', textoAceptar:'Sí, eliminar', claseAceptar:'danger' }).then(function(ok) {
 if (!ok) return;
-if (!p.fechaDevolucion) { if (u) u.estado = 'almacen'; notificar('Préstamo eliminado. Unidad devuelta al almacén.', 'info', 'Registro eliminado'); }
+if (!p.fechaDevolucion && p.estado !== 'cedido') { if (u) u.estado = 'almacen'; notificar('Préstamo eliminado. Unidad devuelta al almacén.', 'info', 'Registro eliminado'); }
+else if (p.estado === 'cedido') { notificar('Préstamo cedido eliminado del histórico.', 'info', 'Registro eliminado'); }
 else notificar('Registro eliminado del histórico.', 'info', 'Registro eliminado');
 datos.prestamos = datos.prestamos.filter(function(x) { return x.id !== id; });
 guardar(); renderTodo();
@@ -1919,7 +2035,7 @@ document.addEventListener('mouseover', function(e) { const i = e.target.closest(
 document.addEventListener('mouseout', function(e) { const i = e.target.closest('.icono-articulo'); if (i) p.style.display = 'none'; });
 document.addEventListener('mousemove', function(e) { if (p.style.display === 'block') { let x = e.clientX + 15, y = e.clientY + 15; if (x + 180 > window.innerWidth) x = e.clientX - 195; if (y + 180 > window.innerHeight) y = e.clientY - 195; p.style.left = x + 'px'; p.style.top = y + 'px'; } });
 })();
-function seleccionarListado(tipo, el) { listadoSeleccionado = tipo; document.querySelectorAll('.listado-opcion').forEach(function(e) { e.classList.remove('seleccionada'); }); el.classList.add('seleccionada'); const c = document.getElementById('listadoConfig'), ch = document.getElementById('configHistorico'); c.classList.remove('campo-oculto'); ch.classList.toggle('campo-oculto', tipo !== 'historico'); }
+function seleccionarListado(tipo, el) { listadoSeleccionado = tipo; document.querySelectorAll('.listado-opcion').forEach(function(e) { e.classList.remove('seleccionada'); }); el.classList.add('seleccionada'); const c = document.getElementById('listadoConfig'), ch = document.getElementById('configHistorico'); c.classList.remove('campo-oculto'); ch.classList.toggle('campo-oculto', tipo !== 'historico' && tipo !== 'cesiones'); }
 function generarListado() {
 if (!listadoSeleccionado) { notificar('Seleccione un tipo de listado.', 'aviso', 'Selección requerida'); return; }
 let contenido = '', titulo = '';
@@ -1931,21 +2047,66 @@ else if (listadoSeleccionado === 'historico') { titulo = 'Histórico por fechas'
 else if (listadoSeleccionado === 'prestado') { titulo = 'Material actualmente prestado'; contenido = genListadoPrestado(); }
 else if (listadoSeleccionado === 'averiado') { titulo = 'Material averiado'; contenido = genListadoAveriado(); }
 else if (listadoSeleccionado === 'almacen') { titulo = 'Material en almacén'; contenido = genListadoAlmacen(); }
+else if (listadoSeleccionado === 'cesiones') { titulo = 'HISTORIAL DE CESIONES'; contenido = genListadoCesiones(); }
 else if (listadoSeleccionado === 'activos_imprimible') { titulo = 'PRÉSTAMOS ACTIVOS - Resumen'; contenido = genListadoActivosImprimible(); }
 else if (listadoSeleccionado === 'averiados_imprimible') { titulo = 'MATERIAL AVERIADO - Resumen'; contenido = genListadoAveriadosImprimible(); }
 else if (listadoSeleccionado === 'historico_completo') { titulo = 'HISTÓRICO COMPLETO DE MOVIMIENTOS'; contenido = genListadoHistoricoCompleto(); }
 abrirVentanaListado(titulo, contenido);
 }
+function genListadoCesiones() {
+const cesiones = [];
+datos.prestamos.forEach(function(p) {
+if (p.cesiones && p.cesiones.length > 0) {
+const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+p.cesiones.forEach(function(c) {
+cesiones.push({
+unidad: u ? u.identificador : '?',
+articulo: u ? (datos.articulos.find(function(a) { return a.id === u.articuloId; }) || {}).nombre || '?' : '?',
+fecha: c.fecha,
+de: c.de,
+a: c.a,
+motivo: c.motivo || '-'
+});
+});
+}
+});
+if (cesiones.length === 0) return '<p style="text-align:center;padding:2rem;color:var(--muted)">No hay cesiones registradas.</p>';
+cesiones.sort(function(a,b) { return new Date(b.fecha) - new Date(a.fecha); });
+let h = '<p style="font-size:10pt;color:#666;margin-bottom:1rem">Total de cesiones registradas: <strong>' + cesiones.length + '</strong> · Generado el ' + new Date().toLocaleString('es-ES') + '</p>';
+h += '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:9pt">';
+h += '<thead><tr style="background:#8b5cf6;color:white">';
+h += '<th style="padding:6px;text-align:left">#</th>';
+h += '<th style="padding:6px;text-align:left">Material</th>';
+h += '<th style="padding:6px;text-align:left">Fecha cesión</th>';
+h += '<th style="padding:6px;text-align:left">De (titular anterior)</th>';
+h += '<th style="padding:6px;text-align:left">A (nuevo titular)</th>';
+h += '<th style="padding:6px;text-align:left">Motivo</th>';
+h += '</tr></thead><tbody>';
+cesiones.forEach(function(c, idx) {
+const fila = idx % 2 === 0 ? ' style="background:#f9fafb"' : '';
+h += '<tr' + fila + '>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (idx + 1) + '</td>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc"><strong>' + c.unidad + '</strong><br><small style="color:#666">' + c.articulo + '</small></td>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc">' + formatFecha(c.fecha) + '</td>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc">' + c.de + '</td>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc;color:#6d28d9;font-weight:bold">' + c.a + '</td>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc">' + c.motivo + '</td>';
+h += '</tr>';
+});
+h += '</tbody></table>';
+h += '<p style="font-size:9pt;color:#666;margin-top:1rem;text-align:right">Diputación de León - Servicio de Deportes · Control de Préstamos</p>';
+return h;
+}
 function genListadoInventario() { let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:11pt;"><thead><tr style="background:#f0f0f0;"><th style="text-align:left;">Artículo</th><th>Tipo</th><th>Total</th><th>Disp.</th><th>Prest.</th><th>Aver.</th><th style="text-align:left;">Descripción</th></tr></thead><tbody>'; let tT=0,tD=0,tP=0,tA=0; datos.articulos.forEach(function(a) { if (!a.activo) return; const u = datos.unidades.filter(function(x) { return x.articuloId === a.id; }); const d = u.filter(function(x) { return x.estado==='almacen'; }).length, p = u.filter(function(x) { return x.estado==='prestado'; }).length, av = u.filter(function(x) { return x.estado==='averiado'; }).length; tT+=u.length; tD+=d; tP+=p; tA+=av; h += '<tr><td style="text-align:left;"><strong>'+a.nombre+'</strong></td><td>'+(a.tipo||'-')+'</td><td style="text-align:center;">'+u.length+'</td><td style="text-align:center;color:green;">'+d+'</td><td style="text-align:center;color:orange;">'+p+'</td><td style="text-align:center;color:red;">'+av+'</td><td style="text-align:left;">'+(a.descripcion||'-')+'</td></tr>'; }); h += '<tr style="background:#f0f0f0;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tT+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tA+'</td><td></td></tr></tbody></table>'; return h; }
-function genListadoSolicitante() { const agrupado = {}; datos.prestamos.forEach(function(p) { const k = p.solicitante; if (!agrupado[k]) agrupado[k] = []; agrupado[k].push(p); }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#e0e7ff;"><th style="text-align:left;">Solicitante</th><th>Nº préstamos</th><th>En curso</th><th>Devueltos</th><th>Con incidencias</th></tr></thead><tbody>'; const keys = Object.keys(agrupado).sort(); let tP=0,tC=0,tD=0,tI=0; keys.forEach(function(k) { const ps = agrupado[k]; const enCurso = ps.filter(function(p) { return !p.fechaDevolucion; }).length; const devueltos = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'correcto'; }).length; const incidencias = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; }).length; tP += ps.length; tC += enCurso; tD += devueltos; tI += incidencias; h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td style="text-align:center;">'+ps.length+'</td><td style="text-align:center;color:orange;">'+enCurso+'</td><td style="text-align:center;color:green;">'+devueltos+'</td><td style="text-align:center;color:red;">'+incidencias+'</td></tr>'; }); h += '<tr style="background:#e0e7ff;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>'; return h; }
-function genListadoMaterial() { const agrupado = {}; datos.prestamos.forEach(function(p) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null; const key = a ? a.nombre : 'Desconocido'; if (!agrupado[key]) agrupado[key] = { total: 0, enCurso: 0, devueltos: 0, incidencias: 0, tipo: a ? a.tipo : '-' }; agrupado[key].total++; if (!p.fechaDevolucion) agrupado[key].enCurso++; else if (p.estadoMaterial === 'correcto') agrupado[key].devueltos++; else agrupado[key].incidencias++; }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#dbeafe;"><th style="text-align:left;">Material</th><th>Tipo</th><th>Total préstamos</th><th>En curso</th><th>Devueltos OK</th><th>Con incidencias</th></tr></thead><tbody>'; const keys = Object.keys(agrupado).sort(); let tT=0,tC=0,tD=0,tI=0; keys.forEach(function(k) { const d = agrupado[k]; tT+=d.total; tC+=d.enCurso; tD+=d.devueltos; tI+=d.incidencias; h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>'+d.tipo+'</td><td style="text-align:center;">'+d.total+'</td><td style="text-align:center;color:orange;">'+d.enCurso+'</td><td style="text-align:center;color:green;">'+d.devueltos+'</td><td style="text-align:center;color:red;">'+d.incidencias+'</td></tr>'; }); h += '<tr style="background:#dbeafe;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tT+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>'; return h; }
+function genListadoSolicitante() { const agrupado = {}; datos.prestamos.forEach(function(p) { const k = p.solicitante; if (!agrupado[k]) agrupado[k] = []; agrupado[k].push(p); }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#e0e7ff;"><th style="text-align:left;">Solicitante</th><th>Nº préstamos</th><th>En curso</th><th>Devueltos</th><th>Cedidos</th><th>Con incidencias</th></tr></thead><tbody>'; const keys = Object.keys(agrupado).sort(); let tP=0,tC=0,tD=0,tI=0,tCe=0; keys.forEach(function(k) { const ps = agrupado[k]; const enCurso = ps.filter(function(p) { return !p.fechaDevolucion && p.estado !== 'cedido'; }).length; const devueltos = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'correcto'; }).length; const incidencias = ps.filter(function(p) { return p.fechaDevolucion && p.estadoMaterial === 'averiado'; }).length; const cedidos = ps.filter(function(p) { return p.estado === 'cedido'; }).length; tP += ps.length; tC += enCurso; tD += devueltos; tI += incidencias; tCe += cedidos; h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td style="text-align:center;">'+ps.length+'</td><td style="text-align:center;color:orange;">'+enCurso+'</td><td style="text-align:center;color:green;">'+devueltos+'</td><td style="text-align:center;color:#6d28d9;">'+cedidos+'</td><td style="text-align:center;color:red;">'+incidencias+'</td></tr>'; }); h += '<tr style="background:#e0e7ff;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td style="text-align:center;">'+tP+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tCe+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>'; return h; }
+function genListadoMaterial() { const agrupado = {}; datos.prestamos.forEach(function(p) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null; const key = a ? a.nombre : 'Desconocido'; if (!agrupado[key]) agrupado[key] = { total: 0, enCurso: 0, devueltos: 0, incidencias: 0, cedidos: 0, tipo: a ? a.tipo : '-' }; agrupado[key].total++; if (p.estado === 'cedido') agrupado[key].cedidos++; else if (!p.fechaDevolucion) agrupado[key].enCurso++; else if (p.estadoMaterial === 'correcto') agrupado[key].devueltos++; else agrupado[key].incidencias++; }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#dbeafe;"><th style="text-align:left;">Material</th><th>Tipo</th><th>Total préstamos</th><th>En curso</th><th>Cedidos</th><th>Devueltos OK</th><th>Con incidencias</th></tr></thead><tbody>'; const keys = Object.keys(agrupado).sort(); let tT=0,tC=0,tD=0,tI=0,tCe=0; keys.forEach(function(k) { const d = agrupado[k]; tT+=d.total; tC+=d.enCurso; tD+=d.devueltos; tI+=d.incidencias; tCe+=d.cedidos; h += '<tr><td style="text-align:left;"><strong>'+k+'</strong></td><td>'+d.tipo+'</td><td style="text-align:center;">'+d.total+'</td><td style="text-align:center;color:orange;">'+d.enCurso+'</td><td style="text-align:center;color:#6d28d9;">'+d.cedidos+'</td><td style="text-align:center;color:green;">'+d.devueltos+'</td><td style="text-align:center;color:red;">'+d.incidencias+'</td></tr>'; }); h += '<tr style="background:#dbeafe;font-weight:bold;"><td style="text-align:left;">TOTALES</td><td></td><td style="text-align:center;">'+tT+'</td><td style="text-align:center;">'+tC+'</td><td style="text-align:center;">'+tCe+'</td><td style="text-align:center;">'+tD+'</td><td style="text-align:center;">'+tI+'</td></tr></tbody></table>'; return h; }
 function genListadoEstado() { const almacen = datos.unidades.filter(function(u) { return u.estado === 'almacen'; }); const prestados = datos.unidades.filter(function(u) { return u.estado === 'prestado'; }); const averiados = datos.unidades.filter(function(u) { return u.estado === 'averiado'; }); let h = ''; h += '<h3 style="color:green;margin-top:15px;">📍 En almacén (' + almacen.length + ')</h3><table border="1" cellpadding="5" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#d4edda;"><th>Unidad</th><th>Artículo</th><th>Tipo</th></tr></thead><tbody>'; almacen.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(a?a.tipo:'-')+'</td></tr>'; }); h += '</tbody></table><h3 style="color:orange;margin-top:15px;">👤 Prestados (' + prestados.length + ')</h3><table border="1" cellpadding="5" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#fff3cd;"><th>Unidad</th><th>Artículo</th><th>Solicitante</th><th>Desde</th></tr></thead><tbody>'; prestados.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); const p = getPrestamoActivo(u.id); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(p?p.solicitante:'?')+'</td><td>'+(p?formatFecha(p.fechaSalida):'-')+'</td></tr>'; }); h += '</tbody></table><h3 style="color:red;margin-top:15px;">🔧 Averiados (' + averiados.length + ')</h3><table border="1" cellpadding="5" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#f8d7da;"><th>Unidad</th><th>Artículo</th><th>Incidencia</th></tr></thead><tbody>'; averiados.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(u.observaciones||'-')+'</td></tr>'; }); h += '</tbody></table>'; return h; }
-function genListadoHistorico(fd, fh) { let f = datos.prestamos.slice(); if (fd) { const d = new Date(fd); f = f.filter(function(p) { return new Date(p.fechaSalida) >= d; }); } if (fh) { const h = new Date(fh); h.setHours(23,59,59); f = f.filter(function(p) { return new Date(p.fechaSalida) <= h; }); } f.sort(function(a,b) { return new Date(b.fechaSalida) - new Date(a.fechaSalida); }); let h = ''; if (fd || fh) h += '<p style="font-size:10pt;color:#666;">Período: ' + (fd?formatFechaCorta(fd):'inicio') + ' → ' + (fh?formatFechaCorta(fh):'actual') + '</p>'; h += '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#f0f0f0;"><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Teléfono</th><th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th>Notas</th></tr></thead><tbody>'; f.forEach(function(p) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); const et = p.fechaDevolucion ? (p.estadoMaterial==='correcto'?'OK':'INCIDENCIA') : 'EN CURSO'; h += '<tr><td>'+(u?u.identificador:'?')+'</td><td>'+p.solicitante+'</td><td>'+(p.contacto||'-')+'</td><td>'+(p.telefono||'-')+'</td><td>'+formatFecha(p.fechaSalida)+'</td><td>'+(p.fechaDevolucion?formatFecha(p.fechaDevolucion):'-')+'</td><td style="text-align:center;">'+et+'</td><td>'+(p.incidencias||'-')+'</td><td>'+(p.notas||'-')+'</td></tr>'; }); h += '</tbody></table><p style="font-size:10pt;margin-top:10px;"><strong>Total: ' + f.length + ' registros</strong></p>'; return h; }
-function genListadoPrestado() { const a = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:11pt;"><thead><tr style="background:#fff3cd;"><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Teléfono</th><th>Salida</th><th>Prevista</th><th>Días</th><th>Notas</th></tr></thead><tbody>'; const ahora = new Date(); a.forEach(function(p) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); const dp = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000); h += '<tr><td><strong>'+(u?u.identificador:'?')+'</strong></td><td>'+p.solicitante+'</td><td>'+(p.contacto||'-')+'</td><td>'+(p.telefono||'-')+'</td><td>'+formatFecha(p.fechaSalida)+'</td><td>'+(p.fechaPrevista?formatFecha(p.fechaPrevista):'-')+'</td><td style="text-align:center;">'+dp+'d</td><td>'+(p.notas||'-')+'</td></tr>'; }); h += '</tbody></table><p style="font-size:10pt;margin-top:10px;"><strong>Total prestados: ' + a.length + '</strong></p>'; return h; }
+function genListadoHistorico(fd, fh) { let f = datos.prestamos.slice(); if (fd) { const d = new Date(fd); f = f.filter(function(p) { return new Date(p.fechaSalida) >= d; }); } if (fh) { const h = new Date(fh); h.setHours(23,59,59); f = f.filter(function(p) { return new Date(p.fechaSalida) <= h; }); } f.sort(function(a,b) { return new Date(b.fechaSalida) - new Date(a.fechaSalida); }); let h = ''; if (fd || fh) h += '<p style="font-size:10pt;color:#666;">Período: ' + (fd?formatFechaCorta(fd):'inicio') + ' → ' + (fh?formatFechaCorta(fh):'actual') + '</p>'; h += '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt;"><thead><tr style="background:#f0f0f0;"><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Teléfono</th><th>Salida</th><th>Devuelto</th><th>Estado</th><th>Incidencias</th><th>Notas</th></tr></thead><tbody>'; f.forEach(function(p) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); let et = 'EN CURSO'; if (p.estado === 'cedido') et = '🔄 CEDIDO'; else if (p.fechaDevolucion) et = p.estadoMaterial==='correcto'?'OK':'INCIDENCIA'; h += '<tr><td>'+(u?u.identificador:'?')+'</td><td>'+p.solicitante+'</td><td>'+(p.contacto||'-')+'</td><td>'+(p.telefono||'-')+'</td><td>'+formatFecha(p.fechaSalida)+'</td><td>'+(p.fechaDevolucion?formatFecha(p.fechaDevolucion):(p.fechaCesion?formatFecha(p.fechaCesion):'-'))+'</td><td style="text-align:center;">'+et+'</td><td>'+(p.incidencias||'-')+'</td><td>'+(p.notas||'-')+'</td></tr>'; }); h += '</tbody></table><p style="font-size:10pt;margin-top:10px;"><strong>Total: ' + f.length + ' registros</strong></p>'; return h; }
+function genListadoPrestado() { const a = datos.prestamos.filter(function(p) { return !p.fechaDevolucion && p.estado !== 'cedido'; }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:11pt;"><thead><tr style="background:#fff3cd;"><th>Artículo</th><th>Solicitante</th><th>Contacto</th><th>Teléfono</th><th>Salida</th><th>Prevista</th><th>Días</th><th>Notas</th></tr></thead><tbody>'; const ahora = new Date(); a.forEach(function(p) { const u = datos.unidades.find(function(x) { return x.id === p.unidadId; }); const dp = Math.floor((ahora - new Date(p.fechaSalida)) / 86400000); h += '<tr><td><strong>'+(u?u.identificador:'?')+'</strong></td><td>'+p.solicitante+'</td><td>'+(p.contacto||'-')+'</td><td>'+(p.telefono||'-')+'</td><td>'+formatFecha(p.fechaSalida)+'</td><td>'+(p.fechaPrevista?formatFecha(p.fechaPrevista):'-')+'</td><td style="text-align:center;">'+dp+'d</td><td>'+(p.notas||'-')+'</td></tr>'; }); h += '</tbody></table><p style="font-size:10pt;margin-top:10px;"><strong>Total prestados: ' + a.length + '</strong></p>'; return h; }
 function genListadoAveriado() { const av = datos.unidades.filter(function(u) { return u.estado === 'averiado'; }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:11pt;"><thead><tr style="background:#f8d7da;"><th>Unidad</th><th>Artículo</th><th>Tipo</th><th>Incidencia</th></tr></thead><tbody>'; av.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(a?a.tipo:'-')+'</td><td>'+(u.observaciones||'-')+'</td></tr>'; }); h += '</tbody></table><p style="font-size:10pt;margin-top:10px;"><strong>Total averiados: ' + av.length + '</strong></p>'; return h; }
 function genListadoAlmacen() { const al = datos.unidades.filter(function(u) { return u.estado === 'almacen'; }); let h = '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:11pt;"><thead><tr style="background:#d4edda;"><th>Unidad</th><th>Artículo</th><th>Tipo</th></tr></thead><tbody>'; al.forEach(function(u) { const a = datos.articulos.find(function(x) { return x.id === u.articuloId; }); h += '<tr><td><strong>'+u.identificador+'</strong></td><td>'+(a?a.nombre:'?')+'</td><td>'+(a?a.tipo:'-')+'</td></tr>'; }); h += '</tbody></table><p style="font-size:10pt;margin-top:10px;"><strong>Total en almacén: ' + al.length + '</strong></p>'; return h; }
 function genListadoActivosImprimible() {
-const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion; });
+const activos = datos.prestamos.filter(function(p) { return !p.fechaDevolucion && p.estado !== 'cedido'; });
 if (activos.length === 0) return '<p style="text-align:center;padding:2rem;color:var(--muted)">No hay préstamos activos en este momento.</p>';
 let h = '<p style="font-size:10pt;color:#666;margin-bottom:1rem">Total de préstamos activos: <strong>' + activos.length + '</strong> · Generado el ' + new Date().toLocaleString('es-ES') + '</p>';
 h += '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:10pt">';
@@ -2038,7 +2199,8 @@ todos.forEach(function(p, idx) {
 const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
 const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
 let estadoHtml = '';
-if (!p.fechaDevolucion) estadoHtml = '<span style="color:#ed6c02;font-weight:bold">🔄 EN CURSO</span>';
+if (p.estado === 'cedido') estadoHtml = '<span style="color:#6d28d9;font-weight:bold">🔄 CEDIDO</span>';
+else if (!p.fechaDevolucion) estadoHtml = '<span style="color:#ed6c02;font-weight:bold">🔄 EN CURSO</span>';
 else if (p.estadoMaterial === 'averiado') estadoHtml = '<span style="color:#d32f2f;font-weight:bold">🔧 CON INCIDENCIA</span>';
 else estadoHtml = '<span style="color:#2e7d32">✅ Devuelto OK</span>';
 const fila = idx % 2 === 0 ? ' style="background:#f9fafb"' : '';
@@ -2050,7 +2212,7 @@ h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (p.contacto || '-') 
 h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (p.dni || '-') + '</td>';
 h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (p.telefono || '-') + '</td>';
 h += '<td style="padding:5px 6px;border:1px solid #ccc">' + formatFecha(p.fechaSalida) + '</td>';
-h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (p.fechaDevolucion ? formatFecha(p.fechaDevolucion) : '—') + '</td>';
+h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (p.fechaDevolucion ? formatFecha(p.fechaDevolucion) : (p.fechaCesion ? formatFecha(p.fechaCesion) : '—')) + '</td>';
 h += '<td style="padding:5px 6px;border:1px solid #ccc">' + estadoHtml + '</td>';
 h += '<td style="padding:5px 6px;border:1px solid #ccc' + (p.incidencias ? ';color:#d32f2f' : '') + '">' + (p.incidencias || '—') + '</td>';
 h += '<td style="padding:5px 6px;border:1px solid #ccc">' + (p.prueba || '-') + (p.localidad ? '<br><small style="color:#666">' + p.localidad + '</small>' : '') + '</td>';
@@ -2135,7 +2297,7 @@ html += '<div style="background:#f0fdf4;padding:.75rem;border-radius:6px;margin-
 }
 if (historial.length > 0) {
 html += '<h4 style="margin-top:1rem;">📜 Historial (' + historial.length + ')</h4>';
-historial.forEach(function(p) { const et = p.fechaDevolucion ? (p.estadoMaterial==='correcto'?'✅ OK':'⚠️ Incidencia') : '🔄 En curso'; html += '<div class="historial-item"><strong>' + et + '</strong><br>📅 Salida: ' + formatFecha(p.fechaSalida); if (p.fechaDevolucion) html += ' → Devuelto: ' + formatFecha(p.fechaDevolucion); html += '<br>👤 ' + p.solicitante; if (p.incidencias) html += '<br>⚠️ ' + p.incidencias; html += ' <button class="btn small" onclick="generarAlbaran(' + p.id + ')">📄 Albarán</button></div>'; });
+historial.forEach(function(p) { let et = p.fechaDevolucion ? (p.estadoMaterial==='correcto'?'✅ OK':'⚠️ Incidencia') : '🔄 En curso'; if (p.estado === 'cedido') et = '🔄 Cedido'; html += '<div class="historial-item"><strong>' + et + '</strong><br>📅 Salida: ' + formatFecha(p.fechaSalida); if (p.fechaDevolucion) html += ' → Devuelto: ' + formatFecha(p.fechaDevolucion); if (p.fechaCesion) html += ' → Cedido: ' + formatFecha(p.fechaCesion); html += '<br>👤 ' + p.solicitante; if (p.incidencias) html += '<br>⚠️ ' + p.incidencias; if (p.cesiones && p.cesiones.length > 0) { html += '<br><small style="color:#6d28d9">🔄 Cesiones: ' + p.cesiones.length + '</small>'; } html += ' <button class="btn small" onclick="generarAlbaran(' + p.id + ')">📄 Albarán</button></div>'; });
 }
 html += '</div>';
 document.getElementById('modalUnidadTitulo').textContent = 'Ficha: ' + u.identificador;
@@ -2168,9 +2330,10 @@ unidades.forEach(function(u) {
 let estadoDia = 'almacen';
 datos.prestamos.filter(function(p) { return p.unidadId === u.id; }).forEach(function(p) {
 const salida = new Date(p.fechaSalida);
-const devolucion = p.fechaDevolucion ? new Date(p.fechaDevolucion) : new Date();
+const devolucion = p.fechaDevolucion ? new Date(p.fechaDevolucion) : (p.fechaCesion ? new Date(p.fechaCesion) : new Date());
 if (fecha >= salida && fecha <= devolucion) {
 if (p.fechaDevolucion && p.estadoMaterial === 'averiado' && fecha >= devolucion) estadoDia = 'averiado';
+else if (p.estado === 'cedido') estadoDia = 'cedido';
 else if (p.fechaDevolucion) estadoDia = 'almacen';
 else estadoDia = 'prestado';
 }
@@ -2191,7 +2354,7 @@ tabla.innerHTML = html;
 }
 document.addEventListener('keydown', function(e) {
 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-if (e.key === 'Escape') { document.querySelectorAll('.modal-bg.show').forEach(function(m) { m.classList.remove('show'); }); detenerLectorQR(); cerrarModalQR(); cerrarModalReformar(); }
+if (e.key === 'Escape') { document.querySelectorAll('.modal-bg.show').forEach(function(m) { m.classList.remove('show'); }); detenerLectorQR(); cerrarModalQR(); cerrarModalReformar(); cerrarModalCesion(); }
 if (e.key === 'n' || e.key === 'N') showTab('prestamo', document.querySelectorAll('nav button')[1]);
 if (e.key === 'd' || e.key === 'D') showTab('devoluciones', document.querySelectorAll('nav button')[2]);
 if (e.key === 'h' || e.key === 'H') showTab('historico', document.querySelectorAll('nav button')[3]);
@@ -2206,6 +2369,108 @@ reformaPrestamoId = null;
 reformaUnidadesAnadir = [];
 reformaUnidadesQuitar = [];
 }
+// ===== FUNCIONES DE CESIÓN =====
+function abrirModalCesion(prestamoId) {
+const p = datos.prestamos.find(function(x) { return x.id === prestamoId; });
+if (!p || p.fechaDevolucion || p.estado === 'cedido') { notificar('Solo se pueden ceder préstamos activos.', 'aviso', 'No disponible'); return; }
+cesionPrestamoId = prestamoId;
+const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+document.getElementById('cesionInfo').innerHTML = '<strong style="font-size:1.05rem;">' + (u ? u.identificador : '?') + '</strong><br><span style="color:var(--muted);">Titular actual:</span> ' + p.solicitante + '<br><span style="color:var(--muted);">Contacto:</span> ' + (p.contacto||'-') + (p.telefono?' ('+p.telefono+')':'') + '<br><span style="color:var(--muted);">Salida:</span> ' + formatFecha(p.fechaSalida);
+document.getElementById('cesionUnidades').innerHTML = '<div style="padding:0.5rem;"><strong>' + (u ? u.identificador : '?') + '</strong> - ' + (u ? (datos.articulos.find(function(a) { return a.id === u.articuloId; }) || {}).nombre || '' : '') + '</div>';
+document.getElementById('c_tipo_solicitante').value = '';
+document.getElementById('c_campo_ayuntamiento').classList.add('campo-oculto');
+document.getElementById('c_campo_asociacion').classList.add('campo-oculto');
+document.getElementById('c_campo_nombre_libre').classList.add('campo-oculto');
+document.getElementById('c_ayuntamiento').value = '';
+document.getElementById('c_asociacion').value = '';
+document.getElementById('c_asociacion_nueva').value = '';
+document.getElementById('c_nombre_libre').value = '';
+document.getElementById('c_contacto').value = '';
+document.getElementById('c_telefono').value = '';
+document.getElementById('c_email').value = '';
+document.getElementById('c_calidad').value = '';
+document.getElementById('c_motivo').value = '';
+const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+document.getElementById('c_fecha').value = now.toISOString().slice(0,16);
+document.getElementById('modalCesion').classList.add('show');
+}
+function cerrarModalCesion() {
+document.getElementById('modalCesion').classList.remove('show');
+cesionPrestamoId = null;
+}
+async function guardarCesion() {
+if (!cesionPrestamoId) return;
+const p = datos.prestamos.find(function(x) { return x.id === cesionPrestamoId; });
+if (!p) { notificar('Préstamo no encontrado.', 'error', 'Error'); return; }
+const nuevoTipo = document.getElementById('c_tipo_solicitante').value;
+const nuevoSolicitante = obtenerSolicitanteCesion();
+const nuevoContacto = document.getElementById('c_contacto').value.trim();
+const nuevoTelefono = document.getElementById('c_telefono').value.trim();
+const nuevoEmail = document.getElementById('c_email').value.trim();
+const nuevaCalidad = document.getElementById('c_calidad').value.trim();
+const motivo = document.getElementById('c_motivo').value.trim();
+const fechaCesion = document.getElementById('c_fecha').value;
+if (!nuevoTipo || !nuevoSolicitante || !nuevoContacto || !fechaCesion) {
+notificar('Complete los campos obligatorios: tipo, solicitante, contacto y fecha.', 'aviso', 'Datos incompletos');
+return;
+}
+if (nuevoSolicitante === p.solicitante) {
+notificar('El nuevo titular no puede ser el mismo que el actual.', 'aviso', 'Titular duplicado');
+return;
+}
+const u = datos.unidades.find(function(x) { return x.id === p.unidadId; });
+const resumen = 'Material: ' + (u ? u.identificador : '?') + '\nDe: ' + p.solicitante + '\nA: ' + nuevoSolicitante + '\nContacto: ' + nuevoContacto + (nuevoTelefono ? ' (' + nuevoTelefono + ')' : '') + '\nFecha: ' + formatFecha(fechaCesion) + (motivo ? '\nMotivo: ' + motivo : '');
+const ok = await confirmarApp('Se va a registrar la siguiente cesión:\n\n' + resumen + '\n\nEl material NO volverá al almacén.\n¿Confirma la cesión?', { titulo:'🔄 Confirmar cesión', textoAceptar:'Sí, ceder material', claseAceptar:'cesion' });
+if (!ok) return;
+if (!p.cesiones) p.cesiones = [];
+p.cesiones.push({
+fecha: fechaCesion,
+de: p.solicitante,
+a: nuevoSolicitante,
+motivo: motivo || 'Cesión de material',
+contactoAnterior: p.contacto,
+telefonoAnterior: p.telefono
+});
+const solicitanteAnterior = p.solicitante;
+p.solicitante = nuevoSolicitante;
+p.tipoSolicitante = nuevoTipo;
+p.contacto = nuevoContacto;
+p.telefono = nuevoTelefono;
+p.email = nuevoEmail;
+p.calidad = nuevaCalidad;
+p.fechaCesion = fechaCesion;
+p.estado = 'cedido';
+guardar();
+cerrarModalCesion();
+renderTodo();
+notificar('Material cedido de <strong>' + solicitanteAnterior + '</strong> a <strong>' + nuevoSolicitante + '</strong>.', 'exito', 'Cesión registrada');
+const fechaFormateada = 'León, ' + new Date(fechaCesion).getDate() + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][new Date(fechaCesion).getMonth()] + ' de ' + new Date(fechaCesion).getFullYear();
+confirmarApp('Cesión registrada correctamente.\n\n¿Desea enviar un email notificando la cesión?', { titulo:'📧 Enviar email', textoAceptar:'Sí, enviar email', textoCancelar:'No, gracias', claseAceptar:'success' }).then(function(enviar) {
+if (enviar) {
+enviarEmailCesion(p, solicitanteAnterior, nuevoSolicitante, u, fechaFormateada);
+}
+});
+}
+function enviarEmailCesion(p, solicitanteAnterior, nuevoSolicitante, u, fechaFormateada) {
+const configurado = EMAILJS_TEMPLATE && EMAILJS_TEMPLATE !== 'TU_TEMPLATE_ID_AQUI' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY_AQUI';
+if (!configurado) { console.log('⚠️ EmailJS no configurado.'); return; }
+const a = u ? datos.articulos.find(function(x) { return x.id === u.articuloId; }) : null;
+const tablaHTML = '<tr><td style="padding:8px;text-align:center;border:1px solid #ddd;font-weight:bold">1</td><td style="padding:8px;border:1px solid #ddd">' + (u ? u.identificador : '?') + '</td><td style="padding:8px;border:1px solid #ddd;color:#6b7280">' + (a ? a.nombre : '-') + '</td></tr>';
+const templateParams = {
+solicitante: nuevoSolicitante + ' (cedido de ' + solicitanteAnterior + ')',
+tipo: 'CESIÓN',
+fecha: fechaFormateada,
+contacto: p.contacto || '-',
+tabla_productos: tablaHTML,
+to_email: 'arturo.fernandez@dipuleon.es',
+name: 'Control de Préstamos - Diputación de León',
+email: p.email || ''
+};
+emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+.then(function() { console.log('✅ Email de cesión enviado'); notificar('Email de cesión enviado correctamente.', 'exito', 'Email enviado'); })
+.catch(function(err) { console.error('❌ Error enviando email:', err); notificar('Error al enviar el email de cesión.', 'error', 'Error de envío'); });
+}
+// ===== FIN FUNCIONES DE CESIÓN =====
 (function() { const params = new URLSearchParams(window.location.search); const uId = params.get('unidad'); if (uId) setTimeout(function() { const uid = parseInt(uId); if (!isNaN(uid)) mostrarFichaUnidad(uid); }, 500); })();
 // ===== BÚSQUEDA GLOBAL =====
 (function() {
@@ -2236,9 +2501,10 @@ p.localidad, p.prueba, p.notas, p.email, p.calidad,
 u ? u.identificador : '', a ? a.nombre : ''
 ].filter(Boolean).join(' ').toLowerCase();
 if (campos.indexOf(query) !== -1) {
-const estado = p.fechaDevolucion
-? (p.estadoMaterial === 'averiado' ? '🔧 Devuelto con incidencia' : '✅ Devuelto')
-: (p.fechaPrevista && new Date() > new Date(p.fechaPrevista) ? '⚠️ VENCIDO' : '🔄 En curso');
+let estado = '🔄 En curso';
+if (p.estado === 'cedido') estado = '🔄 Cedido';
+else if (p.fechaDevolucion) estado = p.estadoMaterial === 'averiado' ? '🔧 Devuelto con incidencia' : '✅ Devuelto';
+else if (p.fechaPrevista && new Date() > new Date(p.fechaPrevista)) estado = '⚠️ VENCIDO';
 resultadosArr.push({
 tipo: 'prestamo',
 texto: '<strong>' + (u ? u.identificador : '?') + '</strong> → ' + p.solicitante,
